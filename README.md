@@ -6,14 +6,13 @@ A browser game for learning US stock options trading with play money. Built for 
 
 ## What's in it
 
-- 8 fictional companies and an index ETF, with simulated prices that follow the market by beta
-- A real US trading calendar: weekends and market holidays, Friday weekly and monthly expirations
-- An option chain with bid/ask, delta and volatility skew; $0.65 per contract per leg in fees
-- 10 strategies unlocked by level: Long Call/Put, Covered Call, Cash-Secured Put, four vertical spreads, Long Straddle, Iron Condor
-- Quarterly earnings with EPS, revenue and guidance, so a stock can fall after beating estimates
-- Macro events (Fed, CPI, jobs report), VIX, IV Rank, expected move, IV crush
-- P/L chart at expiry and today, Greeks per trade and for the whole portfolio
-- 12 missions, 10 levels, 16 short lessons
+- **Market:** 19 fictional stocks across 10 sectors, 6 ETFs (US 500, Tech 100, Small Cap, High Dividend, Bonds, Gold), plus gold and WTI crude; prices follow the market by beta, gold and oil by their own factors
+- **Calendar:** real US trading days and holidays, Friday weekly/monthly expirations, Fed / CPI / jobs / OPEC+ events, quarterly earnings with EPS, revenue and guidance
+- **Options:** option chain with bid/ask, delta and skew; 15 strategies (calls, puts, covered call, cash-secured put, protective put, 4 vertical spreads, straddle, strangle, collar, iron condor, iron butterfly, call butterfly); P/L chart; full Greeks (Δ Γ Θ ν ρ) per trade and for the portfolio
+- **Black–Scholes calculator:** price, intrinsic/time value, all Greeks, d₁/d₂, probability ITM, put–call parity check, charts of price and each Greek against the stock price
+- **Futures:** Micro US 500, Micro Tech 100, Micro Gold, Micro Crude Oil; initial/maintenance margin, daily mark-to-market, contango/basis, margin calls and forced liquidation, cash settlement at expiry
+- **Long vs short-term investing:** any number of shares, lots tagged short-/long-term by holding period, quarterly dividends with DRIP, monthly dollar-cost-averaging plans, skip ahead by week/month/quarter/year
+- 16 missions, 10 levels, 6 lesson sections (options basics, Black–Scholes & Greeks, strategies, futures vs options, long-term investing, risk)
 - Vietnamese and English, switchable in-game (VI / EN button)
 
 ## Saving
