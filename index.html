@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Options Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#070b22;--bg:#0f1640;--card:#222c6e;--card2:#2c3888;--gold:#ffc93c;--green:#3ddc84;--red:#ff5d6c;--blue:#59c8ff;--purple:#b98cff;--txt:#f4f6ff;--mut:#a9b3e6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#060920;color:var(--txt);font-family:'Baloo 2',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.3;overscroll-behavior:none}
+button{font-family:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+#app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:radial-gradient(120% 60% at 50% 0%,#2a3aa0 0%,var(--bg) 55%,#0a0f30 100%);position:relative;overflow:hidden}
+#app.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,0)}}
+#hud{padding:10px 12px 8px;border-bottom:3px solid var(--ink);background:linear-gradient(#2b379a,#1c2670)}
+.hudrow{display:flex;align-items:center;gap:6px}
+.logo{font-weight:800;font-size:16px;color:var(--gold);text-shadow:0 2px 0 var(--ink);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{background:var(--ink);border-radius:999px;padding:2px 8px;font-weight:700;font-size:13px;white-space:nowrap}
+.nw{font-size:30px;font-weight:800;line-height:1;text-shadow:0 3px 0 var(--ink)}
+.nw small{font-size:13px;font-weight:700;margin-left:6px}
+.sub{font-size:12px;color:var(--mut);font-weight:500}
+.xp{height:10px;background:var(--ink);border-radius:9px;overflow:hidden;border:2px solid var(--ink)}
+.xp i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ff9f1c);border-radius:9px;transition:width .5s cubic-bezier(.2,1.4,.4,1)}
+#view{flex:1;overflow-y:auto;padding:10px 10px 16px;-webkit-overflow-scrolling:touch}
+.card{background:linear-gradient(var(--card2),var(--card));border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);padding:10px 12px;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:16px;font-weight:800;color:var(--gold)}
+.row{display:flex;align-items:center;gap:8px}
+.grow{flex:1;min-width:0}
+.up{color:var(--green)}.dn{color:var(--red)}.mut{color:var(--mut)}.gold{color:var(--gold)}
+.big{font-size:19px;font-weight:800}
+.tk{width:48px;height:46px;border-radius:13px;border:3px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:11.5px;box-shadow:0 3px 0 var(--ink);color:var(--ink);flex:none}
+.stock{display:flex;align-items:center;gap:9px;width:100%;text-align:left}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:8px;padding:1px 7px;border:2px solid var(--ink);background:var(--ink);white-space:nowrap}
+.tag.e{background:var(--purple);color:var(--ink)}.tag.g{background:var(--green);color:var(--ink)}.tag.r{background:var(--red);color:var(--ink)}.tag.y{background:var(--gold);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:8px 14px;font-weight:800;font-size:15px;background:var(--gold);color:var(--ink);min-height:44px;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
+.btn.g{background:var(--green)}.btn.r{background:var(--red)}.btn.b{background:var(--blue)}.btn.d{background:#3a479c;color:var(--txt)}
+.btn.sm{min-height:36px;padding:4px 10px;font-size:13px;border-radius:11px}
+.btn.w{width:100%}
+.btn[disabled]{opacity:.45;filter:grayscale(.6)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:3px solid var(--ink);border-radius:12px;padding:5px 9px;font-weight:700;font-size:13px;background:#34409a;box-shadow:0 3px 0 var(--ink);min-height:38px}
+.chip.on{background:var(--gold);color:var(--ink)}
+.chip.lock{opacity:.5}
+.chip small{font-weight:500;font-size:11px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sgrid .chip{padding:6px 2px;font-size:11px;line-height:1.15;display:flex;flex-direction:column;align-items:center;gap:1px}
+.sgrid .chip b{font-size:18px;line-height:1}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:40px;height:40px;border-radius:12px;border:3px solid var(--ink);background:var(--blue);color:var(--ink);font-size:22px;font-weight:800;box-shadow:0 3px 0 var(--ink)}
+.step button:active{transform:translateY(3px);box-shadow:none}
+.step .v{min-width:70px;text-align:center;font-weight:800;font-size:18px}
+.lbl{font-size:12px;color:var(--mut);font-weight:700;margin:8px 0 4px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kv div{background:var(--ink);border-radius:10px;padding:5px 8px}
+.kv span{display:block;font-size:11px;color:var(--mut);font-weight:700}
+.kv b{font-size:15px}
+canvas.ch{width:100%;height:170px;display:block;border-radius:12px;background:#0a0f30;border:3px solid var(--ink)}
+.bubble{display:flex;gap:8px;align-items:flex-start;margin:8px 0}
+.bubble svg{width:52px;height:52px;flex:none}
+.bubble p{margin:0;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:14px 14px 14px 4px;padding:6px 10px;font-size:13.5px;font-weight:700;line-height:1.25;box-shadow:0 3px 0 var(--ink)}
+.chain{display:grid;grid-template-columns:1fr 34px 58px 34px 1fr;gap:3px;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.chain>*{background:var(--ink);border-radius:7px;padding:5px 2px;text-align:center;min-height:32px;display:grid;place-items:center}
+.chain .hd{background:none;color:var(--mut);font-size:10.5px;min-height:0;padding:0}
+.chain .k{background:#3a479c;font-weight:800;font-size:13.5px}
+.chain .k.atm{background:var(--gold);color:var(--ink)}
+.chain .itm{background:#1d3a5e}
+.chain .selc{outline:3px solid var(--gold)}
+.chain .dl{color:var(--mut);font-size:11px;background:none}
+#bar{display:flex;gap:8px;padding:8px 10px;background:#141b52;border-top:3px solid var(--ink)}
+#tabs{display:flex;background:var(--ink);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+#tabs button{flex:1;padding:5px 0 3px;font-size:11px;font-weight:700;color:var(--mut);border-radius:10px;position:relative}
+#tabs button b{display:block;font-size:20px;line-height:1.1}
+#tabs button.on{background:#2b379a;color:var(--gold)}
+#tabs .dot{position:absolute;top:3px;right:22%;width:10px;height:10px;border-radius:9px;background:var(--red);border:2px solid var(--ink)}
+#toasts{position:fixed;left:50%;top:8px;transform:translateX(-50%);width:min(94vw,450px);z-index:50;pointer-events:none;display:flex;flex-direction:column;gap:6px}
+.toast{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:7px 12px;font-weight:700;font-size:13.5px;line-height:1.25;animation:tin .35s cubic-bezier(.2,1.5,.4,1),tout .3s 4.6s forwards}
+.toast.g{background:var(--green)}.toast.r{background:var(--red)}.toast.y{background:var(--gold)}
+@keyframes tin{from{transform:translateY(-40px) scale(.8);opacity:0}}
+@keyframes tout{to{transform:translateY(-20px);opacity:0}}
+#modal{position:fixed;inset:0;background:rgba(4,6,24,.82);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+#modal.on{display:flex}
+#modal .card{max-width:420px;width:100%;max-height:86dvh;overflow:auto;animation:pop .3s cubic-bezier(.2,1.5,.4,1)}
+#modal p{font-size:14.5px;margin:4px 0 10px}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70;width:100%;height:100%}
+.pos{border-top:2px dashed #3a479c;padding:8px 0}.pos:first-of-type{border-top:0}
+.miss{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:2px dashed #3a479c}.miss:first-of-type{border-top:0}
+.miss .ic{width:34px;height:34px;border-radius:10px;border:3px solid var(--ink);display:grid;place-items:center;font-size:16px;background:#3a479c;flex:none}
+.miss.done .ic{background:var(--green);color:var(--ink)}.miss.cur .ic{background:var(--gold);color:var(--ink);animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.12)}}
+.miss.lockd{opacity:.45}
+details{border-top:2px dashed #3a479c;padding:6px 0}details:first-of-type{border-top:0}
+summary{font-weight:800;font-size:15px;list-style:none;cursor:pointer}summary::before{content:'▸ ';color:var(--gold)}details[open] summary::before{content:'▾ '}
+details p{margin:6px 0 2px;font-size:14px;font-weight:500;color:#dfe4ff}
+.news{font-size:13.5px;font-weight:700;padding:3px 0}
+.er{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:14px;font-weight:700;background:var(--ink);border-radius:10px;padding:8px 10px;margin:6px 0}
+.bump{animation:bump .4s cubic-bezier(.2,1.6,.4,1)}@keyframes bump{from{transform:scale(1.25)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hud"></header>
+  <main id="view"></main>
+  <div id="bar"></div>
+  <nav id="tabs"></nav>
+</div>
+<div id="toasts"></div>
+<div id="modal"></div>
+<canvas id="fx"></canvas>
+<script>
+"use strict";
+/* ============ tiện ích ============ */
+const $=s=>document.querySelector(s);
+const money=(n,d=0)=>(n<0?'-':'')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const sgn=(n,d=0)=>(n>=0?'+':'-')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pc=(x,d=1)=>(x>=0?'+':'')+(x*100).toFixed(d)+'%';
+const cls=n=>n>=0?'up':'dn';
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pick=a=>a[Math.random()*a.length|0];
+const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const kf=k=>k%1?k.toFixed(1):''+k;
+const r2=x=>Math.round(x*100)/100;
+
+/* ============ ngôn ngữ / language ============ */
+let LANG=(()=>{let l=null;try{l=localStorage.getItem('om-lang')}catch(e){}if(l==='vi'||l==='en')return l;return(navigator.language||'').toLowerCase().startsWith('vi')?'vi':'en'})();
+const L=(v,e)=>LANG==='en'?e:v;
+const LX=o=>o?(Array.isArray(o)?(LANG==='en'?o[1]:o[0]):o):'';
+function setLang(l){LANG=l;try{localStorage.setItem('om-lang',l)}catch(e){}document.documentElement.lang=l}
+
+/* ============ lịch giao dịch Mỹ ============ */
+const DAYMS=864e5,HOL=['2026-11-26','2026-12-25','2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31','2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24'];
+const toD=i=>new Date(i+'T00:00:00Z'),iso=d=>d.toISOString().slice(0,10);
+const addD=(i,n)=>iso(new Date(toD(i).getTime()+n*DAYMS));
+const dow=i=>toD(i).getUTCDay();
+const isTD=i=>{const w=dow(i);return w>0&&w<6&&!HOL.includes(i)};
+const nextTD=i=>{do i=addD(i,1);while(!isTD(i));return i};
+const addTD=(i,n)=>{while(n-->0)i=nextTD(i);return i};
+const calDays=(a,b)=>Math.round((toD(b)-toD(a))/DAYMS);
+const dm=i=>L(i.slice(8)+'/'+i.slice(5,7),(+i.slice(5,7))+'/'+(+i.slice(8)));
+const dfmt=i=>L(['CN','T2','T3','T4','T5','T6','T7'],['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])[dow(i)]+' '+dm(i);
+const adjF=f=>{while(!isTD(f))f=addD(f,-1);return f};
+function thirdFri(y,m){let d=y+'-'+String(m).padStart(2,'0')+'-01';while(dow(d)!==5)d=addD(d,1);return addD(d,14)}
+function expiries(){const d=S.date,out=[];let f=d;while(dow(f)!==5)f=addD(f,1);if(f<=d)f=addD(f,7);
+  for(let i=0;i<4;i++){const a=adjF(addD(f,7*i));if(a>d)out.push(a)}
+  const last=out[out.length-1];let y=+d.slice(0,4),m=+d.slice(5,7),n=0;
+  for(let k=0;k<5&&n<2;k++){const a=adjF(thirdFri(y,m));if(a>last){out.push(a);n++}if(++m>12){m=1;y++}}
+  return out}
+const isMonthly=e=>{const t=thirdFri(+e.slice(0,4),+e.slice(5,7));return e===adjF(t)};
+function macro(d){const day=+d.slice(8);
+  const fed=calDays('2026-12-09',d);if(fed>=0&&fed%42===0)return{k:'FED'};
+  let c=d.slice(0,8)+'12';while(!isTD(c))c=addD(c,1);if(c===d)return{k:'CPI'};
+  if(dow(d)===5&&day<=7)return{k:'JOBS'};return null}
+const macroName=k=>({FED:L('Fed công bố lãi suất','Fed rate decision'),CPI:L('Số liệu lạm phát CPI','CPI inflation report'),JOBS:L('Báo cáo việc làm','Jobs report')})[k]||k;
+
+/* ============ Black-Scholes ============ */
+function ncdf(x){const t=1/(1+0.2316419*Math.abs(x)),d=0.3989423*Math.exp(-x*x/2);
+  const p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p}
+function bs(type,S0,K,T,v){
+  if(T<=0){const p=Math.max(0,type==='C'?S0-K:K-S0);return{p,d:type==='C'?(S0>K?1:0):(S0<K?-1:0),th:0,ve:0}}
+  const r=0.04,sq=v*Math.sqrt(T),d1=(Math.log(S0/K)+(r+v*v/2)*T)/sq,d2=d1-sq,pdf=Math.exp(-d1*d1/2)/2.5066283,e=Math.exp(-r*T);
+  const ve=S0*pdf*Math.sqrt(T)/100;
+  if(type==='C')return{p:S0*ncdf(d1)-K*e*ncdf(d2),d:ncdf(d1),th:(-S0*pdf*v/(2*Math.sqrt(T))-r*K*e*ncdf(d2))/365,ve};
+  return{p:K*e*ncdf(-d2)-S0*ncdf(-d1),d:ncdf(d1)-1,th:(-S0*pdf*v/(2*Math.sqrt(T))+r*K*e*ncdf(-d2))/365,ve};
+}
+
+/* ============ dữ liệu (công ty hư cấu) ============ */
+const DEFS=[
+ {sym:'USX',name:'US 500 Index ETF',sec:'Index',px:560,vol:.15,beta:1,liq:.5,col:'#ffffff',idx:1},
+ {sym:'ORCD',name:'Orchard Devices',sec:'Consumer Tech',px:228,vol:.27,beta:1.15,liq:.8,col:'#c9d4ff',pe:30},
+ {sym:'NVXS',name:'Novaxis Semiconductor',sec:'Semiconductors',px:182,vol:.48,beta:1.7,liq:.8,col:'#8ef0a0',pe:45},
+ {sym:'VLTM',name:'Voltaic Motors',sec:'Electric Vehicles',px:265,vol:.58,beta:1.9,liq:1,col:'#ff7b54',pe:70},
+ {sym:'SKYB',name:'Skybridge Cloud',sec:'Software',px:96,vol:.42,beta:1.4,liq:1.4,col:'#59c8ff',pe:55},
+ {sym:'HTGB',name:'Heritage Bancorp',sec:'Banks',px:58,vol:.24,beta:.95,liq:1.3,col:'#ffc93c',pe:12},
+ {sym:'MRDH',name:'Meridian Health',sec:'Healthcare',px:142,vol:.22,beta:.6,liq:1.2,col:'#ff9ecb',pe:18},
+ {sym:'PXEN',name:'Paxton Energy',sec:'Oil & Gas',px:74,vol:.31,beta:.8,liq:1.5,col:'#d7a86e',pe:11},
+ {sym:'BSBG',name:'Big Sky Burger',sec:'Restaurants',px:41,vol:.29,beta:.7,liq:2,col:'#b98cff',pe:24}];
+const STR={
+ call:{n:'Long Call',ic:'📈',lv:1,d:['Kỳ vọng giá TĂNG mạnh. Lỗ tối đa = premium đã trả.','You expect a strong move UP. Max loss = the premium you paid.']},
+ put:{n:'Long Put',ic:'📉',lv:1,d:['Kỳ vọng giá GIẢM mạnh, hoặc mua "bảo hiểm" cho cổ phiếu.','You expect a strong move DOWN, or want "insurance" on shares you own.']},
+ cc:{n:'Covered Call',ic:'🛡️',lv:2,d:['Đang giữ 100 cp, bán Call để thu premium. Giá vượt strike thì cp bị gọi mua.','Own 100 shares and sell a Call for income. Above the strike, your shares get called away.']},
+ csp:{n:'Cash-Secured Put',ic:'💰',lv:3,d:['Thu premium, sẵn sàng mua 100 cp ở giá strike nếu giá rớt.','Collect premium and stand ready to buy 100 shares at the strike if price drops.']},
+ bull:{n:'Bull Call Spread',ic:'🐂',lv:4,d:['Tăng vừa phải. Mua 1 Call + bán 1 Call cao hơn để giảm chi phí.','Moderately bullish. Buy a Call and sell a higher Call to cut the cost.']},
+ bear:{n:'Bear Put Spread',ic:'🐻',lv:4,d:['Giảm vừa phải. Mua 1 Put + bán 1 Put thấp hơn để giảm chi phí.','Moderately bearish. Buy a Put and sell a lower Put to cut the cost.']},
+ bullput:{n:'Bull Put Spread',ic:'🟢',lv:4,d:['Spread thu tiền: thắng nếu giá KHÔNG rớt qua strike bán. Lỗ có giới hạn.','Credit spread: wins if price stays ABOVE the short strike. Risk is capped.']},
+ bearcall:{n:'Bear Call Spread',ic:'🔴',lv:4,d:['Spread thu tiền: thắng nếu giá KHÔNG vượt strike bán. Lỗ có giới hạn.','Credit spread: wins if price stays BELOW the short strike. Risk is capped.']},
+ straddle:{n:'Long Straddle',ic:'💥',lv:5,d:['Cược giá chạy MẠNH theo hướng nào cũng được. Sợ nhất đi ngang & IV xẹp.','Bet on a BIG move either way. Its enemies: a flat stock and an IV crush.']},
+ condor:{n:'Iron Condor',ic:'🦅',lv:6,d:['Cược giá ĐI NGANG trong vùng. Thu premium, lỗ có giới hạn.','Bet the stock stays in a RANGE. Collect premium with capped risk.']}};
+const LV=[0,200,500,800,1000,1150,2000,3200,5000,8000,1e9];
+const RANK=[null,['Tập Sự','Rookie'],['Lính Mới','Recruit'],['Tay Chơi','Player'],['Thợ Săn Premium','Premium Hunter'],['Chiến Lược Gia','Strategist'],['Cao Thủ','Master'],['Bậc Thầy','Grandmaster'],['Cá Mập','Shark'],['Huyền Thoại','Legend'],['Huyền Thoại','Legend']];
+const MISS=[
+ {t:['Mua lệnh Long Call đầu tiên','Buy your first Long Call'],h:['Vào Giao dịch → Long Call → Đặt lệnh','Trade → Long Call → Place order']},
+ {t:['Chốt một lệnh có lãi (sau phí)','Close a winning trade (after fees)'],h:['Vào Danh mục, đóng lệnh khi đang xanh','Go to Portfolio and close a position while it is green']},
+ {t:['Mua một lệnh Long Put','Buy a Long Put'],h:['Chọn mã có tin xấu rồi mua Put','Pick a stock with bad news and buy a Put']},
+ {t:['Mua 100 cổ phiếu và bán Covered Call','Buy 100 shares and sell a Covered Call'],h:['Thị trường → chạm mã → Mua 100 cp, rồi Giao dịch → Covered Call','Market → tap a stock → Buy 100 sh, then Trade → Covered Call']},
+ {t:['Nhận trọn premium khi quyền chọn bán hết hạn vô giá trị','Keep the full premium when a short option expires worthless'],h:['Giữ lệnh bán đến đáo hạn, giá không chạm strike','Hold a short option to expiry without price reaching the strike']},
+ {t:['Bán một Cash-Secured Put','Sell a Cash-Secured Put'],h:['Chọn strike thấp hơn giá hiện tại','Pick a strike below the current price']},
+ {t:['Mở một Spread bất kỳ','Open any spread'],h:['Bull Call, Bear Put, Bull Put hoặc Bear Call','Bull Call, Bear Put, Bull Put or Bear Call']},
+ {t:['Mở Long Straddle trước báo cáo lợi nhuận ≤4 ngày','Open a Long Straddle ≤4 days before earnings'],h:['Chọn kỳ hạn có dấu ⏰ — rồi xem IV xẹp sau báo cáo!','Pick an expiry marked ⏰ — then watch IV crush after the report!']},
+ {t:['Chốt lãi một Iron Condor','Close an Iron Condor for a profit'],h:['Chọn mã ít biến động, đóng khi đã ăn ~50% premium','Pick a calm stock and close once you have ~50% of the premium']},
+ {t:['Đạt tài sản $15,000','Reach $15,000 net worth'],h:['Đi lệnh nhỏ, đều tay','Keep position sizes small and steady']},
+ {t:['Đạt tài sản $25,000','Reach $25,000 net worth'],h:['Kỷ luật là vua','Discipline is king']},
+ {t:['Đạt tài sản $50,000','Reach $50,000 net worth'],h:['Huyền thoại sàn quyền chọn','Options legend status']}];
+const LESS=[
+ [['Quyền chọn là gì?','Là hợp đồng cho bạn QUYỀN (không bắt buộc) mua hoặc bán 100 cổ phiếu ở một mức giá định sẵn (strike) trước ngày đáo hạn. Bạn trả một khoản phí gọi là premium để có quyền đó.'],['What is an option?','A contract that gives you the RIGHT (not the obligation) to buy or sell 100 shares at a set price (the strike) before the expiration date. You pay a fee called the premium for that right.']],
+ [['Call và Put','Call = quyền MUA. Giá cổ phiếu tăng thì Call tăng giá. Put = quyền BÁN. Giá cổ phiếu giảm thì Put tăng giá. Người mua lỗ tối đa bằng premium; người bán thu premium nhưng gánh nghĩa vụ.'],['Calls and Puts','Call = the right to BUY; it gains when the stock rises. Put = the right to SELL; it gains when the stock falls. Buyers can lose at most the premium; sellers collect the premium but take on the obligation.']],
+ [['ITM, ATM, OTM','ITM: đang có giá trị nội tại (Call có strike dưới giá thị trường). ATM: strike sát giá. OTM: chưa có giá trị nội tại — rẻ, đòn bẩy cao nhưng dễ về 0.'],['ITM, ATM, OTM','ITM: has intrinsic value (a Call with its strike below the stock price). ATM: strike near the price. OTM: no intrinsic value yet — cheap and high-leverage, but often expires at zero.']],
+ [['Bid, Ask và phí','Bạn MUA ở giá Ask và BÁN ở giá Bid. Khoảng chênh đó là chi phí ẩn: vừa mở lệnh là đã âm một chút. Mã ít thanh khoản và strike xa có chênh lệch rộng hơn. Game tính thêm phí $0.65 mỗi hợp đồng mỗi chân, mức phổ biến ở các sàn Mỹ.'],['Bid, Ask and fees','You BUY at the Ask and SELL at the Bid. That gap is a hidden cost: every new trade starts slightly red. Thinly traded stocks and far strikes have wider spreads. The game also charges $0.65 per contract per leg, a common US broker rate.']],
+ [['Ngày đáo hạn','Quyền chọn cổ phiếu Mỹ thường đáo hạn vào thứ Sáu. Kỳ hạn tuần (weekly) ngắn và rẻ; kỳ hạn tháng (monthly) rơi vào thứ Sáu tuần thứ ba, thanh khoản tốt nhất. Cuối tuần thị trường nghỉ nhưng thời gian vẫn trôi.'],['Expiration dates','US stock options usually expire on Fridays. Weeklies are short and cheap; monthlies land on the third Friday and have the best liquidity. The market is closed on weekends, but time still passes.']],
+ [['Theta — kẻ ăn mòn','Theta là số tiền quyền chọn mất mỗi ngày dù giá đứng im. Càng gần đáo hạn Theta càng mạnh. Người MUA trả Theta, người BÁN hưởng Theta.'],['Theta — time decay','Theta is how much an option loses each day even if the stock does not move. It speeds up near expiration. BUYERS pay theta; SELLERS collect it.']],
+ [['Delta — độ nhạy theo giá','Delta 0.50 nghĩa là cổ phiếu tăng $1 thì quyền chọn tăng khoảng $0.50. Delta cũng xấp xỉ xác suất quyền chọn kết thúc ITM.'],['Delta — price sensitivity','A delta of 0.50 means the option gains about $0.50 when the stock rises $1. Delta is also a rough estimate of the odds the option finishes ITM.']],
+ [['IV, IV Rank và Vega','IV (biến động ngụ ý) cao thì premium đắt. IV Rank cho biết IV hiện tại cao hay thấp so với chính nó thời gian qua: gần 100 là đắt (lợi cho người bán), gần 0 là rẻ (lợi cho người mua). Vega là số tiền quyền chọn đổi khi IV đổi 1 điểm %.'],['IV, IV Rank and Vega','High IV (implied volatility) means expensive premiums. IV Rank shows whether today\'s IV is high or low versus its own recent range: near 100 is expensive (good for sellers), near 0 is cheap (good for buyers). Vega is how much the option changes when IV moves 1 point.']],
+ [['Volatility skew','Put OTM thường có IV cao hơn Call OTM vì nhà đầu tư sẵn sàng trả đắt để mua bảo hiểm giảm giá. Bạn sẽ thấy điều đó trong bảng giá: cùng khoảng cách tới giá hiện tại, Put đắt hơn Call.'],['Volatility skew','OTM Puts usually carry higher IV than OTM Calls because investors pay up for crash insurance. You can see it in the chain: at the same distance from the price, Puts cost more than Calls.']],
+ [['Báo cáo lợi nhuận & "expected move"','Trước báo cáo, giá straddle ATM cho biết thị trường đang định giá cổ phiếu sẽ nhảy bao nhiêu %. Ngay sau báo cáo, phần IV "sự kiện" biến mất (IV crush). Mua quyền chọn qua báo cáo chỉ lời khi giá nhảy MẠNH HƠN mức đã định giá.'],['Earnings & the "expected move"','Before a report, the ATM straddle price tells you how big a move the market is pricing in. Right after the report the event premium vanishes (IV crush). Buying options through earnings only pays if the stock moves MORE than what was priced in.']],
+ [['Vì sao lãi vượt kỳ vọng mà giá vẫn giảm?','Giá phản ứng với tương lai: dự báo (guidance) bị hạ, doanh thu hụt, hoặc cổ phiếu đã chạy mạnh trước báo cáo nên tin tốt nằm sẵn trong giá. Trong game, mỗi báo cáo có EPS, doanh thu và guidance — hãy đọc cả ba.'],['Why can a stock fall after beating earnings?','Prices react to the future: guidance gets cut, revenue misses, or the stock ran up before the report so the good news was already priced in. In the game every report shows EPS, revenue and guidance — read all three.']],
+ [['Covered Call & Wheel','Giữ 100 cp và bán 1 Call OTM để thu premium đều đặn; giá vượt strike thì phải bán cp ở giá strike. Bán Cash-Secured Put để mua cp giá rẻ hơn, bị giao cp thì quay sang bán Covered Call — thành vòng "Wheel".'],['Covered Calls & the Wheel','Hold 100 shares and sell an OTM Call for steady income; above the strike you must sell your shares at the strike. Sell Cash-Secured Puts to buy shares cheaper; once assigned, switch to selling Covered Calls — that loop is "the Wheel".']],
+ [['Spread — rủi ro có giới hạn','Spread trả tiền (Bull Call, Bear Put) là cược hướng với chi phí thấp. Spread thu tiền (Bull Put, Bear Call) là bán premium với lỗ tối đa biết trước. Iron Condor = Bull Put + Bear Call cùng lúc.'],['Spreads — defined risk','Debit spreads (Bull Call, Bear Put) are cheaper directional bets. Credit spreads (Bull Put, Bear Call) sell premium with a known max loss. An Iron Condor is a Bull Put and a Bear Call at the same time.']],
+ [['Sự kiện vĩ mô','Fed, CPI và báo cáo việc làm làm cả thị trường rung mạnh hơn ngày thường. Cổ phiếu beta cao (chip, xe điện) rung mạnh hơn chỉ số; beta thấp (y tế, đồ ăn) rung ít hơn.'],['Macro events','Fed decisions, CPI and jobs reports shake the whole market more than a normal day. High-beta stocks (chips, EVs) swing harder than the index; low-beta ones (healthcare, food) swing less.']],
+ [['Quản trị vốn','Nhiều nhà giao dịch chỉ đặt 2–5% tài khoản cho mỗi lệnh mua quyền chọn, vì một lệnh có thể mất 100%. Cháy tài khoản thường do đi lệnh quá to, không phải do sai hướng.'],['Position sizing','Many traders risk only 2–5% of the account on each long option, because any single trade can go to zero. Accounts usually blow up from oversized bets, not from being wrong on direction.']],
+ [['Game khác thực tế ở đâu?','Công ty và giá là mô phỏng, mã trùng với ngoài đời là ngẫu nhiên. Game chưa có: giao cổ phiếu sớm trước đáo hạn, cổ tức, ký quỹ margin, lệnh giới hạn và thuế. Đây là công cụ luyện tập, không phải lời khuyên đầu tư.'],['How is the game different from reality?','Companies and prices are simulated; any match with a real ticker is a coincidence. Not modeled yet: early assignment, dividends, margin, limit orders and taxes. This is a practice tool, not investment advice.']]];
+const NEWS={
+ up:[d=>[`Analyst nâng hạng ${d.sym} lên "Buy", tăng giá mục tiêu`,`Analyst upgrades ${d.sym} to "Buy", raises price target`],d=>[`${d.name} được đồn sắp ký hợp đồng lớn`,`Rumor: ${d.name} close to landing a major contract`],d=>[`Quỹ lớn công bố gom thêm cổ phần ${d.sym}`,`Big fund discloses a larger stake in ${d.sym}`]],
+ dn:[d=>[`Analyst hạ hạng ${d.sym} xuống "Sell"`,`Analyst downgrades ${d.sym} to "Sell"`],d=>[`${d.name} bị cơ quan quản lý điều tra`,`Regulators open a probe into ${d.name}`],d=>[`Insider của ${d.sym} bán ra lượng lớn cổ phiếu`,`${d.sym} insiders sell a large block of shares`]],
+ flat:[d=>[`${d.sym} ít tin, khối lượng giao dịch thấp`,`Quiet day for ${d.sym}, volume is light`],d=>[`${d.name} đi ngang chờ tin mới`,`${d.name} trades sideways ahead of news`]]};
+const BULL='<svg viewBox="0 0 64 64"><g stroke="#070b22" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><path d="M14 22C4 20 3 9 9 5c0 8 5 10 11 11M50 22c10-2 11-13 5-17 0 8-5 10-11 11" fill="#fff"/><ellipse cx="32" cy="34" rx="20" ry="21" fill="#ffc93c"/><ellipse cx="32" cy="45" rx="13" ry="9" fill="#ffe9a8"/><circle cx="24" cy="30" r="3" fill="#070b22"/><circle cx="40" cy="30" r="3" fill="#070b22"/><path d="M27 44h.1M37 44h.1"/><path d="M27 50c3 3 7 3 10 0" fill="none"/></g></svg>';
+const BEAR='<svg viewBox="0 0 64 64"><g stroke="#070b22" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><circle cx="14" cy="16" r="8" fill="#8fa3d9"/><circle cx="50" cy="16" r="8" fill="#8fa3d9"/><ellipse cx="32" cy="35" rx="22" ry="21" fill="#a9b9ea"/><ellipse cx="32" cy="44" rx="11" ry="8" fill="#eef1ff"/><circle cx="23" cy="31" r="3" fill="#070b22"/><circle cx="41" cy="31" r="3" fill="#070b22"/><ellipse cx="32" cy="41" rx="3.5" ry="2.5" fill="#070b22"/><path d="M27 49c3-3 7-3 10 0M17 25l8 2M47 25l-8 2" fill="none"/></g></svg>';
+
+/* ============ trạng thái ============ */
+let S,tab='market',sel='ORCD',detail=false,busy=false;
+let T={sym:'ORCD',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
+const KEY='caothu-quyenchon-v2',FEE=0.65;
+function save(){S.ts=Date.now();S.lang=LANG;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}cloudQueue()}
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.v===2&&o.st)return o}}catch(e){}return null}
+const def=sym=>DEFS.find(d=>d.sym===sym);
+
+/* ---- lưu cloud: mỗi người chơi một bản riêng tại data/users/<id>/save ---- */
+const cloud={st:'off',ref:null,busy:false,dirty:false,last:0,timer:0,retried:false};
+const CLI={ok:'☁️✓',sync:'☁️…',off:'📱',err:'☁️✕'};
+function setCloud(st){cloud.st=st;const e=$('#cl');if(e)e.textContent=CLI[st]}
+function cloudQueue(){if(!cloud.ref)return;cloud.dirty=true;clearTimeout(cloud.timer);cloud.timer=setTimeout(cloudPush,1500)}
+async function cloudPush(){if(!cloud.ref||cloud.busy||!cloud.dirty)return;cloud.busy=true;cloud.dirty=false;setCloud('sync');
+  try{await cloud.ref.set({v:2,ts:S.ts||Date.now(),day:S.day,date:S.date,nw:Math.round(netWorth()),json:JSON.stringify(S)});cloud.last=Date.now();cloud.retried=false;setCloud('ok')}
+  catch(e){if(e&&e.code==='unavailable'&&!cloud.retried){cloud.retried=true;cloud.dirty=true}else{cloud.ref=null;cloud.dirty=false;setCloud('err')}}
+  cloud.busy=false;if(cloud.dirty&&cloud.ref){clearTimeout(cloud.timer);cloud.timer=setTimeout(cloudPush,1500+Math.random()*1500)}}
+async function cloudInit(){const ts0=S.ts||0;let c=window.claude;
+  for(let i=0;i<25&&!(c&&c.use);i++){await new Promise(r=>setTimeout(r,200));c=window.claude}
+  if(!(c&&c.use))return setCloud('off');
+  setCloud('sync');const to=setTimeout(()=>{if(!cloud.ref&&cloud.st==='sync')setCloud('off')},10000);
+  try{const[db,user]=await Promise.all([c.use('db'),c.use('user')]);if(!db||!user)throw 0;const id=await user.id();if(!id)throw 0;
+    const ref=db.doc('data/users/'+id+'/save'),snap=await ref.get();clearTimeout(to);cloud.ref=ref;
+    if(snap.exists){let o=null;try{o=JSON.parse(snap.data().json)}catch(e){}
+      const fresh=S.day===1&&!S.pos.length&&!Object.keys(S.sh).length&&S.xp<12,ok=o&&o.v===2&&o.st&&o.date;
+      if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=o;if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+        tab='market';detail=false;T.sym='ORCD';T.strat='call';T.exp='';resetK();$('#modal').classList.remove('on');render();
+        toast(L('☁️ Đã tải tiến trình từ cloud: phiên ','☁️ Progress loaded from the cloud: session ')+dfmt(S.date)+' · '+money(netWorth()),'y');setCloud('ok')}
+      else if(!ok||ts0>(o.ts||0)){cloud.dirty=true;cloudPush()}else setCloud('ok')}
+    else{if(!S.ts)S.ts=Date.now();cloud.dirty=true;cloudPush()}
+  }catch(e){clearTimeout(to);setCloud('off')}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud.dirty){clearTimeout(cloud.timer);cloudPush()}});
+
+function newGame(){
+  S={v:2,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0},st:{},sh:{},pos:[],hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG};
+  for(const d of DEFS)S.st[d.sym]={sym:d.sym,px:d.px,prev:d.px,vol:d.vol,beta:d.beta,liq:d.liq,idx:d.idx||0,drift:0,regLeft:0,ivn:0,vs:1,earn:null,eps:d.pe?d.px/d.pe/4:0,last:null,hist:[],ivh:[]};
+  for(let i=0;i<80;i++){const m=stepMarket(null);for(const d of DEFS){const s=S.st[d.sym];stepStock(s,m,null);s.ivh.push(iv30(s))}}
+  DEFS.filter(d=>!d.idx).sort(()=>Math.random()-.5).forEach((d,i)=>{const s=S.st[d.sym];s.eps=s.px/d.pe/4;s.earn=addTD(S.date,3+i*7+(Math.random()*4|0))});
+  for(const d of DEFS){const s=S.st[d.sym];s.ivh.push(iv30(s))}
+  makeNews();
+}
+function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.35,-0.1,0.08,0.12,0.2,0.3]);mk.regLeft=15+Math.random()*30|0}
+  let z=gauss();if(Math.random()<0.03)z*=2.5;if(ev)z*=ev.k==='FED'?2.2:1.7;
+  const r=mk.drift/252+mk.vol/15.87*z;
+  mk.vol=clamp(mk.vol+0.12*(0.15-mk.vol)+(r<0?-r*1.6:-r*0.5)+gauss()*0.004,0.09,0.6);mk.ret=r;return r}
+function earnings(s,date){const est=s.eps,sur=0.04+gauss()*0.07,rev=0.004+gauss()*0.018,dsg=Math.sign(s.drift),r=Math.random(),pr=0.28+0.2*dsg,pcut=0.2-0.12*dsg;
+  const guid=r<pr?1:r<pr+pcut?-1:0,h=s.hist,run=(s.px/h[Math.max(0,h.length-21)][3]-1)/(s.vol*0.28),EM=s.vol*0.19;
+  const score=0.35*sur/0.07+0.35*rev/0.018+guid-0.45*run+gauss()*0.55,move=clamp(score*0.75,-2.6,2.6)*EM;
+  s.eps=est*(1.02+guid*0.03);s.earn=addTD(date,62+(Math.random()*4|0));
+  return s.last={date,est,act:est*(1+sur),sur,rev,guid,run,move}}
+function stepStock(s,mret,date){
+  const p0=s.px;let er=null,ret;
+  if(!s.idx&&--s.regLeft<=0){s.drift=pick([-0.6,-0.3,0,0,0.25,0.45,0.7])*s.vol/0.35;s.regLeft=10+Math.random()*20|0}
+  let zi=gauss();if(Math.random()<0.02)zi*=2.8;
+  const idio=Math.sqrt(Math.max(.01,s.vol*s.vol-(s.beta*.15)**2));
+  ret=s.idx?mret:s.beta*mret+s.drift/252+idio*s.vs/15.87*zi;
+  if(date&&s.earn===date){er=earnings(s,date);ret=er.move+s.beta*mret;er.ret=ret}
+  if(!s.idx)s.vs=clamp(0.9*s.vs+0.1*Math.abs(zi)*1.25,0.6,1.9);
+  const c=Math.max(0.5,p0*(1+ret)),o=p0*(1+(er?ret*0.9:ret*0.3*Math.random())),dv=s.vol/15.87*0.5;
+  const hi=Math.max(o,c)*(1+Math.abs(gauss())*dv*0.5),lo=Math.min(o,c)*(1-Math.abs(gauss())*dv*0.5);
+  s.prev=p0;s.px=r2(c);s.hist.push([r2(o),r2(hi),r2(lo),r2(c)]);if(s.hist.length>90)s.hist.shift();
+  s.ivn=clamp(s.ivn*0.85+gauss()*0.02+(ret<-0.03?0.05:0),-0.15,0.3);return er}
+function ivAt(s,K,exp){const T0=Math.max(calDays(S.date,exp),0.5)/365,lr=s.vol*1.06,stress=S.mk.vol/0.15-1;
+  const cur=lr*(0.55+0.45*s.vs)*(1+s.ivn)*(1+(s.idx?1:0.45)*stress);
+  let b=lr+(cur-lr)*Math.exp(-T0*5);
+  if(s.earn&&s.earn>S.date&&exp>=s.earn){const EM=s.vol*0.19;b=Math.sqrt(b*b+EM*EM/T0)}
+  const x=Math.log(K/s.px);return b*clamp(1-0.9*x+2.5*x*x,0.75,1.9)}
+const iv30=s=>ivAt(s,s.px,addD(S.date,30));
+function ivRank(s){const a=s.ivh.slice(-60),mn=Math.min(...a),mx=Math.max(...a);return mx-mn<1e-6?50:clamp((iv30(s)-mn)/(mx-mn)*100,0,100)}
+function hv20(s){const h=s.hist.slice(-21);let a=[];for(let i=1;i<h.length;i++)a.push(Math.log(h[i][3]/h[i-1][3]));const m=a.reduce((x,y)=>x+y,0)/a.length;return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/(a.length-1)*252)}
+const stepOf=px=>px<25?1:px<75?2.5:px<200?5:10;
+const atm=s=>{const st=stepOf(s.px);return Math.round(s.px/st)*st};
+function expMove(s){if(!s.earn)return null;const e=expiries().find(x=>x>=s.earn);if(!e||calDays(s.earn,e)>8)return null;const K=atm(s),T0=calDays(S.date,e)/365;
+  return(bs('C',s.px,K,T0,ivAt(s,K,e)).p+bs('P',s.px,K,T0,ivAt(s,K,e)).p)/s.px}
+function makeNews(){S.news=[];const pool=DEFS.filter(d=>!d.idx).sort(()=>Math.random()-.5).slice(0,2);
+  for(const d of pool){const s=S.st[d.sym];let dir=Math.sign(s.drift);if(Math.random()>0.72)dir=pick([-1,0,1]);
+    const k=dir>0?'up':dir<0?'dn':'flat';S.news.push({sym:d.sym,k,i:Math.random()*NEWS[k].length|0,tone:dir})}}
+const newsTxt=n=>n.txt?n.txt:LX(NEWS[n.k][n.i](def(n.sym)));
+function events(){const out=[];let d=S.date;for(let i=0;i<32&&out.length<6;i++){d=addD(d,1);if(!isTD(d))continue;const m=macro(d);if(m)out.push({d,t:'🏛️ '+macroName(m.k)});
+  for(const x of DEFS){if(S.st[x.sym].earn===d)out.push({d,t:'📣 '+x.sym+L(' báo cáo lợi nhuận (trước giờ mở cửa)',' reports earnings (before the open)')})}}return out}
+
+/* ============ định giá chiến lược ============ */
+function legsOf(t){const s=S.st[t.sym],st=stepOf(s.px),K=t.K,w=t.w*st,d=t.d*st;
+  switch(t.strat){
+    case 'call':return[{type:'C',side:1,K}];
+    case 'put':return[{type:'P',side:1,K}];
+    case 'cc':return[{type:'C',side:-1,K}];
+    case 'csp':return[{type:'P',side:-1,K}];
+    case 'bull':return[{type:'C',side:1,K},{type:'C',side:-1,K:K+w}];
+    case 'bear':return[{type:'P',side:1,K},{type:'P',side:-1,K:K-w}];
+    case 'bullput':return[{type:'P',side:-1,K},{type:'P',side:1,K:K-w}];
+    case 'bearcall':return[{type:'C',side:-1,K},{type:'C',side:1,K:K+w}];
+    case 'straddle':return[{type:'C',side:1,K},{type:'P',side:1,K}];
+    case 'condor':return[{type:'P',side:1,K:K-d-w},{type:'P',side:-1,K:K-d},{type:'C',side:-1,K:K+d},{type:'C',side:1,K:K+d+w}];
+  }}
+function legQ(s,type,K,exp){const T0=calDays(S.date,exp)/365,v=ivAt(s,K,exp),q=bs(type,s.px,K,T0,v),half=Math.max(0.01,q.p*0.012*s.liq)+0.005*s.liq;
+  return{...q,iv:v,bid:Math.max(0,r2(q.p-half)),ask:Math.max(0.01,r2(q.p+half))}}
+function quote(sym,legs,exp,opening){const s=S.st[sym];let net=0,mid=0,d=0,th=0,ve=0,iv=0;
+  for(const l of legs){const q=legQ(s,l.type,l.K,exp);mid+=l.side*q.p;
+    net+=l.side*(opening?(l.side>0?q.ask:q.bid):(l.side>0?q.bid:q.ask));d+=l.side*q.d;th+=l.side*q.th;ve+=l.side*q.ve;iv+=q.iv/legs.length}
+  return{net,mid,d,th,ve,iv}}
+function payoffFn(strat,legs,net,px0){return ST=>{let v=-net;for(const l of legs)v+=l.side*Math.max(0,l.type==='C'?ST-l.K:l.K-ST);if(strat==='cc')v+=ST-px0;return v}}
+function analyse(t){const s=S.st[t.sym],legs=legsOf(t),q=quote(t.sym,legs,t.exp,true),f=payoffFn(t.strat,legs,q.net,s.px);
+  const ks=legs.map(l=>l.K).sort((a,b)=>a-b),pts=[0,...ks,s.px*3],vals=pts.map(f);
+  const unlimited=f(s.px*3)>f(ks[ks.length-1])+1e-6;
+  const be=[];let prev=f(0);for(let i=1;i<=600;i++){const x=s.px*2*i/600,y=f(x);if((prev<0)!==(y<0)){const x0=s.px*2*(i-1)/600;be.push(x0+(x-x0)*(-prev)/(y-prev))}prev=y}
+  const m=100*t.qty,st=stepOf(s.px),fee=FEE*legs.length*t.qty;
+  const collat=t.strat==='csp'?t.K*m:['condor','bullput','bearcall'].includes(t.strat)?t.w*st*m:0;
+  return{legs,q,f,fee,maxGain:unlimited?Infinity:Math.max(...vals)*m,maxLoss:Math.min(...vals)*m,be,collat,need:q.net*m+collat+fee,lockSh:t.strat==='cc'?m:0}}
+function markPos(p){const s=S.st[p.sym];let mid=0;for(const l of p.legs)mid+=l.side*legQ(s,l.type,l.K,p.exp).p;return mid}
+const posPnl=p=>(markPos(p)-p.entry)*100*p.qty-p.fee;
+function netWorth(){let n=S.cash;for(const k in S.sh)n+=S.sh[k].n*S.st[k].px;for(const p of S.pos)n+=markPos(p)*100*p.qty+p.collat;return n}
+const level=()=>{let l=1;while(S.xp>=LV[l])l++;return l};
+const rank=l=>LX(RANK[l]);
+const posName=p=>`${p.sym} ${STR[p.strat].n}`;
+const legTxt=legs=>legs.map(l=>(l.side>0?'+':'−')+kf(l.K)+l.type).join('  ');
+const broke=()=>!S.pos.length&&!Object.keys(S.sh).length&&S.cash<60;
+const howTxt=h=>({close:L('đóng','closed'),exp:L('đáo hạn','expired'),'đóng':L('đóng','closed'),'đáo hạn':L('đáo hạn','expired')})[h]||h;
+
+/* ============ hành động ============ */
+function addXp(n){const l0=level();S.xp+=n;const l1=level();if(l1>l0){const un=Object.values(STR).filter(x=>x.lv===l1).map(x=>x.ic+' '+x.n);
+  sfx('lvl');confetti(90);modal(`<h3>🎉 ${L('Lên cấp','Level')} ${l1}: ${rank(l1)}</h3><p>${un.length?L('Mở khóa chiến lược mới:','New strategies unlocked:')+'<br><b>'+un.join('<br>')+'</b>'+(l1===2?L('<br>và mua bán cổ phiếu','<br>plus buying and selling shares'):''):L('Danh hiệu mới cho cao thủ!','A new title for a pro!')}</p><button class="btn w" data-a="closeModal">${L('Tiếp tục','Continue')}</button>`)}}
+function fire(ev,o={}){const c=S.m;let ok=false;const nw=netWorth();
+  if(c===0)ok=ev==='open'&&o.strat==='call';
+  else if(c===1)ok=ev==='close'&&o.pnl>0;
+  else if(c===2)ok=ev==='open'&&o.strat==='put';
+  else if(c===3)ok=ev==='open'&&o.strat==='cc';
+  else if(c===4)ok=ev==='expire'&&o.worthlessShort;
+  else if(c===5)ok=ev==='open'&&o.strat==='csp';
+  else if(c===6)ok=ev==='open'&&['bull','bear','bullput','bearcall'].includes(o.strat);
+  else if(c===7)ok=ev==='open'&&o.strat==='straddle'&&o.earnDays!=null&&o.earnDays<=4&&o.covers;
+  else if(c===8)ok=(ev==='close'||ev==='expire')&&o.strat==='condor'&&o.pnl>0;
+  else if(c===9)ok=nw>=15000;else if(c===10)ok=nw>=25000;else if(c===11)ok=nw>=50000;
+  if(ok&&c<MISS.length){S.m++;toast(L('🏅 Xong nhiệm vụ: ','🏅 Mission complete: ')+LX(MISS[c].t)+'  (+150 XP)','y');sfx('win');confetti(40);addXp(150);if(S.m<MISS.length)fire('tick')}}
+function place(){const a=analyse(T),s=S.st[T.sym],x=STR[T.strat];
+  if(level()<x.lv)return toast(L(`🔒 Cần cấp ${x.lv} để dùng ${x.n}`,`🔒 ${x.n} unlocks at level ${x.lv}`),'r');
+  if(a.lockSh){const h=S.sh[T.sym],free=h?h.n-h.locked:0;if(free<a.lockSh)return toast(L(`Cần ${a.lockSh} cp ${T.sym} rảnh. Mua cổ phiếu ở tab Thị trường.`,`You need ${a.lockSh} free ${T.sym} shares. Buy shares from the Market tab.`),'r')}
+  if(a.need>S.cash+1e-6)return toast(L('Không đủ tiền mặt: cần ','Not enough cash: need ')+money(a.need),'r');
+  S.cash-=a.need;S.fees+=a.fee;if(a.lockSh)S.sh[T.sym].locked+=a.lockSh;
+  S.pos.push({id:S.pid++,sym:T.sym,strat:T.strat,legs:a.legs,qty:T.qty,exp:T.exp,entry:a.q.net,fee:a.fee,collat:a.collat,lockSh:a.lockSh,open:S.date});
+  sfx('buy');toast(`✅ ${L('Khớp','Filled')} ${x.n} ${T.sym} ×${T.qty} @ ${Math.abs(a.q.net).toFixed(2)} ${a.q.net>=0?'debit':'credit'} · ${L('phí','fee')} ${money(a.fee,2)}`,'g');
+  addXp(10);fire('open',{strat:T.strat,earnDays:s.earn?calDays(S.date,s.earn):null,covers:s.earn&&T.exp>=s.earn});save();render()}
+function finish(p,pnl,how){S.pos=S.pos.filter(x=>x!==p);S.hist.unshift({n:posName(p),pnl,how,d:S.date});if(S.hist.length>20)S.hist.pop();
+  if(pnl>0){S.wins++;addXp(Math.min(200,20+pnl/10|0))}else S.losses++}
+function closePos(id){const p=S.pos.find(x=>x.id===+id);if(!p)return;const q=quote(p.sym,p.legs,p.exp,false),m=100*p.qty,fee=FEE*p.legs.length*p.qty,pnl=(q.net-p.entry)*m-p.fee-fee;
+  S.cash+=q.net*m+p.collat-fee;S.fees+=fee;if(p.lockSh)S.sh[p.sym].locked-=p.lockSh;
+  finish(p,pnl,'close');toast(`${pnl>=0?L('💰 Chốt lãi','💰 Profit taken'):L('💸 Cắt lỗ','💸 Loss cut')} ${posName(p)}: ${sgn(pnl)} ${L('(sau phí)','(after fees)')}`,pnl>=0?'g':'r');
+  if(pnl>0){sfx('win');confetti(Math.min(120,20+pnl/8))}else{sfx('lose');shake()}
+  fire('close',{strat:p.strat,pnl});save();render()}
+function addShares(sym,n,px){const h=S.sh[sym]||(S.sh[sym]={n:0,avg:0,locked:0});h.avg=(h.avg*h.n+px*n)/(h.n+n);h.n+=n}
+function settle(p){const s=S.st[p.sym],m=100*p.qty;let val=0;for(const l of p.legs)val+=l.side*Math.max(0,l.type==='C'?s.px-l.K:l.K-s.px);
+  let pnl=(val-p.entry)*m-p.fee,msg,K=p.legs[0].K;
+  if(p.strat==='cc'){const h=S.sh[p.sym];h.locked-=m;
+    if(s.px>K){h.n-=m;S.cash+=K*m;if(h.n<=0)delete S.sh[p.sym];pnl=-p.entry*m-p.fee;msg=L(`📞 ${p.sym} đóng cửa trên strike ${kf(K)}: ${m} cp bị gọi mua (assigned), giữ premium ${money(pnl)}`,`📞 ${p.sym} closed above the ${kf(K)} strike: ${m} shares called away (assigned), you keep ${money(pnl)} premium`)}
+    else msg=L(`⌛ Covered Call ${p.sym} hết hạn vô giá trị — ăn trọn ${money(pnl)}`,`⌛ ${p.sym} Covered Call expired worthless — you keep all ${money(pnl)}`)}
+  else if(p.strat==='csp'&&s.px<K){addShares(p.sym,m,K);pnl=-p.entry*m-p.fee;msg=L(`📦 ${p.sym} đóng cửa dưới strike ${kf(K)}: bị giao ${m} cp giá ${kf(K)} (đã giữ premium ${money(pnl)})`,`📦 ${p.sym} closed below the ${kf(K)} strike: you were assigned ${m} shares at ${kf(K)} (premium kept: ${money(pnl)})`)}
+  else{S.cash+=val*m+p.collat;msg=L(`⌛ ${posName(p)} đáo hạn: ${sgn(pnl)}`,`⌛ ${posName(p)} expired: ${sgn(pnl)}`)}
+  const short=p.entry<0;finish(p,pnl,'exp');toast(msg,pnl>0?'g':pnl<0?'r':'');
+  fire('expire',{strat:p.strat,pnl,worthlessShort:short&&Math.abs(val)<1e-9});return pnl}
+function whyTxt(e){const r=[];
+  if(e.guid<0)r.push(L('công ty HẠ dự báo quý tới','the company CUT next-quarter guidance'));if(e.guid>0)r.push(L('công ty NÂNG dự báo','the company RAISED guidance'));
+  if(e.rev<-0.005)r.push(L('doanh thu hụt kỳ vọng','revenue missed'));if(e.rev>0.012)r.push(L('doanh thu vượt mạnh','revenue beat strongly'));
+  if(e.run>0.8)r.push(L('giá đã chạy trước, tin tốt nằm sẵn trong giá','the stock ran up beforehand, so good news was priced in'));if(e.run<-0.8)r.push(L('giá đã bị bán mạnh trước đó nên kỳ vọng rất thấp','the stock was sold off beforehand, so expectations were very low'));
+  if(e.sur>0&&e.ret<0&&!r.length)r.push(L('thị trường kỳ vọng ngầm cao hơn con số dự báo','the market\'s unofficial "whisper" number was higher than the consensus'));
+  if(e.sur<0&&e.ret>0&&!r.length)r.push(L('kết quả "đỡ tệ hơn lo ngại"','results were "less bad than feared"'));
+  return r.join('; ')}
+function earnHtml(d,e){return `<div class="er"><span>${L('EPS thực tế / dự báo','EPS actual / estimate')}</span><b class="${cls(e.sur)}">$${e.act.toFixed(2)} / $${e.est.toFixed(2)} (${pc(e.sur)})</b>
+  <span>${L('Doanh thu so với dự báo','Revenue vs. estimate')}</span><b class="${cls(e.rev)}">${pc(e.rev)}</b><span>${L('Dự báo quý tới (guidance)','Next-quarter guidance')}</span><b class="${e.guid>0?'up':e.guid<0?'dn':''}">${e.guid>0?L('Nâng','Raised'):e.guid<0?L('Hạ','Cut'):L('Giữ nguyên','Maintained')}</b>
+  <span>${L('Giá 20 ngày trước báo cáo','Price in the 20 days before')}</span><b>${e.run>0.8?L('Đã tăng mạnh','Ran up sharply'):e.run<-0.8?L('Đã giảm mạnh','Sold off sharply'):L('Bình thường','Normal')}</b><span>${L('Phản ứng giá','Price reaction')}</span><b class="${cls(e.ret)}">${pc(e.ret)}</b></div>`}
+function nextDay(silent){
+  if(broke())return gameOver();
+  const before=netWorth(),date=nextTD(S.date),ev=macro(date);S.date=date;S.day++;let stop=false,em=null;
+  const mret=stepMarket(ev);if(ev)toast(`🏛️ ${macroName(ev.k)}: ${L('thị trường','market')} ${pc(mret)}`,mret>=0?'g':'r');
+  for(const d of DEFS){const s=S.st[d.sym],er=stepStock(s,mret,date);s.ivh.push(iv30(s));if(s.ivh.length>130)s.ivh.shift();
+    if(er){const held=S.pos.some(p=>p.sym===d.sym)||S.sh[d.sym],beat=er.sur>=0,w=whyTxt(er);
+      toast(L(`📣 ${d.sym} EPS ${beat?'vượt':'hụt'} ${Math.abs(er.sur*100).toFixed(0)}% → giá ${pc(er.ret)}${w?' vì '+w:''}`,`📣 ${d.sym} EPS ${beat?'beat':'missed'} by ${Math.abs(er.sur*100).toFixed(0)}% → stock ${pc(er.ret)}${w?' because '+w:''}`),er.ret>=0?'g':'r');if(held){stop=true;em=[d,er]}}}
+  for(const p of S.pos.slice())if(p.exp<=date){settle(p);stop=true}
+  if(!expiries().includes(T.exp))pickExp();
+  makeNews();addXp(2);const diff=netWorth()-before;
+  if(!silent||stop){if(diff>before*0.03){sfx('win');confetti(50)}else if(diff<-before*0.03){sfx('lose');shake()}else sfx('tick')}
+  fire('tick');save();render();bumpNW();
+  if(em&&!$('#modal').classList.contains('on')){const[d,e]=em,w=whyTxt(e);
+    modal(`<h3>📣 ${d.name} (${d.sym}) ${L('báo cáo lợi nhuận','reports earnings')}</h3>${earnHtml(d,e)}<div class="bubble">${e.ret>=0?BULL:BEAR}<p>${e.sur>=0&&e.ret<0?L('Lãi vượt kỳ vọng mà giá vẫn giảm: ','Beat on earnings, yet the stock fell: '):e.sur<0&&e.ret>=0?L('Lãi hụt mà giá vẫn tăng: ','Missed on earnings, yet the stock rose: '):''}${w?w.charAt(0).toUpperCase()+w.slice(1)+'. ':''}${L(`IV của ${d.sym} vừa xẹp — xem lại lệnh ở Danh mục.`,`${d.sym} IV just collapsed — check your positions in Portfolio.`)}</p></div><button class="btn w" data-a="closeModal">${L('Đã hiểu','Got it')}</button>`)}
+  if(broke())gameOver();
+  return stop}
+function skip5(){if(busy)return;busy=true;let i=0;const go=()=>{const stop=nextDay(true);if(++i<5&&!stop&&!$('#modal').classList.contains('on'))setTimeout(go,280);else busy=false};go()}
+function gameOver(){sfx('lose');shake();modal(`<div class="bubble">${BEAR}<p>${L('Cháy tài khoản rồi! Ngoài đời thật tiền này không quay lại đâu.','Account blown! In real life, that money would not come back.')}</p></div><h3>💀 ${L(`Hết vốn sau ${S.day} phiên`,`Out of money after ${S.day} sessions`)}</h3><p>${L('Bài học lớn nhất của quyền chọn: <b>đi lệnh nhỏ</b>. Mỗi lệnh mua chỉ nên chiếm vài % tài khoản, vì nó có thể về 0.','The biggest lesson in options: <b>size small</b>. Each long option should be a few % of the account, because it can go to zero.')}</p><button class="btn w g" data-a="restart">${L('Chơi lại với $10,000','Start over with $10,000')}</button>`)}
+function tradeStock(n){const s=S.st[sel];if(level()<2)return toast(L('🔒 Mua bán cổ phiếu mở ở cấp 2','🔒 Trading shares unlocks at level 2'),'r');
+  if(n>0){const c=n*s.px;if(c>S.cash)return toast(L('Không đủ tiền: cần ','Not enough cash: need ')+money(c),'r');S.cash-=c;addShares(sel,n,s.px);sfx('buy');toast(L(`Đã mua ${n} cp ${sel} giá ${money(s.px,2)}`,`Bought ${n} ${sel} shares at ${money(s.px,2)}`),'g')}
+  else{const h=S.sh[sel],free=h?h.n-h.locked:0;if(free<-n)return toast(L('Không đủ cp rảnh (cp đang bị khóa cho Covered Call)','Not enough free shares (some are locked by a Covered Call)'),'r');
+    const pnl=(s.px-h.avg)*-n;S.cash+=-n*s.px;h.n+=n;if(h.n<=0)delete S.sh[sel];sfx(pnl>=0?'win':'lose');toast(L(`Đã bán ${-n} cp ${sel}: `,`Sold ${-n} ${sel} shares: `)+sgn(pnl),pnl>=0?'g':'r')}
+  save();render()}
+function setStrat(k){if(level()<STR[k].lv)return toast(L(`🔒 ${STR[k].n} mở ở cấp ${STR[k].lv} (${rank(STR[k].lv)})`,`🔒 ${STR[k].n} unlocks at level ${STR[k].lv} (${rank(STR[k].lv)})`),'r');T.strat=k;resetK();render()}
+function pickExp(){const e=expiries();T.exp=e.find(x=>calDays(S.date,x)>=14)||e[e.length-1]}
+function resetK(){const s=S.st[T.sym],st=stepOf(s.px),a=atm(s);T.K={cc:a+st,bearcall:a+st,csp:a-st,bullput:a-st}[T.strat]||a;T.w=1;T.d=2;if(!expiries().includes(T.exp))pickExp();fixK()}
+function fixK(){const s=S.st[T.sym],st=stepOf(s.px);let lo=st;if(T.strat==='bear'||T.strat==='bullput')lo=st*(T.w+1);if(T.strat==='condor')lo=st*(T.d+T.w+1);T.K=clamp(Math.round(T.K/st)*st,lo,Math.round(s.px*2/st)*st)}
+function act(a,v){
+  if(a==='tab'){tab=v;detail=false;if(v==='trade'){if(!T.K)resetK();fixK()}render();$('#view').scrollTop=0}
+  else if(a==='stock'){sel=v;tab='market';detail=true;render();$('#view').scrollTop=0}
+  else if(a==='back'){detail=false;render()}
+  else if(a==='goTrade'){T.sym=sel;tab='trade';detail=false;resetK();render();$('#view').scrollTop=0}
+  else if(a==='sym'){T.sym=v;resetK();render()}
+  else if(a==='strat')setStrat(v)
+  else if(a==='K'){T.K+=+v*stepOf(S.st[T.sym].px);fixK();render()}
+  else if(a==='pickC'||a==='pickP'){const fam=a==='pickC'?['call','cc','bull','bearcall']:['put','csp','bear','bullput'];if(!fam.includes(T.strat))T.strat=fam[0];T.K=+v;fixK();render()}
+  else if(a==='w'){T.w=clamp(T.w+ +v,1,3);fixK();render()}
+  else if(a==='d'){T.d=clamp(T.d+ +v,1,5);fixK();render()}
+  else if(a==='exp'){T.exp=v;render()}
+  else if(a==='qty'){T.qty=clamp(T.qty+ +v,1,20);render()}
+  else if(a==='place')place()
+  else if(a==='close')closePos(v)
+  else if(a==='next'){if(!busy)nextDay()}
+  else if(a==='skip')skip5()
+  else if(a==='buy')tradeStock(100)
+  else if(a==='sell')tradeStock(-100)
+  else if(a==='lang'){setLang(v||(LANG==='vi'?'en':'vi'));S.lang=LANG;save();render();if($('#modal').classList.contains('on')&&!S.intro)showIntro();else if(v==null)toast(L('🇻🇳 Đã chuyển sang Tiếng Việt','🇺🇸 Switched to English'),'y')}
+  else if(a==='closeModal'){$('#modal').classList.remove('on');if(!S.intro){S.intro=true;save()}}
+  else if(a==='restart'){$('#modal').classList.remove('on');newGame();S.intro=true;tab='market';detail=false;T.K=0;T.exp='';resetK();save();render()}
+  else if(a==='cloud'){const m={ok:[L('☁️ Đã lưu trên cloud','☁️ Saved to the cloud'),L('Tiến trình được lưu theo tài khoản Claude của bạn. Mở game trên iPhone, iPad hay máy tính khác bằng cùng tài khoản là chơi tiếp đúng chỗ này.','Your progress is saved to your Claude account. Open the game on another iPhone, iPad or computer with the same account to pick up right here.')+(cloud.last?'<br>'+L('Lần lưu gần nhất: ','Last saved: ')+new Date(cloud.last).toLocaleTimeString(L('vi-VN','en-US')):'')],
+      sync:[L('☁️ Đang đồng bộ…','☁️ Syncing…'),L('Game đang kết nối tới cloud. Bạn cứ chơi bình thường.','The game is connecting to the cloud. Keep playing as usual.')],
+      off:[L('📱 Chỉ lưu trên máy này','📱 Saved on this device only'),L('Chưa kết nối được cloud. Tiến trình vẫn được lưu trên máy này; lưu cloud cần mở game khi đã đăng nhập Claude.','Could not reach the cloud. Progress is still saved on this device; cloud saving needs you to be signed in to Claude.')],
+      err:[L('☁️ Lưu cloud bị từ chối','☁️ Cloud save refused'),L('Tài khoản đang xem không có quyền ghi dữ liệu cho trang này, hoặc cloud đang lỗi. Tiến trình vẫn được lưu trên máy này.','This account cannot write data for this page, or the cloud had an error. Progress is still saved on this device.')]}[cloud.st];
+    modal(`<h3>${m[0]}</h3><p>${m[1]}</p><button class="btn w" data-a="closeModal">${L('Đóng','Close')}</button>`)}
+  else if(a==='askReset')modal(`<h3>${L('Chơi lại từ đầu?','Start over?')}</h3><p>${L('Toàn bộ tiến trình sẽ bị xóa.','All progress will be erased.')}</p><div class="row"><button class="btn d grow" data-a="closeModal">${L('Thôi','Cancel')}</button><button class="btn r grow" data-a="restart">${L('Xóa & chơi lại','Erase & restart')}</button></div>`)
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;audio();act(b.dataset.a,b.dataset.v)});
+function showIntro(){modal(`<div class="chips" style="justify-content:center;margin-bottom:6px"><button class="chip ${LANG==='vi'?'on':''}" data-a="lang" data-v="vi">🇻🇳 Tiếng Việt</button><button class="chip ${LANG==='en'?'on':''}" data-a="lang" data-v="en">🇺🇸 English</button></div>
+<div class="bubble">${BULL}<p>${L('Chào mừng tới sàn! Ta là Bò Vàng, sẽ dẫn bạn từ Tập Sự lên Huyền Thoại quyền chọn.','Welcome to the floor! I\'m Goldie the Bull, and I\'ll take you from Rookie to options Legend.')}</p></div>
+<h3>${L('Luật chơi','How to play')}</h3><p>${L('• Bạn có <b>$10,000 tiền ảo</b>, 8 cổ phiếu và 1 ETF chỉ số (đều là mô phỏng).<br>• Mở lệnh ở tab <b>Giao dịch</b>: xem option chain có bid/ask, biểu đồ lãi/lỗ rồi mới đặt.<br>• Bấm <b>▶ Sang phiên</b> để qua ngày giao dịch kế tiếp theo lịch Mỹ. Quyền chọn đáo hạn thứ Sáu.<br>• Theo dõi <b>lịch sự kiện</b>: báo cáo lợi nhuận, Fed, CPI làm giá và IV nhảy.<br>• Làm <b>Nhiệm vụ</b> để lên cấp và mở khóa 10 chiến lược.','• You start with <b>$10,000 in play money</b>, 8 stocks and 1 index ETF (all simulated).<br>• Open trades in the <b>Trade</b> tab: check the option chain\'s bid/ask and the P/L chart before you place an order.<br>• Tap <b>▶ Next session</b> to move to the next US trading day. Options expire on Fridays.<br>• Watch the <b>event calendar</b>: earnings, the Fed and CPI move prices and IV.<br>• Complete <b>Missions</b> to level up and unlock 10 strategies.')}</p>
+<button class="btn w g" data-a="closeModal">${L('Vào sàn!','Let\'s trade!')}</button>`)}
+
+/* ============ giao diện ============ */
+function spark(h){const a=h.slice(-30).map(x=>x[3]),mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1,up=a[a.length-1]>=a[0];
+  return `<svg width="62" height="30" viewBox="0 0 62 30" aria-hidden="true"><polyline fill="none" stroke="${up?'#3ddc84':'#ff5d6c'}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${a.map((v,i)=>(i*62/(a.length-1)).toFixed(1)+','+(27-(v-mn)/r*24).toFixed(1)).join(' ')}"/></svg>`}
+function renderHud(){const nw=netWorth(),l=level(),p=(S.xp-LV[l-1])/(LV[l]-LV[l-1]),tot=nw-10000;
+  $('#hud').innerHTML=`<div class="hudrow"><div class="logo">🐂 Options Master</div><span class="pill">📅 ${dfmt(S.date)}</span><button class="pill" data-a="lang" aria-label="${L('Đổi ngôn ngữ','Change language')}">${LANG==='vi'?'VI':'EN'}</button><button class="pill" data-a="cloud" id="cl" aria-label="${L('Trạng thái lưu cloud','Cloud save status')}">${CLI[cloud.st]}</button><button class="pill" data-a="askReset" aria-label="${L('Chơi lại','Start over')}">↺</button></div>
+  <div class="hudrow" style="margin-top:4px"><div class="grow"><div class="nw" id="nw">${money(nw)}<small class="${cls(tot)}">${sgn(tot)}</small></div><div class="sub">${L('Tài sản ròng · tiền mặt','Net worth · cash')} ${money(S.cash)}</div></div>
+  <div style="width:40%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
+  const nx=nextTD(S.date);
+  $('#bar').innerHTML=`<button class="btn g grow" data-a="next">▶ ${L('Sang phiên','Next session')} ${dfmt(nx)}</button><button class="btn b" data-a="skip">⏩ ×5</button>`;
+  const tb=[['market','📊',L('Thị trường','Market')],['trade','🎯',L('Giao dịch','Trade')],['port','💼',L('Danh mục','Portfolio')],['miss','🏅',L('Nhiệm vụ','Missions')],['learn','📖',L('Bí kíp','Learn')]];
+  $('#tabs').innerHTML=tb.map(t=>`<button class="${tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}"><b>${t[1]}</b>${t[2]}${t[0]==='port'&&S.pos.length?'<i class="dot"></i>':''}</button>`).join('')}
+function bumpNW(){const e=$('#nw');if(e){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
+function vMarket(){
+  if(detail)return vDetail();
+  const ux=S.st.USX,vix=iv30(ux)*100,ev=events();
+  let h=`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">🇺🇸 ${L('Phiên','Session')} ${dfmt(S.date)} ${L('đã đóng cửa','closed')}</h3><div class="sub">${L(`Phiên thứ ${S.day} của bạn`,`Your session #${S.day}`)}</div></div><span class="tag ${vix>25?'r':vix>19?'y':'g'}">VIX ${vix.toFixed(1)}</span></div>
+  <div class="lbl">${L('Tin & nhận định','News & analyst calls')}</div>${S.news.map(n=>`<div class="news">${n.tone>0?'🟢':n.tone<0?'🔴':'⚪'} ${newsTxt(n)}</div>`).join('')}
+  <div class="lbl">${L('Lịch sự kiện sắp tới','Upcoming events')}</div>${ev.length?ev.map(e=>`<div class="news"><span class="tag">${dfmt(e.d)}</span> ${e.t}</div>`).join(''):`<div class="sub">${L('Chưa có sự kiện lớn.','No major events.')}</div>`}
+  <div class="sub" style="margin-top:4px">${L('Tin đồn đúng khoảng 7/10 lần — đừng tất tay.','Rumors are right about 7 times in 10 — never go all in.')}</div></div>`;
+  if(S.m<MISS.length)h+=`<button class="card stock" data-a="tab" data-v="miss" style="background:linear-gradient(#ffd866,#ffb21c);color:var(--ink)"><span style="font-size:26px">🏅</span><span class="grow"><b>${L('Nhiệm vụ','Mission')} ${S.m+1}:</b> ${LX(MISS[S.m].t)}<br><span style="font-size:12px;font-weight:700">${LX(MISS[S.m].h)}</span></span></button>`;
+  for(const d of DEFS){const s=S.st[d.sym],ch=s.px/s.prev-1,sh=S.sh[d.sym],ed=s.earn?calDays(S.date,s.earn):null;
+    h+=`<button class="card stock" data-a="stock" data-v="${d.sym}"><span class="tk" style="background:${d.col}">${d.sym}</span>
+    <span class="grow"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.name}</b><span class="tag">IV ${(iv30(s)*100).toFixed(0)}%</span> ${ed!=null?`<span class="tag ${ed<=4?'e':''}">ER ${dm(s.earn)}</span>`:''}${sh?` <span class="tag y">${sh.n} ${L('cp','sh')}</span>`:''}</span>
+    ${spark(s.hist)}
+    <span style="text-align:right"><b class="big">${s.px.toFixed(2)}</b><br><b class="${cls(ch)}" style="font-size:13px">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(2)}%</b></span></button>`}
+  return h}
+function vDetail(){const d=def(sel),s=S.st[sel],ch=s.px/s.prev-1,sh=S.sh[sel],h=s.hist,ch20=s.px/h[h.length-21][3]-1,em=expMove(s),ivr=ivRank(s),e=s.last;
+  return `<button class="btn sm d" data-a="back">‹ ${L('Thị trường','Market')}</button>
+  <div class="card" style="margin-top:10px"><div class="row"><span class="tk" style="background:${d.col}">${d.sym}</span><div class="grow"><b>${d.name}</b><div class="sub">${d.sec} · beta ${d.beta} · ${L('20 phiên','20 sessions')} <b class="${cls(ch20)}">${pc(ch20)}</b></div></div>
+  <div style="text-align:right"><b class="big">${money(s.px,2)}</b><br><b class="${cls(ch)}">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(2)}%</b></div></div>
+  <canvas class="ch" id="pc" style="margin-top:8px" role="img" aria-label="${L('Biểu đồ nến 45 phiên gần nhất kèm đường trung bình 20 phiên','Candlestick chart of the last 45 sessions with a 20-session moving average')}"></canvas>
+  <div class="sub" style="margin:3px 0 6px">${L('Nến ngày','Daily candles')} · <span class="gold">— MA20</span></div>
+  <div class="kv"><div><span>${L('IV 30 ngày / HV 20 phiên','30-day IV / 20-day HV')}</span><b>${(iv30(s)*100).toFixed(0)}% / ${(hv20(s)*100).toFixed(0)}%</b></div><div><span>${L('IV Rank (60 phiên)','IV Rank (60 sessions)')}</span><b class="${ivr>60?'dn':ivr<30?'up':''}">${ivr.toFixed(0)} ${ivr>60?L('· đắt','· pricey'):ivr<30?L('· rẻ','· cheap'):''}</b></div>
+  <div><span>${L('Báo cáo lợi nhuận','Earnings date')}</span><b>${s.earn?dfmt(s.earn)+' · '+calDays(S.date,s.earn)+L(' ngày',' days'):L('Không có','None')}</b></div><div><span>${L('Thị trường định giá cú nhảy','Expected move priced in')}</span><b>${em?'±'+(em*100).toFixed(1)+'%':'—'}</b></div>
+  <div><span>${L('Đang giữ','Holding')}</span><b>${sh?sh.n+L(' cp',' sh'):'—'}</b></div><div><span>${L('Giá vốn / Lãi lỗ','Cost basis / P&L')}</span><b class="${sh?cls(s.px-sh.avg):''}">${sh?sh.avg.toFixed(2)+' / '+sgn((s.px-sh.avg)*sh.n):'—'}</b></div></div>
+  ${e?`<div class="lbl">${L('Báo cáo gần nhất','Latest report')} · ${dfmt(e.date)}</div>${earnHtml(d,e)}`:''}
+  <button class="btn w" style="margin-top:10px" data-a="goTrade">🎯 ${L('Giao dịch quyền chọn','Trade options on')} ${d.sym}</button>
+  <div class="row" style="margin-top:8px"><button class="btn g grow sm" data-a="buy">${level()<2?'🔒 ':''}${L('Mua 100 cp','Buy 100 sh')} (${money(s.px*100)})</button><button class="btn r grow sm" data-a="sell" ${sh&&sh.n-sh.locked>=100?'':'disabled'}>${L('Bán 100 cp','Sell 100 sh')}</button></div></div>`}
+function advise(a){const s=S.st[T.sym],long=a.q.net>0,cov=s.earn&&T.exp>=s.earn,nw=netWorth(),pct=Math.abs(a.maxLoss)/nw*100,dte=calDays(S.date,T.exp),ivr=ivRank(s);
+  if(a.need>S.cash)return[BEAR,L('Không đủ tiền mặt cho lệnh này. Giảm số hợp đồng hoặc chọn strike xa hơn.','Not enough cash for this trade. Use fewer contracts or a farther strike.')];
+  if(pct>15&&T.strat!=='cc'&&T.strat!=='csp')return[BEAR,L(`Lệnh này có thể mất ${pct.toFixed(0)}% tài sản! Cao thủ thường chỉ liều 2–5% mỗi lệnh.`,`This trade could lose ${pct.toFixed(0)}% of your account! Pros usually risk only 2–5% per trade.`)];
+  if(long&&cov)return[BEAR,L(`Kỳ hạn này bao trùm báo cáo ngày ${dfmt(s.earn)}: IV đang phồng. Sau báo cáo IV xẹp — đúng hướng vẫn có thể lỗ.`,`This expiry covers the ${dfmt(s.earn)} earnings report, so IV is inflated. After the report IV collapses — you can be right on direction and still lose.`)];
+  if(!long&&cov)return[BULL,L('IV đang cao nên premium bán ra được giá. Nhưng cú nhảy giá ngày báo cáo có thể rất mạnh.','IV is high, so you collect a rich premium. But the earnings-day gap can be huge.')];
+  if(long&&dte<=7)return[BEAR,L('Còn ít ngày: Theta ăn rất nhanh. Giá phải chạy đúng hướng ngay.','Few days left: theta decays fast. The stock has to move your way right now.')];
+  if(long&&ivr>70)return[BEAR,L(`IV Rank ${ivr.toFixed(0)}: quyền chọn đang đắt so với gần đây. Cân nhắc spread để bớt trả tiền IV.`,`IV Rank ${ivr.toFixed(0)}: options are pricey versus recent history. Consider a spread to pay less for IV.`)];
+  if(!long&&ivr<25)return[BEAR,L(`IV Rank ${ivr.toFixed(0)}: premium đang rẻ, bán lúc này thu được ít so với rủi ro.`,`IV Rank ${ivr.toFixed(0)}: premium is cheap, so selling now pays little for the risk.`)];
+  return[BULL,LX(STR[T.strat].d)]}
+function vChain(s){const st=stepOf(s.px),a=atm(s),ks=[];for(let k=-4;k<=4;k++){const K=a+k*st;if(K>0)ks.push(K)}
+  const sK=new Set(legsOf(T).map(l=>l.type+l.K));
+  return `<div class="chain"><span class="hd">CALL bid × ask</span><span class="hd">Δ</span><span class="hd">Strike</span><span class="hd">Δ</span><span class="hd">PUT bid × ask</span>
+  ${ks.map(K=>{const c=legQ(s,'C',K,T.exp),p=legQ(s,'P',K,T.exp);
+    return `<button class="${K<s.px?'itm':''} ${sK.has('C'+K)?'selc':''}" data-a="pickC" data-v="${K}">${c.bid.toFixed(2)} × ${c.ask.toFixed(2)}</button><span class="dl">${c.d.toFixed(2).replace('0.','.')}</span><span class="k ${K===a?'atm':''}">${kf(K)}</span><span class="dl">${p.d.toFixed(2).replace('0.','.')}</span><button class="${K>s.px?'itm':''} ${sK.has('P'+K)?'selc':''}" data-a="pickP" data-v="${K}">${p.bid.toFixed(2)} × ${p.ask.toFixed(2)}</button>`}).join('')}</div>
+  <div class="sub" style="margin-top:4px">${L('Chạm vào giá để chọn strike · nền xanh đậm = ITM · viền vàng = chân lệnh đang chọn','Tap a price to pick a strike · dark blue = ITM · gold outline = selected leg')}</div>`}
+function vTrade(){const s=S.st[T.sym],a=analyse(T),m=100*T.qty,x=STR[T.strat],st=stepOf(s.px),lv=level(),adv=advise(a),dte=calDays(S.date,T.exp);
+  const putish=['put','csp','bear','bullput'].includes(T.strat);
+  const mon=T.strat==='straddle'||T.strat==='condor'?'':Math.abs(T.K-s.px)<st/2?'ATM':(putish?T.K>s.px:T.K<s.px)?'ITM':'OTM';
+  const klbl=LX({call:['Strike mua Call','Long Call strike'],put:['Strike mua Put','Long Put strike'],cc:['Strike bán Call','Short Call strike'],csp:['Strike bán Put','Short Put strike'],bull:['Strike Call mua','Long Call strike'],bear:['Strike Put mua','Long Put strike'],bullput:['Strike Put bán','Short Put strike'],bearcall:['Strike Call bán','Short Call strike'],straddle:['Strike chung','Shared strike'],condor:['Tâm vùng giá','Range center']}[T.strat]);
+  const stp=(lab,ac,val)=>`<div><div class="lbl">${lab}</div><div class="step"><button data-a="${ac}" data-v="-1" aria-label="${L('giảm','decrease')}">−</button><div class="v">${val}</div><button data-a="${ac}" data-v="1" aria-label="${L('tăng','increase')}">+</button></div></div>`;
+  return `<div class="card"><div class="chips">${DEFS.map(d=>`<button class="chip ${T.sym===d.sym?'on':''}" data-a="sym" data-v="${d.sym}">${d.sym}</button>`).join('')}</div>
+  <div class="lbl">${L('Chiến lược','Strategy')}</div><div class="sgrid">${Object.entries(STR).map(([k,v])=>`<button class="chip ${T.strat===k?'on':''} ${lv<v.lv?'lock':''}" data-a="strat" data-v="${k}"><b>${lv<v.lv?'🔒':v.ic}</b>${v.n}</button>`).join('')}</div></div>
+  <div class="card"><h3>⛓️ Option chain · ${T.sym} ${money(s.px,2)}</h3>
+  <div class="chips" style="margin-bottom:8px">${expiries().map(e=>`<button class="chip ${T.exp===e?'on':''}" data-a="exp" data-v="${e}">${dm(e)}${s.earn&&e>=s.earn?' ⏰':''}<br><small>${calDays(S.date,e)}${L('n','d')} · ${isMonthly(e)?L('tháng','monthly'):L('tuần','weekly')}</small></button>`).join('')}</div>
+  ${vChain(s)}</div>
+  <div class="card"><h3>${x.ic} ${x.n} · ${L('đáo hạn','expires')} ${dfmt(T.exp)} (${dte} ${L('ngày','days')})</h3>
+  <div class="row" style="flex-wrap:wrap;gap:4px 14px">${stp(klbl+(mon?` · <b class="gold">${mon}</b>`:''),'K',kf(T.K))}
+  ${['bull','bear','bullput','bearcall'].includes(T.strat)?stp(L('Độ rộng spread','Spread width'),'w','$'+kf(T.w*st)):''}
+  ${T.strat==='condor'?stp(L('Khoảng cách 2 phía','Distance each side'),'d','±'+kf(T.d*st))+stp(L('Độ rộng cánh','Wing width'),'w','$'+kf(T.w*st)):''}
+  ${stp(L('Số hợp đồng (×100 cp)','Contracts (×100 sh)'),'qty',T.qty)}</div>
+  <div class="sub" style="margin-top:6px">${L('Các chân','Legs')}: <b style="color:#fff">${legTxt(a.legs)}</b> · ${L('giá khớp','fill')} ${Math.abs(a.q.net).toFixed(2)} ${a.q.net>=0?'debit':'credit'} (mid ${Math.abs(a.q.mid).toFixed(2)})</div>
+  <div class="lbl">${L('Biểu đồ lãi/lỗ','P/L chart')} — <span style="color:#fff">${L('nét liền: lúc đáo hạn','solid: at expiry')}</span> · <span style="color:var(--blue)">${L('nét đứt: hôm nay','dashed: today')}</span></div>
+  <canvas class="ch" id="pay" role="img" aria-label="${L('Biểu đồ lãi lỗ của chiến lược theo giá cổ phiếu; số liệu chi tiết ở bảng bên dưới','Profit and loss of the strategy by stock price; exact figures are in the table below')}"></canvas>
+  <div class="bubble">${adv[0]}<p>${adv[1]}</p></div>
+  <div class="kv"><div><span>${a.q.net>=0?L('Chi phí (premium trả)','Cost (premium paid)'):L('Premium nhận về','Premium received')}</span><b class="${a.q.net>=0?'dn':'up'}">${money(Math.abs(a.q.net)*m)}</b></div>
+  <div><span>${L('Phí giao dịch (mở)','Commission (open)')}</span><b>${money(a.fee,2)}</b></div>
+  <div><span>${L('Lỗ tối đa','Max loss')}</span><b class="dn">${money(a.maxLoss)}</b></div><div><span>${L('Lãi tối đa','Max gain')}</span><b class="up">${a.maxGain===Infinity?L('Không giới hạn','Unlimited'):money(a.maxGain)}</b></div>
+  <div><span>${L('Hòa vốn tại','Breakeven')}</span><b>${a.be.map(b=>b.toFixed(2)).join(' / ')||'—'}</b></div><div><span>${a.collat?L('Ký quỹ bị khóa','Collateral held'):a.lockSh?L('Cổ phiếu bị khóa','Shares locked'):L('IV trung bình các chân','Average leg IV')}</span><b>${a.collat?money(a.collat):a.lockSh?a.lockSh+L(' cp',' sh'):(a.q.iv*100).toFixed(0)+'%'}</b></div>
+  <div><span>${L('Delta (≈ số cp tương đương)','Delta (≈ equivalent shares)')}</span><b>${(a.q.d*m).toFixed(0)}</b></div><div><span>${L('Theta (mỗi ngày lịch)','Theta (per calendar day)')}</span><b class="${cls(a.q.th)}">${sgn(a.q.th*m,0)}</b></div>
+  <div><span>${L('Vega (mỗi 1% IV)','Vega (per 1% IV)')}</span><b>${sgn(a.q.ve*m,0)}</b></div><div><span>IV Rank</span><b>${ivRank(s).toFixed(0)}</b></div></div>
+  <button class="btn w ${a.q.net>=0?'g':''}" style="margin-top:10px;font-size:17px" data-a="place">${lv<x.lv?L('🔒 Cần cấp ','🔒 Needs level ')+x.lv:L('ĐẶT LỆNH · ','PLACE ORDER · ')+(a.need>=0?L('cần ','cost ')+money(a.need):L('nhận ','receive ')+money(-a.need))}</button></div>`}
+function vPort(){let h='',sh=Object.keys(S.sh);const tot=S.wins+S.losses;let D=0,TH=0;
+  for(const p of S.pos){const q=quote(p.sym,p.legs,p.exp,false);D+=q.d*100*p.qty*S.st[p.sym].beta;TH+=q.th*100*p.qty}
+  for(const k of sh)D+=S.sh[k].n*S.st[k].beta;
+  h+=`<div class="card"><h3>📐 ${L('Rủi ro toàn danh mục','Portfolio risk')}</h3><div class="kv"><div><span>${L('Delta quy theo thị trường (beta)','Beta-weighted delta')}</span><b class="${cls(D)}">${D.toFixed(0)} ${L('cp','sh')}</b></div><div><span>${L('Theta mỗi ngày','Theta per day')}</span><b class="${cls(TH)}">${sgn(TH)}</b></div><div><span>${L('Tổng phí đã trả','Total fees paid')}</span><b>${money(S.fees,2)}</b></div><div><span>${L('Tỷ lệ thắng','Win rate')}</span><b>${tot?S.wins+'/'+tot+' ('+(S.wins/tot*100).toFixed(0)+'%)':'—'}</b></div></div></div>`;
+  h+=`<div class="card"><h3>🎯 ${L('Lệnh quyền chọn đang mở','Open option positions')} (${S.pos.length})</h3>${S.pos.length?S.pos.map(p=>{const pnl=posPnl(p),dte=calDays(S.date,p.exp),base=Math.abs(p.entry)*100*p.qty||1;
+    return `<div class="pos"><div class="row"><div class="grow"><b>${STR[p.strat].ic} ${posName(p)} ×${p.qty}</b><div class="sub">${legTxt(p.legs)} · ${L('vào','entry')} ${Math.abs(p.entry).toFixed(2)} ${p.entry>=0?'debit':'credit'}</div>
+    <span class="tag ${dte<=3?'r':''}">${dfmt(p.exp)} · ${dte} ${L('ngày','days')}</span> <span class="tag">${L('giá','px')} ${S.st[p.sym].px.toFixed(2)}</span>${p.collat?` <span class="tag">${L('ký quỹ','collateral')} ${money(p.collat)}</span>`:''}</div>
+    <div style="text-align:right"><b class="big ${cls(pnl)}">${sgn(pnl)}</b><div class="sub ${cls(pnl)}">${pc(pnl/base,0)}</div></div></div>
+    <button class="btn sm ${pnl>=0?'g':'r'} w" style="margin-top:6px" data-a="close" data-v="${p.id}">${pnl>=0?L('Chốt lãi','Take profit'):L('Cắt lỗ','Cut loss')} — ${L('đóng lệnh','close position')}</button></div>`}).join(''):`<div class="sub">${L('Chưa có lệnh nào. Vào tab Giao dịch để mở lệnh đầu tiên.','No positions yet. Head to the Trade tab to open your first one.')}</div>`}</div>`;
+  h+=`<div class="card"><h3>📦 ${L('Cổ phiếu','Shares')}</h3>${sh.length?sh.map(k=>{const x=S.sh[k],s=S.st[k],pnl=(s.px-x.avg)*x.n;return `<button class="pos stock" data-a="stock" data-v="${k}"><span class="tk" style="background:${def(k).col}">${k}</span><span class="grow"><b>${x.n} ${L('cp','sh')}</b> · ${L('vốn','cost')} ${x.avg.toFixed(2)}${x.locked?`<br><span class="tag y">${L('khóa','locked')} ${x.locked} ${L('cp','sh')}</span>`:''}</span><b class="${cls(pnl)}">${sgn(pnl)}</b></button>`}).join(''):`<div class="sub">${L('Chưa giữ cổ phiếu nào.','No shares held.')}</div>`}</div>`;
+  h+=`<div class="card"><h3>📜 ${L('Lịch sử lệnh','Trade history')}</h3>${S.hist.length?S.hist.map(x=>`<div class="row" style="padding:3px 0"><span class="grow">${x.n} <span class="sub">· ${howTxt(x.how)} ${dfmt(x.d)}</span></span><b class="${cls(x.pnl)}">${sgn(x.pnl)}</b></div>`).join(''):`<div class="sub">${L('Chưa có lệnh đã đóng.','No closed trades yet.')}</div>`}</div>`;
+  return h}
+function vMiss(){const l=level();
+  return `<div class="card"><h3>🏅 ${L('Con đường thành Huyền Thoại','The road to Legend')}</h3>${MISS.map((m,i)=>`<div class="miss ${i<S.m?'done':i===S.m?'cur':'lockd'}"><span class="ic">${i<S.m?'✓':i===S.m?'★':i+1}</span><span class="grow"><b>${LX(m.t)}</b>${i===S.m?`<div class="sub">${LX(m.h)}</div>`:''}</span><span class="tag y">+150</span></div>`).join('')}</div>
+  <div class="card"><h3>🔓 ${L('Chiến lược theo cấp','Strategies by level')}</h3>${Object.values(STR).map(x=>`<div class="row" style="padding:3px 0"><span style="font-size:20px">${l>=x.lv?x.ic:'🔒'}</span><span class="grow"><b>${x.n}</b> <span class="sub">· ${L('cấp','level')} ${x.lv}</span></span></div>`).join('')}</div>`}
+function vLearn(){return `<div class="bubble">${BULL}<p>${L('Tiền ảo, công ty hư cấu, giá mô phỏng. Cơ chế quyền chọn thì giống sàn Mỹ: bid/ask, phí, đáo hạn thứ Sáu, IV crush.','Play money, fictional companies, simulated prices. The options mechanics match US markets: bid/ask, fees, Friday expirations, IV crush.')}</p></div><div class="card"><h3>📖 ${L('Bí kíp quyền chọn','Options playbook')}</h3>${LESS.map(l=>{const x=LX(l);return `<details><summary>${x[0]}</summary><p>${x[1]}</p></details>`}).join('')}</div>`}
+function render(){document.documentElement.lang=LANG;renderHud();const v=$('#view'),sc=v.scrollTop;
+  v.innerHTML=tab==='market'?vMarket():tab==='trade'?vTrade():tab==='port'?vPort():tab==='miss'?vMiss():vLearn();v.scrollTop=sc;
+  if(tab==='trade')drawPay();if(tab==='market'&&detail)drawPrice()}
+
+/* ============ biểu đồ ============ */
+function ctxOf(id){const c=$(id);if(!c)return null;const r=c.getBoundingClientRect(),dp=Math.min(3,window.devicePixelRatio||1);c.width=r.width*dp;c.height=r.height*dp;const g=c.getContext('2d');g.scale(dp,dp);return{g,w:r.width,h:r.height}}
+function drawPrice(){const o=ctxOf('#pc');if(!o)return;const{g,w,h}=o,all=S.st[sel].hist,n=Math.min(45,all.length),a=all.slice(-n);
+  const mn=Math.min(...a.map(x=>x[2])),mx=Math.max(...a.map(x=>x[1])),r=mx-mn||1,cw=(w-52)/n;
+  const X=i=>6+cw*(i+.5),Y=v=>h-10-(v-mn)/r*(h-22);
+  g.strokeStyle='#263070';g.lineWidth=1;g.fillStyle='#a9b3e6';g.font='700 11px sans-serif';
+  for(let i=0;i<=3;i++){const v=mn+r*i/3;g.beginPath();g.moveTo(6,Y(v));g.lineTo(w-44,Y(v));g.stroke();g.fillText(v.toFixed(v<100?2:1),w-41,Y(v)+4)}
+  a.forEach((c,i)=>{const up=c[3]>=c[0],col=up?'#3ddc84':'#ff5d6c';g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.5;
+    g.beginPath();g.moveTo(X(i),Y(c[1]));g.lineTo(X(i),Y(c[2]));g.stroke();
+    const y1=Y(Math.max(c[0],c[3])),y2=Y(Math.min(c[0],c[3]));g.fillRect(X(i)-cw*.33,y1,cw*.66,Math.max(1.5,y2-y1))});
+  g.beginPath();let st=false;a.forEach((c,i)=>{const j=all.length-n+i;if(j<19)return;let m=0;for(let k=j-19;k<=j;k++)m+=all[k][3];m/=20;if(m<mn||m>mx){st=false;return}st?g.lineTo(X(i),Y(m)):g.moveTo(X(i),Y(m));st=true});
+  g.strokeStyle='#ffc93c';g.lineWidth=2;g.stroke()}
+function drawPay(){const o=ctxOf('#pay');if(!o)return;const{g,w,h}=o,s=S.st[T.sym],a=analyse(T),m=100*T.qty,T0=calDays(S.date,T.exp)/365;
+  const ks=a.legs.map(l=>l.K),st=stepOf(s.px),x0=Math.min(s.px*0.75,Math.min(...ks)-st*1.5),x1=Math.max(s.px*1.25,Math.max(...ks)+st*1.5),N=120;
+  const vs=a.legs.map(l=>ivAt(s,l.K,T.exp));
+  const now=ST=>{let y=-a.q.net;a.legs.forEach((l,i)=>y+=l.side*bs(l.type,ST,l.K,T0,vs[i]).p);if(T.strat==='cc')y+=ST-s.px;return y};
+  const xs=[],ex=[],td=[];for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N;xs.push(x);ex.push(a.f(x)*m);td.push(now(x)*m)}
+  let mn=Math.min(0,...ex,...td),mx=Math.max(0,...ex,...td);const pad=(mx-mn)*0.12||1;mn-=pad;mx+=pad;
+  const X=x=>6+(x-x0)/(x1-x0)*(w-12),Y=y=>h-16-(y-mn)/(mx-mn)*(h-26),y0=Y(0);
+  for(const[sign,col]of[[1,'#3ddc84'],[-1,'#ff5d6c']]){g.save();g.beginPath();g.rect(0,sign>0?0:y0,w,sign>0?y0:h-y0);g.clip();g.beginPath();g.moveTo(X(xs[0]),y0);ex.forEach((y,i)=>g.lineTo(X(xs[i]),Y(y)));g.lineTo(X(xs[N]),y0);g.fillStyle=col+'55';g.fill();g.restore()}
+  g.strokeStyle='#5361b8';g.lineWidth=1.5;g.beginPath();g.moveTo(0,y0);g.lineTo(w,y0);g.stroke();
+  g.setLineDash([5,5]);g.strokeStyle='#59c8ff';g.lineWidth=2;g.beginPath();td.forEach((y,i)=>i?g.lineTo(X(xs[i]),Y(y)):g.moveTo(X(xs[i]),Y(y)));g.stroke();g.setLineDash([]);
+  g.strokeStyle='#fff';g.lineWidth=3;g.lineJoin='round';g.beginPath();ex.forEach((y,i)=>i?g.lineTo(X(xs[i]),Y(y)):g.moveTo(X(xs[i]),Y(y)));g.stroke();
+  g.font='700 11px sans-serif';g.textAlign='center';
+  g.strokeStyle='#ffc93c';g.lineWidth=2;g.setLineDash([3,4]);g.beginPath();g.moveTo(X(s.px),4);g.lineTo(X(s.px),h-14);g.stroke();g.setLineDash([]);
+  g.fillStyle='#ffc93c';g.fillText(L('Giá ','Px ')+s.px.toFixed(1),clamp(X(s.px),30,w-30),h-3);
+  for(const b of a.be){if(b<x0||b>x1)continue;g.beginPath();g.arc(X(b),y0,5,0,7);g.fillStyle='#fff';g.fill();g.strokeStyle='#070b22';g.lineWidth=2;g.stroke();g.fillStyle='#fff';g.fillText(L('HV ','BE ')+b.toFixed(1),clamp(X(b),28,w-28),y0-9)}
+  g.textAlign='left';g.fillStyle='#3ddc84';g.fillText(L('LÃI','PROFIT'),8,14);g.fillStyle='#ff5d6c';g.fillText(L('LỖ','LOSS'),8,h-20)}
+
+/* ============ hiệu ứng ============ */
+function toast(t,c=''){const e=document.createElement('div');e.className='toast '+c;e.textContent=t;const box=$('#toasts');box.appendChild(e);while(box.children.length>4)box.firstChild.remove();setTimeout(()=>e.remove(),5000)}
+function modal(h){const m=$('#modal');m.innerHTML='<div class="card">'+h+'</div>';m.classList.add('on')}
+function shake(){const a=$('#app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake')}
+let AC;function audio(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume()}
+function sfx(k){if(!AC)return;const seq={buy:[[520,.06],[780,.09]],win:[[660,.07],[880,.07],[1320,.14]],lose:[[300,.1],[200,.18]],tick:[[440,.04]],lvl:[[523,.09],[659,.09],[784,.09],[1047,.2]]}[k];let t=AC.currentTime;
+  for(const[f,d]of seq){const o=AC.createOscillator(),g=AC.createGain();o.type=k==='lose'?'sawtooth':'triangle';o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d);t+=d*.8}}
+let parts=[],raf=0;
+function confetti(n){const c=$('#fx');c.width=innerWidth;c.height=innerHeight;for(let i=0;i<n;i++)parts.push({x:innerWidth/2+(Math.random()-.5)*120,y:innerHeight*.3,vx:(Math.random()-.5)*11,vy:-Math.random()*11-3,r:4+Math.random()*5,c:pick(['#ffc93c','#3ddc84','#59c8ff','#ff9ecb','#fff']),a:Math.random()*6,l:1});if(!raf)raf=requestAnimationFrame(fxLoop)}
+function fxLoop(){const c=$('#fx'),g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);parts=parts.filter(p=>p.l>0&&p.y<c.height+20);
+  for(const p of parts){p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.a+=.2;p.l-=.012;g.save();g.translate(p.x,p.y);g.rotate(p.a);g.globalAlpha=clamp(p.l*2,0,1);g.fillStyle=p.c;g.strokeStyle='#070b22';g.lineWidth=1.5;g.fillRect(-p.r,-p.r/2,p.r*2,p.r);g.strokeRect(-p.r,-p.r/2,p.r*2,p.r);g.restore()}
+  raf=parts.length?requestAnimationFrame(fxLoop):0;if(!raf)g.clearRect(0,0,c.width,c.height)}
+
+/* ============ khởi động ============ */
+S=load();if(!S)newGame();if(S.lang==='vi'||S.lang==='en')setLang(S.lang);else setLang(LANG);
+resetK();render();
+window.addEventListener('resize',()=>render());
+cloudInit();
+if(!S.intro)showIntro();
+window.__game={get S(){return S},get LANG(){return LANG},T,act,netWorth,analyse,nextDay,place,level,expiries,ivAt,legQ};
+</script>
+</body>
+</html>
