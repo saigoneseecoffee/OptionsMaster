@@ -198,17 +198,27 @@ const LX=o=>o?(Array.isArray(o)?(LANG==='en'?o[1]:o[0]):o):'';
 function setLang(l){LANG=l;try{localStorage.setItem('om-lang',l)}catch(e){}document.documentElement.lang=l}
 
 /* ============ lịch giao dịch Mỹ ============ */
-const DAYMS=864e5,HOL=['2026-11-26','2026-12-25','2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31','2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24','2028-01-17','2028-02-21','2028-04-14','2028-05-29','2028-06-19','2028-07-04','2028-09-04','2028-11-23','2028-12-25'];
+const DAYMS=864e5;
+/* ngày nghỉ của sàn Mỹ, tính theo quy tắc cho mọi năm (chơi 30 năm vẫn đúng) */
+const HOLC={};
+function holidays(y){if(HOLC[y])return HOLC[y];const P=n=>String(n).padStart(2,'0'),D=(m,d)=>y+'-'+P(m)+'-'+P(d),wd=i=>new Date(i+'T00:00:00Z').getUTCDay(),sh=(i,n)=>new Date(new Date(i+'T00:00:00Z').getTime()+n*864e5).toISOString().slice(0,10);
+  const nth=(m,w,n)=>{let d=D(m,1);while(wd(d)!==w)d=sh(d,1);return sh(d,7*(n-1))},last=(m,w)=>{let d=sh(D(m===12?12:m+1,1),-1);if(m===12)d=D(12,31);while(wd(d)!==w)d=sh(d,-1);return d};
+  const obs=i=>wd(i)===6?sh(i,-1):wd(i)===0?sh(i,1):i,out=[];
+  if(wd(D(1,1))!==6)out.push(obs(D(1,1)));
+  out.push(nth(1,1,3),nth(2,1,3),last(5,1),obs(D(6,19)),obs(D(7,4)),nth(9,1,1),nth(11,4,4),obs(D(12,25)));
+  const a=y%19,b=y/100|0,c=y%100,d=b/4|0,e=b%4,f=(b+8)/25|0,g=(b-f+1)/3|0,h=(19*a+b-d-g+15)%30,i=c/4|0,k=c%4,l=(32+2*e+2*i-h-k)%7,m=(a+11*h+22*l)/451|0,mo=(h+l-7*m+114)/31|0,da=(h+l-7*m+114)%31+1;
+  out.push(sh(D(mo,da),-2));return HOLC[y]=out}
+const isHol=i=>holidays(+i.slice(0,4)).includes(i);
 const toD=i=>new Date(i+'T00:00:00Z'),iso=d=>d.toISOString().slice(0,10);
 const addD=(i,n)=>iso(new Date(toD(i).getTime()+n*DAYMS));
 const dow=i=>toD(i).getUTCDay();
-const isTD=i=>{const w=dow(i);return w>0&&w<6&&!HOL.includes(i)};
+const isTD=i=>{const w=dow(i);return w>0&&w<6&&!isHol(i)};
 const nextTD=i=>{do i=addD(i,1);while(!isTD(i));return i};
 const addTD=(i,n)=>{while(n-->0)i=nextTD(i);return i};
 const calDays=(a,b)=>Math.round((toD(b)-toD(a))/DAYMS);
 const dm=i=>L(i.slice(8)+'/'+i.slice(5,7),(+i.slice(5,7))+'/'+(+i.slice(8)));
-const dfmt=i=>L(['CN','T2','T3','T4','T5','T6','T7'],['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])[dow(i)]+' '+dm(i);
-const dfull=i=>dm(i)+'/'+i.slice(2,4);
+const dfull=i=>dm(i)+'/'+i.slice(0,4);
+const dfmt=i=>L(['CN','T2','T3','T4','T5','T6','T7'],['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])[dow(i)]+' '+dfull(i);
 const adjF=f=>{while(!isTD(f))f=addD(f,-1);return f};
 function thirdFri(y,m){let d=y+'-'+String(m).padStart(2,'0')+'-01';while(dow(d)!==5)d=addD(d,1);return addD(d,14)}
 function expiries(){const d=S.date,out=[];let f=d;while(dow(f)!==5)f=addD(f,1);if(f<=d)f=addD(f,7);
@@ -516,15 +526,19 @@ function newGame(reason){
   makeNews();
   if(old){tel.closed.push(old);telSave()}tlog('game_start',{reason:reason||'first',d:{game_no:gno}});
 }
-function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.35,-0.1,0.08,0.12,0.2,0.3]);mk.regLeft=15+Math.random()*30|0}
+function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.3,-0.05,0.12,0.16,0.24,0.34]);mk.regLeft=15+Math.random()*30|0}
   let z=gauss();if(Math.random()<0.03)z*=2.5;if(ev&&ev.k!=='OPEC')z*=ev.k==='FED'?2.2:1.7;
-  const r=mk.drift/252+mk.vol/15.87*z;
+  /* kéo nhẹ chỉ số về xu hướng dài hạn ~7,5%/năm để đầu tư vài chục năm cho kết quả giống lịch sử */
+  const sp=S.st.SPY,rev=sp&&sp.px>0?0.25*Math.log(600*Math.exp(0.075*(S.day-1)/252)/sp.px)/252:0;
+  const r=mk.drift/252+rev+mk.vol/15.87*z;
   mk.vol=clamp(mk.vol+0.12*(0.15-mk.vol)+(r<0?-r*1.6:-r*0.5)+gauss()*0.004,0.09,0.6);mk.ret=r;return r}
 /* hàng hóa: vàng hơi ngược chiều thị trường khi hoảng loạn, dầu theo kinh tế + OPEC */
 function stepCmd(ev){const out={};const mret=S.mk.ret;
   for(const c of CMD){const s=S.st[c.sym];if(!s)continue;let z=gauss();if(Math.random()<0.02)z*=2.5;
     let r=c.sym==='GOLD'?0.05/252-0.15*mret+s.vol/15.87*z:0.02/252+0.35*mret+s.vol/15.87*z;
     if(ev&&ev.k==='OPEC'&&c.sym==='OIL')r+=gauss()*0.035;
+    /* kéo nhẹ về mức dài hạn (tăng ~3%/năm) để chơi nhiều năm giá không đi quá xa thực tế */
+    r+=0.6*Math.log(c.px*Math.exp(0.03*S.day/252)/s.px)/252+s.vol*s.vol/504;
     const p0=s.px,cc=Math.max(1,p0*(1+r));s.prev=p0;s.px=r2(cc);s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
     out[c.sym]=r}
   return out}
@@ -541,7 +555,7 @@ function stepStock(s,mret,cm,date){
   let zi=gauss();if(Math.random()<0.02)zi*=2.8;
   const fac=s.beta*mret+s.g*(cm.GOLD||0)+s.o*(cm.OIL||0),sys=Math.sqrt((s.beta*.15)**2+(s.g*.15)**2+(s.o*.34)**2);
   const idio=Math.sqrt(Math.max(.0004,s.vol*s.vol-sys*sys));
-  ret=fac+(s.etf?0:s.drift/252)+idio*(s.etf?1:s.vs)/15.87*zi;
+  ret=fac+(s.etf?0:s.drift/252)+idio*(s.etf?1:s.vs)/15.87*zi+idio*idio/504;
   if(s.sym==='BND')ret+=0.035/252;
   if(s.sym==='TLT')ret+=0.03/252;
   if(date&&s.earn===date){er=earnings(s,date);ret=er.move+s.beta*mret;er.ret=ret}
@@ -753,6 +767,10 @@ function nextDay(quiet){
   for(const d of DEFS)if(d.lev){const s=S.st[d.sym];if(s.px<1&&!S.pos.some(p=>p.sym===d.sym)){s.px=r2(s.px*10);s.prev=r2(s.prev*10);s.cl=s.cl.map(v=>r2(v*10));
     const h=S.sh[d.sym];if(h){h.n=r4(h.n/10);h.avg*=10;h.lots.forEach(l=>{l.n=r4(l.n/10);l.px=r2(l.px*10)})}
     msgs.push([L(`🔀 ${d.sym} gộp cổ phiếu 1:10 (reverse split): giá ×10, số cổ phần ÷10`,`🔀 ${d.sym} 1-for-10 reverse split: price ×10, shares ÷10`),'y']);tlog('reverse_split',{d:{sym:d.sym}})}}
+  /* chia tách cổ phiếu 10:1 khi giá vượt $1,500 */
+  for(const d of DEFS)if(!d.etf){const s=S.st[d.sym];if(s.px>1500&&!S.pos.some(p=>p.sym===d.sym)){s.px=r2(s.px/10);s.prev=r2(s.prev/10);s.cl=s.cl.map(v=>r2(v/10));s.eps/=10;
+    const h=S.sh[d.sym];if(h){h.n=r4(h.n*10);h.avg/=10;h.locked*=10;h.lots.forEach(l=>{l.n=r4(l.n*10);l.px=r4(l.px/10)})}
+    if(h||!quiet)msgs.push([L(`✂️ ${d.sym} chia tách cổ phiếu 10:1: giá ÷10, số cổ phần ×10`,`✂️ ${d.sym} 10-for-1 stock split: price ÷10, shares ×10`),'y']);tlog('split',{d:{sym:d.sym}})}}
   for(const p of S.pos.slice())if(p.exp<=date){settle(p);stop=true}
   const fs=settleFutures(date);for(const m of fs.msgs){msgs.push([m,'y']);stop=true}
   if(S.cash<0){S.mcall=true;stop=true;tlog('margin_call',{d:{cash:Math.round(S.cash)}})}
@@ -760,6 +778,8 @@ function nextDay(quiet){
   if(date.slice(5,7)!==prevDate.slice(5,7)&&S.dca.length){for(const p of S.dca){const s=S.st[p.sym];
     if(buyStock(p.sym,r4(p.amt/s.px),'dca'))msgs.push([L(`🔁 Đầu tư định kỳ: mua ${money(p.amt)} ${p.sym}`,`🔁 Monthly plan: bought ${money(p.amt)} of ${p.sym}`),'g']);
     else msgs.push([L(`🔁 Không đủ tiền cho kế hoạch ${p.sym} tháng này`,`🔁 Not enough cash for the ${p.sym} plan this month`),'r'])}}
+  /* mỗi tháng: gộp các lô đã giữ trên 1 năm thành một lô dài hạn để danh mục gọn khi chơi nhiều năm */
+  if(date.slice(5,7)!==prevDate.slice(5,7))for(const k in S.sh){const h=S.sh[k],old=h.lots.filter(l=>calDays(l.d,date)>=365);if(old.length>1){const n=old.reduce((a,l)=>a+l.n,0),c=old.reduce((a,l)=>a+l.n*l.px,0);h.lots=[{n:r4(n),px:r4(c/n),d:old[0].d}].concat(h.lots.filter(l=>calDays(l.d,date)<365))}}
   if(!expiries().includes(T.exp))pickExp();
   if(!futExps(F.root).includes(F.exp))F.exp=futExps(F.root)[0];
   makeNews();addXp(2);const diff=netWorth()-before;S.dpnl=diff;(S.nwh=S.nwh||[]).push(Math.round(netWorth()));if(S.nwh.length>260)S.nwh.shift();
@@ -844,7 +864,7 @@ function act(a,v){
   else if(a==='calcFill'){calcFill(v);render()}
   else if(a==='next'){if(!busy)nextDay()}
   else if(a==='skipMenu')modal(`<h3>⏩ ${L('Tua thời gian','Skip ahead')}</h3><p>${L('Tua nhanh dành cho đầu tư dài hạn. Game tự dừng khi có sự kiện với vị thế của bạn (đáo hạn, báo cáo lợi nhuận, gọi ký quỹ).','Fast-forward for long-term investing. It stops automatically when something happens to your positions (expiry, earnings, margin call).')}</p>
-    <div class="kv">${[[5,L('1 tuần','1 week')],[21,L('1 tháng','1 month')],[63,L('1 quý','1 quarter')],[252,L('1 năm','1 year')]].map(x=>`<button class="btn b" data-a="skip" data-v="${x[0]}">${x[1]}<br><small>${x[0]} ${L('phiên','sessions')}</small></button>`).join('')}</div>
+    <div class="kv">${[[5,L('1 tuần','1 week')],[21,L('1 tháng','1 month')],[63,L('1 quý','1 quarter')],[252,L('1 năm','1 year')],[1260,L('5 năm','5 years')],[2520,L('10 năm','10 years')]].map(x=>`<button class="btn b" data-a="skip" data-v="${x[0]}">${x[1]}<br><small>${x[0]} ${L('phiên','sessions')}</small></button>`).join('')}</div>
     <button class="btn d w" style="margin-top:10px" data-a="closeModal">${L('Đóng','Close')}</button>`)
   else if(a==='skip'){$('#modal').classList.remove('on');skipN(+v)}
   else if(a==='lang'){const l0=LANG;setLang(v||(LANG==='vi'?'en':'vi'));if(l0!==LANG)tlog('language',{d:{from:l0,to:LANG}});S.lang=LANG;save();render();if($('#modal').classList.contains('on')&&!S.intro)showIntro();else if(v==null)toast(L('🇻🇳 Đã chuyển sang Tiếng Việt','🇺🇸 Switched to English'),'y')}
@@ -875,7 +895,7 @@ function showIntro(){modal(`<div class="chips" style="justify-content:center;mar
 function spark(cl){const a=cl.slice(-30),mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1,up=a[a.length-1]>=a[0];
   return `<svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><polyline fill="none" stroke="${up?'#3ddc84':'#ff5d6c'}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${a.map((v,i)=>(i*56/(a.length-1)).toFixed(1)+','+(25-(v-mn)/r*22).toFixed(1)).join(' ')}"/></svg>`}
 function renderHud(){const nw=netWorth(),l=level(),p=(S.xp-LV[l-1])/(LV[l]-LV[l-1]),tot=nw-10000;
-  $('#hud').innerHTML=`<div class="hudrow"><div class="logo">Options <i>Master</i></div><span class="pill">📅 ${dfmt(S.date)}</span><button class="pill" data-a="lang" aria-label="${L('Đổi ngôn ngữ','Change language')}">${LANG==='vi'?'VI':'EN'}</button><button class="pill" data-a="cloud" id="cl" aria-label="${L('Trạng thái lưu','Save status')}">${CLI[cloud.st]}</button><button class="pill" data-a="askReset" aria-label="${L('Chơi lại','Start over')}">↺</button></div>
+  $('#hud').innerHTML=`<div class="hudrow"><div class="logo">Options <i>Master</i></div><span class="pill">${dfull(S.date)}</span><button class="pill" data-a="lang" aria-label="${L('Đổi ngôn ngữ','Change language')}">${LANG==='vi'?'VI':'EN'}</button><button class="pill" data-a="cloud" id="cl" aria-label="${L('Trạng thái lưu','Save status')}">${CLI[cloud.st]}</button><button class="pill" data-a="askReset" aria-label="${L('Chơi lại','Start over')}">↺</button></div>
   <div class="hudrow" style="margin-top:4px"><div class="grow"><div class="nw" id="nw">${money(nw)}</div><div class="sub"><b class="${cls(tot)}">${tot>=0?'▲':'▼'} ${pc(tot/10000)}</b> · ${L('hôm nay','today')} <b class="${cls(S.dpnl||0)}">${sgn(S.dpnl||0)}</b> · ${L('tiền mặt','cash')} <span class="${S.cash<0?'dn':''}">${money(S.cash)}</span></div></div>
   <div style="width:32%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
   $('#bar').innerHTML=`<button class="btn g grow" data-a="next">▶ ${L('Sang phiên','Next session')} ${dfmt(nextTD(S.date))}</button><button class="btn b" data-a="skipMenu" aria-label="${L('Tua thời gian','Skip ahead')}">»</button>`;
@@ -886,7 +906,7 @@ function bumpNW(){const e=$('#nw');if(e){e.classList.remove('bump');void e.offse
 const tagSym=d=>`<span class="tk" style="background:${d.col}">${d.sym}</span>`;
 function row(d){const s=S.st[d.sym],ch=s.px/s.prev-1,sh=S.sh[d.sym],ed=s.earn?calDays(S.date,s.earn):null;
   return `<button class="card stock" data-a="stock" data-v="${d.sym}">${tagSym(d)}
-    <span class="grow"><b class="nm">${typeof d.name==='string'?d.name:LX(d.name)}</b>${s.cmd?`<span class="tag">${L('Giao ngay','Spot')} · ${L('giao dịch qua future','trade via futures')}</span>`:`<span class="tag">IV ${(iv30(s)*100).toFixed(0)}%</span> ${s.dy?`<span class="tag">${L('Cổ tức','Div')} ${(s.dy*100).toFixed(1)}%</span> `:''}${ed!=null?`<span class="tag ${ed<=4?'e':''}">ER ${dm(s.earn)}</span>`:''}${sh?` <span class="tag y">${shf(sh.n)} ${L('cp','sh')}</span>`:''}`}</span>
+    <span class="grow"><b class="nm">${typeof d.name==='string'?d.name:LX(d.name)}</b>${s.cmd?`<span class="tag">${L('Giao ngay','Spot')} · ${L('giao dịch qua future','trade via futures')}</span>`:`<span class="tag">IV ${(iv30(s)*100).toFixed(0)}%</span> ${s.dy?`<span class="tag">${L('Cổ tức','Div')} ${(s.dy*100).toFixed(1)}%</span> `:''}${ed!=null?`<span class="tag ${ed<=4?'e':''}">ER ${dfull(s.earn)}</span>`:''}${sh?` <span class="tag y">${shf(sh.n)} ${L('cp','sh')}</span>`:''}`}</span>
     ${spark(s.cl)}
     <span style="text-align:right"><b class="big">${s.px.toFixed(2)}</b><br><b class="${cls(ch)}" style="font-size:13px">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(2)}%</b></span></button>`}
 function vMarket(){
@@ -909,7 +929,7 @@ const mSeg=()=>`<div class="seg"><button class="${mview==='list'?'on':''}" data-
 function calDaysList(){const out=[],exps=expiries(),mine=sym=>!!(S.sh[sym]||S.pos.some(p=>p.sym===sym));let d=S.date,t=0,prev=S.date;
   for(let i=1;i<=30;i++){d=addD(S.date,i);const w=dow(d),ev=[];
     if(w===0||w===6)continue;
-    if(HOL.includes(d)){out.push({d,closed:1,ev:[]});continue}
+    if(isHol(d)){out.push({d,closed:1,ev:[]});continue}
     t++;const m=macro(d);if(m)ev.push({k:'macro',t:macroName(m.k)});
     const er=DEFS.filter(x=>S.st[x.sym].earn===d);if(er.length)ev.push({k:'earn',syms:er.map(x=>x.sym)});
     const dv=DEFS.filter(x=>S.st[x.sym].dy>0&&S.st[x.sym].divIn===t);if(dv.length)ev.push({k:'div',syms:dv.map(x=>x.sym)});
@@ -983,7 +1003,7 @@ function vOpt(){const s=S.st[T.sym],a=analyse(T),m=100*T.qty,x=STR[T.strat],st=s
   return `<div class="card">${symSelect(T.sym,'sym')}
   <div class="lbl">${L('Chiến lược','Strategy')}</div><div class="sgrid">${Object.entries(STR).map(([k,v])=>`<button class="chip ${T.strat===k?'on':''} ${lv<v.lv?'lock':''}" data-a="strat" data-v="${k}"><b>${lv<v.lv?'🔒':v.ic}</b>${v.n}</button>`).join('')}</div></div>
   <div class="card"><h3>⛓️ Option chain · ${T.sym} ${money(s.px,2)}</h3>
-  <div class="chips scroll" style="margin-bottom:8px">${expiries().map(e=>`<button class="chip ${T.exp===e?'on':''}" data-a="exp" data-v="${e}">${dm(e)}${s.earn&&e>=s.earn?' ⏰':''}<br><small>${calDays(S.date,e)}${L('n','d')} · ${isMonthly(e)?L('tháng','monthly'):L('tuần','weekly')}</small></button>`).join('')}</div>
+  <div class="chips scroll" style="margin-bottom:8px">${expiries().map(e=>`<button class="chip ${T.exp===e?'on':''}" data-a="exp" data-v="${e}">${dfull(e)}${s.earn&&e>=s.earn?' ⏰':''}<br><small>${calDays(S.date,e)}${L('n','d')} · ${isMonthly(e)?L('tháng','monthly'):L('tuần','weekly')}</small></button>`).join('')}</div>
   ${vChain(s)}</div>
   <div class="card"><h3>${x.ic} ${x.n} · ${L('đáo hạn','expires')} ${dfmt(T.exp)} (${dte} ${L('ngày','days')})</h3>
   <div class="row" style="flex-wrap:wrap;gap:4px 14px">${stp(klbl+(mon?` · <b class="gold">${mon}</b>`:''),'K',kf(T.K))}
