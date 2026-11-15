@@ -261,7 +261,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud.dirt
 
 
 /* ---- bảng điểm & dữ liệu người chơi → Google Sheet (Apps Script web app) ---- */
-const SHEET_API='';
+const SHEET_API='https://script.google.com/macros/s/AKfycbz-hOmcKYD_KEsIddxB-aeq0UfFGucK8sdIasvMxphAM_CRbaoaSq_rcKQi3vh1TyIC/exec';
 const uid=()=>(crypto.randomUUID?crypto.randomUUID():'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,12));
 let PL=(()=>{try{const o=JSON.parse(localStorage.getItem('om-player'));if(o&&o.id)return o}catch(e){}return null})()||{id:uid(),name:''};
 function savePL(){try{localStorage.setItem('om-player',JSON.stringify(PL))}catch(e){}}
