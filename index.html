@@ -207,45 +207,45 @@ function bs(type,S0,K,T,v,q=0,r=RATE){
     th:(-S0*eq*pd*v/(2*Math.sqrt(T))+r*K*er*ncdf(-d2)-q*S0*eq*ncdf(-d1))/365,rho:-K*T*er*ncdf(-d2)/100};
 }
 
-/* ============ dữ liệu (công ty hư cấu) ============ */
+/* ============ dữ liệu: tên và mã thật, giá và tin tức mô phỏng ============ */
 const SECT={
  index:['Quỹ chỉ số','Index ETFs'],tech:['Công nghệ','Technology'],consumer:['Tiêu dùng','Consumer'],finance:['Tài chính','Financials'],
  health:['Y tế','Healthcare'],energy:['Năng lượng','Energy'],industrial:['Công nghiệp','Industrials'],utility:['Tiện ích & Thiết yếu','Utilities & Staples'],
  realestate:['Bất động sản','Real Estate'],comm:['Truyền thông','Communication'],bond:['Trái phiếu','Bonds'],cmdty:['Hàng hóa','Commodities']};
 /* f: hệ số theo vàng (g) / dầu (o); dy: tỷ suất cổ tức năm; pe: P/E dùng cho EPS */
 const DEFS=[
- {sym:'USX',name:'US 500 Index ETF',sec:'index',etf:1,px:560,vol:.15,beta:1,liq:.5,col:'#ffffff',dy:.013},
- {sym:'NQX',name:'Tech 100 Index ETF',sec:'index',etf:1,px:495,vol:.21,beta:1.25,liq:.5,col:'#d9e2ff',dy:.006},
- {sym:'SMX',name:'Small Cap 2000 ETF',sec:'index',etf:1,px:218,vol:.22,beta:1.2,liq:.7,col:'#c7f0d8',dy:.012},
- {sym:'DIVX',name:'High Dividend ETF',sec:'index',etf:1,px:82,vol:.13,beta:.75,liq:.8,col:'#ffe3a3',dy:.036},
- {sym:'BNDX',name:'Aggregate Bond ETF',sec:'bond',etf:1,px:98,vol:.06,beta:-.1,liq:.6,col:'#b8e3ff',dy:.038},
- {sym:'GLDX',name:'Gold Trust ETF',sec:'cmdty',etf:1,px:238,vol:.02,beta:0,g:1,liq:.6,col:'#ffd54f',dy:0},
- {sym:'ORCD',name:'Orchard Devices',sec:'tech',px:228,vol:.27,beta:1.15,liq:.8,col:'#c9d4ff',pe:30,dy:.005},
- {sym:'NVXS',name:'Novaxis Semiconductor',sec:'tech',px:182,vol:.48,beta:1.7,liq:.8,col:'#8ef0a0',pe:45,dy:0},
- {sym:'SKYB',name:'Skybridge Cloud',sec:'tech',px:96,vol:.42,beta:1.4,liq:1.4,col:'#59c8ff',pe:55,dy:0},
- {sym:'QGRD',name:'Quantum Grid Systems',sec:'tech',px:47,vol:.62,beta:1.8,liq:1.8,col:'#a58bff',pe:90,dy:0},
- {sym:'VLTM',name:'Voltaic Motors',sec:'consumer',px:265,vol:.58,beta:1.9,liq:1,col:'#ff7b54',pe:70,dy:0},
- {sym:'BSBG',name:'Big Sky Burger',sec:'consumer',px:41,vol:.29,beta:.7,liq:2,col:'#b98cff',pe:24,dy:.022},
- {sym:'HPRT',name:'Harbor & Pine Retail',sec:'consumer',px:118,vol:.26,beta:.9,liq:1.2,col:'#7fd1b9',pe:22,dy:.015},
- {sym:'HTGB',name:'Heritage Bancorp',sec:'finance',px:58,vol:.24,beta:.95,liq:1.3,col:'#ffc93c',pe:12,dy:.034},
- {sym:'GCNW',name:'Granite Card Networks',sec:'finance',px:312,vol:.23,beta:1.05,liq:.9,col:'#cfd8dc',pe:32,dy:.007},
- {sym:'MRDH',name:'Meridian Health',sec:'health',px:142,vol:.22,beta:.6,liq:1.2,col:'#ff9ecb',pe:18,dy:.019},
- {sym:'HLXB',name:'Helix Biotherapeutics',sec:'health',px:63,vol:.7,beta:1.3,liq:1.8,col:'#f48fb1',pe:80,dy:0},
- {sym:'PXEN',name:'Paxton Energy',sec:'energy',px:74,vol:.31,beta:.8,o:.6,liq:1.5,col:'#d7a86e',pe:11,dy:.04},
- {sym:'SNFR',name:'Sunfield Renewables',sec:'energy',px:29,vol:.55,beta:1.4,o:-.1,liq:2,col:'#aed581',pe:60,dy:0},
- {sym:'IRCA',name:'Ironclad Aerospace',sec:'industrial',px:196,vol:.25,beta:1,liq:1,col:'#90a4ae',pe:26,dy:.012},
- {sym:'NWRL',name:'Northwind Rail',sec:'industrial',px:137,vol:.21,beta:.95,liq:1.1,col:'#80cbc4',pe:20,dy:.021},
- {sym:'LKPL',name:'Lakeside Power & Light',sec:'utility',px:71,vol:.17,beta:.45,liq:1.2,col:'#fff59d',pe:17,dy:.039},
- {sym:'GGFD',name:'Golden Grain Foods',sec:'utility',px:54,vol:.18,beta:.5,liq:1.3,col:'#ffcc80',pe:19,dy:.031},
- {sym:'CSRT',name:'Cornerstone REIT',sec:'realestate',px:88,vol:.24,beta:.85,liq:1.3,col:'#bcaaa4',pe:35,dy:.052},
- {sym:'PLSM',name:'Pulse Media',sec:'comm',px:152,vol:.36,beta:1.2,liq:1,col:'#ef9a9a',pe:28,dy:0}];
-const CMD=[{sym:'GOLD',name:['Vàng giao ngay','Gold spot'],px:2380,vol:.15,unit:'oz',col:'#ffd54f'},{sym:'OIL',name:['Dầu thô WTI','WTI crude oil'],px:76,vol:.34,unit:'bbl',col:'#8d6e63'}];
-/* hợp đồng tương lai micro: und = tài sản cơ sở, k = hệ số quy đổi giá (USX×10 ≈ chỉ số), mult = $/điểm */
+ {sym:'SPY',name:'SPDR S&P 500 ETF Trust',sec:'index',etf:1,px:600,vol:.15,beta:1,liq:.4,col:'#ffffff',dy:.012},
+ {sym:'QQQ',name:'Invesco QQQ Trust',sec:'index',etf:1,px:525,vol:.21,beta:1.25,liq:.4,col:'#d9e2ff',dy:.006},
+ {sym:'IWM',name:'iShares Russell 2000 ETF',sec:'index',etf:1,px:220,vol:.22,beta:1.2,liq:.6,col:'#c7f0d8',dy:.012},
+ {sym:'VYM',name:'Vanguard High Dividend Yield ETF',sec:'index',etf:1,px:130,vol:.13,beta:.75,liq:.8,col:'#ffe3a3',dy:.028},
+ {sym:'BND',name:'Vanguard Total Bond Market ETF',sec:'bond',etf:1,px:73,vol:.06,beta:-.1,liq:.6,col:'#b8e3ff',dy:.037},
+ {sym:'GLD',name:'SPDR Gold Shares',sec:'cmdty',etf:1,px:300,vol:.15,beta:0,g:1,liq:.5,col:'#ffd54f',dy:0},
+ {sym:'AAPL',name:'Apple',sec:'tech',px:228,vol:.27,beta:1.15,liq:.6,col:'#c9d4ff',pe:30,dy:.005},
+ {sym:'NVDA',name:'NVIDIA',sec:'tech',px:180,vol:.48,beta:1.7,liq:.6,col:'#8ef0a0',pe:45,dy:0},
+ {sym:'MSFT',name:'Microsoft',sec:'tech',px:500,vol:.25,beta:1.1,liq:.6,col:'#59c8ff',pe:35,dy:.007},
+ {sym:'PLTR',name:'Palantir Technologies',sec:'tech',px:150,vol:.62,beta:1.8,liq:1,col:'#a58bff',pe:200,dy:0},
+ {sym:'TSLA',name:'Tesla',sec:'consumer',px:330,vol:.58,beta:1.9,liq:.7,col:'#ff7b54',pe:120,dy:0},
+ {sym:'MCD',name:"McDonald's",sec:'consumer',px:290,vol:.17,beta:.6,liq:1,col:'#b98cff',pe:25,dy:.024},
+ {sym:'WMT',name:'Walmart',sec:'consumer',px:98,vol:.2,beta:.55,liq:1,col:'#7fd1b9',pe:38,dy:.01},
+ {sym:'JPM',name:'JPMorgan Chase',sec:'finance',px:290,vol:.22,beta:1.05,liq:.8,col:'#ffc93c',pe:14,dy:.02},
+ {sym:'V',name:'Visa',sec:'finance',px:340,vol:.2,beta:.95,liq:.8,col:'#cfd8dc',pe:32,dy:.007},
+ {sym:'JNJ',name:'Johnson & Johnson',sec:'health',px:170,vol:.17,beta:.5,liq:1,col:'#ff9ecb',pe:17,dy:.03},
+ {sym:'MRNA',name:'Moderna',sec:'health',px:28,vol:.7,beta:1.3,liq:1.8,col:'#f48fb1',pe:80,dy:0},
+ {sym:'XOM',name:'Exxon Mobil',sec:'energy',px:112,vol:.25,beta:.8,o:.6,liq:1,col:'#d7a86e',pe:14,dy:.035},
+ {sym:'ENPH',name:'Enphase Energy',sec:'energy',px:40,vol:.65,beta:1.5,o:-.1,liq:1.8,col:'#aed581',pe:60,dy:0},
+ {sym:'BA',name:'Boeing',sec:'industrial',px:220,vol:.32,beta:1.2,liq:1,col:'#90a4ae',pe:60,dy:0},
+ {sym:'UNP',name:'Union Pacific',sec:'industrial',px:230,vol:.21,beta:.95,liq:1,col:'#80cbc4',pe:20,dy:.023},
+ {sym:'NEE',name:'NextEra Energy',sec:'utility',px:72,vol:.2,beta:.5,liq:1.2,col:'#fff59d',pe:20,dy:.03},
+ {sym:'KO',name:'Coca-Cola',sec:'utility',px:70,vol:.15,beta:.5,liq:1.1,col:'#ffcc80',pe:24,dy:.029},
+ {sym:'O',name:'Realty Income',sec:'realestate',px:57,vol:.2,beta:.75,liq:1.3,col:'#bcaaa4',pe:50,dy:.055},
+ {sym:'META',name:'Meta Platforms',sec:'comm',px:700,vol:.35,beta:1.25,liq:.7,col:'#ef9a9a',pe:27,dy:.003}];
+const CMD=[{sym:'GOLD',name:['Vàng giao ngay','Gold spot'],px:3270,vol:.15,unit:'oz',col:'#ffd54f'},{sym:'OIL',name:['Dầu thô WTI','WTI crude oil'],px:65,vol:.34,unit:'bbl',col:'#8d6e63'}];
+/* hợp đồng tương lai micro CME: und = tài sản cơ sở, k = hệ số quy đổi (SPY×10 ≈ chỉ số S&P 500, QQQ×41 ≈ Nasdaq-100), mult = $/điểm */
 const FUT=[
- {root:'MUS',name:['Micro US 500','Micro US 500'],und:'USX',k:10,mult:5,tick:.25,im:.065,mm:.059,months:[3,6,9,12],q:.013},
- {root:'MNQ',name:['Micro Tech 100','Micro Tech 100'],und:'NQX',k:40,mult:2,tick:.25,im:.075,mm:.068,months:[3,6,9,12],q:.006},
+ {root:'MES',name:['Micro E-mini S&P 500','Micro E-mini S&P 500'],und:'SPY',k:10,mult:5,tick:.25,im:.065,mm:.059,months:[3,6,9,12],q:.012},
+ {root:'MNQ',name:['Micro E-mini Nasdaq-100','Micro E-mini Nasdaq-100'],und:'QQQ',k:41,mult:2,tick:.25,im:.075,mm:.068,months:[3,6,9,12],q:.006},
  {root:'MGC',name:['Micro Vàng','Micro Gold'],und:'GOLD',k:1,mult:10,tick:.1,im:.055,mm:.05,months:[2,4,6,8,10,12],q:0},
- {root:'MCL',name:['Micro Dầu thô','Micro Crude Oil'],und:'OIL',k:1,mult:100,tick:.01,im:.10,mm:.091,months:[1,2,3,4,5,6,7,8,9,10,11,12],q:-.015}];
+ {root:'MCL',name:['Micro Dầu thô WTI','Micro WTI Crude Oil'],und:'OIL',k:1,mult:100,tick:.01,im:.10,mm:.091,months:[1,2,3,4,5,6,7,8,9,10,11,12],q:-.015}];
 const MCODE='FGHJKMNQUVXZ';
 const FUTFEE=0.85;
 const STR={
@@ -331,11 +331,11 @@ const LESS=[
   [['Vì sao lãi vượt kỳ vọng mà giá vẫn giảm?','Giá phản ứng với tương lai: dự báo (guidance) bị hạ, doanh thu hụt, hoặc cổ phiếu đã chạy mạnh trước báo cáo nên tin tốt nằm sẵn trong giá. Mỗi báo cáo trong game có EPS, doanh thu và guidance — hãy đọc cả ba.'],['Why can a stock fall after beating earnings?','Prices react to the future: guidance gets cut, revenue misses, or the stock ran up before the report so the good news was priced in. Every report in the game shows EPS, revenue and guidance — read all three.']]]},
  {h:['📜 Hợp đồng tương lai (futures)','📜 Futures'],items:[
   [['Future khác options thế nào?',`Ý cốt lõi: <b>future là nghĩa vụ, options là quyền.</b>{FVO}`],['How do futures differ from options?',`The core idea: <b>a future is an obligation, an option is a right.</b>{FVO}`]],
-  [['Hợp đồng micro trong game','MUS (Micro US 500, $5/điểm), MNQ (Micro Tech 100, $2/điểm), MGC (Micro Vàng, 10 oz), MCL (Micro Dầu thô, 100 thùng). Mã như MUSH7 = MUS, tháng 3 (H), năm 2027. Mã tháng: F G H J K M N Q U V X Z = tháng 1 → 12.'],['Micro contracts in the game','MUS (Micro US 500, $5/point), MNQ (Micro Tech 100, $2/point), MGC (Micro Gold, 10 oz), MCL (Micro Crude Oil, 100 barrels). A code like MUSH7 = MUS, March (H), 2027. Month codes: F G H J K M N Q U V X Z = January → December.']],
+  [['Hợp đồng micro trong game','MES (Micro E-mini S&P 500, $5/điểm), MNQ (Micro E-mini Nasdaq-100, $2/điểm), MGC (Micro Vàng, 10 oz), MCL (Micro Dầu thô, 100 thùng). Mã như MESH7 = MES, tháng 3 (H), năm 2027. Mã tháng: F G H J K M N Q U V X Z = tháng 1 → 12.'],['Micro contracts in the game','MES (Micro E-mini S&P 500, $5/point), MNQ (Micro E-mini Nasdaq-100, $2/point), MGC (Micro Gold, 10 oz), MCL (Micro Crude Oil, 100 barrels). A code like MESH7 = MES, March (H), 2027. Month codes: F G H J K M N Q U V X Z = January → December.']],
   [['Ký quỹ ban đầu & duy trì','Mở lệnh phải đặt ký quỹ ban đầu (khoảng 5–10% giá trị hợp đồng). Đó là tiền đặt cọc, không phải phí. Đòn bẩy 10–20 lần: giá đi 1% có thể làm tài khoản đi 10–20%.'],['Initial & maintenance margin','Opening a contract requires initial margin (about 5–10% of its value). It is a deposit, not a fee. Leverage is 10–20×: a 1% move can swing your account 10–20%.']],
   [['Mark-to-market & margin call','Cuối mỗi phiên, lãi/lỗ được cộng/trừ thẳng vào tiền mặt. Nếu tiền mặt âm, bạn bị gọi ký quỹ (margin call): phải bán bớt tài sản hoặc đóng vị thế trước phiên sau. Không xử lý thì sàn tự đóng vị thế — và bạn vẫn có thể lỗ nhiều hơn số đã ký quỹ.'],['Mark-to-market & margin calls','After every session, P&L is credited or debited straight to cash. If cash goes negative you get a margin call: sell something or close positions before the next session. Ignore it and the broker liquidates you — and you can still lose more than your margin.']],
   [['Basis, contango & roll','Giá future = giá giao ngay × e^(chi phí nắm giữ × T). Chỉ số: lãi suất trừ cổ tức. Dầu thường ở trạng thái contango (kỳ hạn xa đắt hơn). Muốn giữ vị thế lâu phải "roll": đóng hợp đồng gần đáo hạn, mở hợp đồng kỳ sau. Game thanh toán bằng tiền khi đáo hạn; dầu thật giao hàng vật chất nên trader luôn roll trước hạn.'],['Basis, contango & the roll','Futures price = spot × e^(cost of carry × T). Indexes: interest rate minus dividends. Oil is often in contango (later months cost more). To hold longer you "roll": close the expiring contract and open the next one. The game cash-settles at expiry; real oil is physically delivered, so traders always roll first.']],
-  [['Dùng future để làm gì?','Phòng hộ: chủ danh mục cổ phiếu bán MUS để giảm rủi ro thị trường mà không phải bán cổ phiếu. Đầu cơ: mua/bán vàng, dầu, chỉ số với vốn nhỏ. Cả hai đều cần quản trị ký quỹ cẩn thận.'],['What are futures for?','Hedging: a stock investor sells MUS to cut market risk without selling shares. Speculation: trade gold, oil or indexes with little capital. Both need careful margin management.']]]},
+  [['Dùng future để làm gì?','Phòng hộ: chủ danh mục cổ phiếu bán MES để giảm rủi ro thị trường mà không phải bán cổ phiếu. Đầu cơ: mua/bán vàng, dầu, chỉ số với vốn nhỏ. Cả hai đều cần quản trị ký quỹ cẩn thận.'],['What are futures for?','Hedging: a stock investor sells MES to cut market risk without selling shares. Speculation: trade gold, oil or indexes with little capital. Both need careful margin management.']]]},
  {h:['🌱 Đầu tư dài hạn & ngắn hạn','🌱 Long-term vs short-term'],items:[
   [['Đầu tư hay giao dịch?','Giao dịch ngắn hạn: giữ vài ngày tới vài tuần, kiếm lời từ biến động, cần theo dõi sát và chịu nhiều phí. Đầu tư dài hạn: giữ nhiều năm, hưởng tăng trưởng doanh nghiệp và cổ tức, ít phải làm gì. Danh mục trong game gắn nhãn từng lô: dưới 1 năm là ngắn hạn, từ 1 năm là dài hạn.'],['Investing or trading?','Short-term trading: hold days to weeks, profit from swings, watch closely and pay more costs. Long-term investing: hold for years, earn business growth and dividends, do little. The portfolio tags each lot: under 1 year is short-term, 1 year or more is long-term.']],
   [['Thuế theo thời gian nắm giữ (Mỹ)','Ở Mỹ, lãi từ tài sản giữ dưới 1 năm bị đánh thuế như thu nhập thường; giữ từ 1 năm trở lên hưởng thuế suất lãi vốn dài hạn thấp hơn (0/15/20%). Game không tính thuế, nhưng nhãn ngắn/dài hạn giúp bạn quen với khái niệm này. Đây không phải tư vấn thuế.'],['Holding-period taxes (US)','In the US, gains on assets held under a year are taxed as ordinary income; holding a year or more gets lower long-term capital-gains rates (0/15/20%). The game does not tax you, but the short/long-term tags teach the idea. This is not tax advice.']],
@@ -346,15 +346,15 @@ const LESS=[
  {h:['🛡️ Quản trị rủi ro & giới hạn của game','🛡️ Risk & game limits'],items:[
   [['Quản trị vốn','Nhiều nhà giao dịch chỉ đặt 2–5% tài khoản cho mỗi lệnh mua quyền chọn, vì một lệnh có thể mất 100%. Với future, hãy tính lỗ khi giá đi ngược 5% trước khi vào lệnh. Cháy tài khoản thường do đi lệnh quá to, không phải do sai hướng.'],['Position sizing','Many traders risk only 2–5% of the account on each long option, since any trade can go to zero. With futures, work out the loss on a 5% adverse move before entering. Accounts usually blow up from oversized bets, not from being wrong on direction.']],
   [['Sự kiện vĩ mô','Fed, CPI, báo cáo việc làm làm cả thị trường rung mạnh. Họp OPEC+ làm giá dầu nhảy. Cổ phiếu beta cao rung mạnh hơn chỉ số; beta thấp rung ít hơn.'],['Macro events','Fed decisions, CPI and jobs reports shake the whole market. OPEC+ meetings move oil. High-beta stocks swing harder than the index; low-beta ones swing less.']],
-  [['Game khác thực tế ở đâu?','Công ty và giá là mô phỏng; mã trùng ngoài đời là ngẫu nhiên. Chưa có: giao cổ phiếu sớm trước đáo hạn, lệnh giới hạn, ký quỹ margin cho cổ phiếu, thuế, giao dầu vật chất. Đây là công cụ luyện tập, không phải lời khuyên đầu tư.'],['How is the game different from reality?','Companies and prices are simulated; any match with a real ticker is a coincidence. Not modeled: early assignment, limit orders, margin loans for stocks, taxes, physical oil delivery. This is a practice tool, not investment advice.']]]}];
+  [['Game khác thực tế ở đâu?','Tên và mã là công ty thật, nhưng giá, tin tức và báo cáo lợi nhuận trong game đều là MÔ PHỎNG, không phản ánh công ty thật. Chưa có: giao cổ phiếu sớm trước đáo hạn, lệnh giới hạn, ký quỹ margin cho cổ phiếu, thuế, giao dầu vật chất. Đây là công cụ luyện tập, không phải lời khuyên đầu tư.'],['How is the game different from reality?','Names and tickers are real companies, but every price, news item and earnings report in the game is SIMULATED and says nothing about the real company. Not modeled: early assignment, limit orders, margin loans for stocks, taxes, physical oil delivery. This is a practice tool, not investment advice.']]]}];
 
 /* ============ trạng thái ============ */
-let S,tab='market',sel='ORCD',detail=false,busy=false,sector='all',tmode='opt',chartRange='3m';
-let T={sym:'ORCD',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
-let F={root:'MUS',exp:'',qty:1};
-let Q={sym:'USX',qty:10,dca:100};
+let S,tab='market',sel='AAPL',detail=false,busy=false,sector='all',tmode='opt',chartRange='3m';
+let T={sym:'AAPL',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
+let F={root:'MES',exp:'',qty:1};
+let Q={sym:'SPY',qty:10,dca:100};
 let C={S:100,K:100,days:30,iv:30,r:4,q:0,type:'C',view:'price'};
-const KEY='caothu-quyenchon-v3',FEE=0.65,VER=3;
+const KEY='caothu-quyenchon-v4',FEE=0.65,VER=4;
 function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.v===VER&&o.st)return o}}catch(e){}return null}
 const def=sym=>DEFS.find(d=>d.sym===sym)||CMD.find(d=>d.sym===sym);
 const fdef=r=>FUT.find(f=>f.root===r);
@@ -378,7 +378,7 @@ async function cloudInit(){const ts0=S.ts||0;let c=window.claude;
     if(snap.exists){let o=null;try{o=JSON.parse(snap.data().json)}catch(e){}
       const fresh=S.day===1&&!S.pos.length&&!S.fut.length&&!Object.keys(S.sh).length&&S.xp<12,ok=o&&o.v===VER&&o.st&&o.date;
       if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=o;ensureGame();if(S.pl&&S.pl.id){PL=S.pl;savePL()}if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-        tab='market';detail=false;T.sym='ORCD';T.strat='call';T.exp='';resetK();F.exp='';$('#modal').classList.remove('on');render();
+        tab='market';detail=false;T.sym='AAPL';T.strat='call';T.exp='';resetK();F.exp='';$('#modal').classList.remove('on');render();
         toast(L('☁️ Đã tải tiến trình từ cloud: phiên ','☁️ Progress loaded from the cloud: session ')+dfmt(S.date)+' · '+money(netWorth()),'y');setCloud('ok')}
       else if(!ok||ts0>(o.ts||0)){cloud.dirty=true;cloudPush()}else setCloud('ok')}
     else{if(!S.ts)S.ts=Date.now();cloud.dirty=true;cloudPush()}
@@ -406,7 +406,7 @@ async function telFlush(){if(!SHEET_ON||tel.busy||tel.fails>=3||(!tel.q.length&&
 document.addEventListener('visibilitychange',()=>{if(!document.hidden||!SHEET_ON||tel.fails>=3||(!tel.q.length&&!tel.closed.length))return;
   const n=Math.min(tel.q.length,250);try{if(navigator.sendBeacon(SHEET_API,new Blob([telBody(n)],{type:'text/plain;charset=utf-8'}))){tel.q.splice(0,n);tel.closed=[];telSave()}}catch(e){}});
 function inEN(f){const l=LANG;LANG='en';try{return f()}finally{LANG=l}}
-function mktCtx(sym){const s=S.st[sym],em=s.earn?expMove(s):null,ok=!isCmd(sym);return{px:s.px,iv:ok?+(iv30(s)*100).toFixed(1):'',ivr:ok?+ivRank(s).toFixed(0):'',hv:+(hv20(s)*100).toFixed(1),vix:+(iv30(S.st.USX)*100).toFixed(1),
+function mktCtx(sym){const s=S.st[sym],em=s.earn?expMove(s):null,ok=!isCmd(sym);return{px:s.px,iv:ok?+(iv30(s)*100).toFixed(1):'',ivr:ok?+ivRank(s).toFixed(0):'',hv:+(hv20(s)*100).toFixed(1),vix:+(iv30(S.st.SPY)*100).toFixed(1),
   toEarn:s.earn?calDays(S.date,s.earn):'',em:em?+(em*100).toFixed(1):'',news:inEN(()=>S.news.map(newsTxt).join(' | ')),nw:Math.round(netWorth()),cashBefore:Math.round(S.cash),lv:level(),lang:LANG}}
 function ensureGame(){if(!S.gid){S.gid=uid();S.gno=S.gno||1;S.greason=S.greason||'existing';S.gstart=S.gstart||S.date;S.ntr=S.ntr||0}}
 async function loadBoard(force){if(!SHEET_ON){tel.lbErr=true;return}if(!force&&tel.lb&&Date.now()-tel.lbAt<60000)return;
@@ -457,7 +457,7 @@ function stepStock(s,mret,cm,date){
   const fac=s.beta*mret+s.g*(cm.GOLD||0)+s.o*(cm.OIL||0),sys=Math.sqrt((s.beta*.15)**2+(s.g*.15)**2+(s.o*.34)**2);
   const idio=Math.sqrt(Math.max(.0004,s.vol*s.vol-sys*sys));
   ret=fac+(s.etf?0:s.drift/252)+idio*(s.etf?1:s.vs)/15.87*zi;
-  if(s.sym==='BNDX')ret+=0.035/252;
+  if(s.sym==='BND')ret+=0.035/252;
   if(date&&s.earn===date){er=earnings(s,date);ret=er.move+s.beta*mret;er.ret=ret}
   if(!s.etf)s.vs=clamp(0.9*s.vs+0.1*Math.abs(zi)*1.25,0.6,1.9);
   let c=Math.max(0.5,p0*(1+ret));
@@ -668,13 +668,13 @@ function nextDay(quiet){
   if(!futExps(F.root).includes(F.exp))F.exp=futExps(F.root)[0];
   makeNews();addXp(2);const diff=netWorth()-before;
   {let th=0;for(const p of S.pos)th+=quote(p.sym,p.legs,p.exp,false).th*100*p.qty;
-   tlog('day',{nw:Math.round(netWorth()),dpnl:Math.round(diff),cash:Math.round(S.cash),npos:S.pos.length+S.fut.length,shares:Object.keys(S.sh).map(k=>k+':'+shf(S.sh[k].n)).join(' '),theta:Math.round(th),vix:+(iv30(S.st.USX)*100).toFixed(1),mkt:+(mret*100).toFixed(2),macro:ev?ev.k:'',earn:erl.join(' | '),settled:tel.settled.concat(divTot?['dividends '+r2(divTot)]:[]).join(' | ')})}
+   tlog('day',{nw:Math.round(netWorth()),dpnl:Math.round(diff),cash:Math.round(S.cash),npos:S.pos.length+S.fut.length,shares:Object.keys(S.sh).map(k=>k+':'+shf(S.sh[k].n)).join(' '),theta:Math.round(th),vix:+(iv30(S.st.SPY)*100).toFixed(1),mkt:+(mret*100).toFixed(2),macro:ev?ev.k:'',earn:erl.join(' | '),settled:tel.settled.concat(divTot?['dividends '+r2(divTot)]:[]).join(' | ')})}
   fire('tick');
   if(!quiet){for(const m of msgs)toast(m[0],m[1]);if(diff>before*0.03){sfx('win');confetti(50)}else if(diff<-before*0.03){sfx('lose');shake()}else sfx('tick');save();render();bumpNW()}
   else for(const m of msgs)if(m[1]!=='g'||stop)tel.skipMsgs.push(m);
   if(S.mcall&&!$('#modal').classList.contains('on'))modal(`<div class="bubble">${BEAR}<p>${L('Bạn đang bị GỌI KÝ QUỸ: tiền mặt âm','You have a MARGIN CALL: cash is negative')} (${money(S.cash)}).</p></div><p>${L('Hợp đồng tương lai được tính lãi/lỗ vào tiền mặt mỗi phiên. Trước phiên sau, hãy đóng bớt hợp đồng hoặc bán tài sản để tiền mặt ≥ 0. Nếu không, sàn sẽ tự đóng toàn bộ vị thế tương lai.','Futures P&L is settled into cash every session. Before the next session, close some contracts or sell assets so cash is ≥ 0. Otherwise the broker will liquidate all your futures.')}</p><button class="btn w r" data-a="goPort">${L('Xem danh mục','Open portfolio')}</button>`);
   else if(em&&!quiet&&!$('#modal').classList.contains('on')){const[d,e]=em,w=whyTxt(e);
-    modal(`<h3>📣 ${d.name} (${d.sym}) ${L('báo cáo lợi nhuận','reports earnings')}</h3>${earnHtml(e)}<div class="bubble">${e.ret>=0?BULL:BEAR}<p>${e.sur>=0&&e.ret<0?L('Lãi vượt kỳ vọng mà giá vẫn giảm: ','Beat on earnings, yet the stock fell: '):e.sur<0&&e.ret>=0?L('Lãi hụt mà giá vẫn tăng: ','Missed on earnings, yet the stock rose: '):''}${w?w.charAt(0).toUpperCase()+w.slice(1)+'. ':''}${L(`IV của ${d.sym} vừa xẹp — xem lại lệnh ở Danh mục.`,`${d.sym} IV just collapsed — check your positions in Portfolio.`)}</p></div><button class="btn w" data-a="closeModal">${L('Đã hiểu','Got it')}</button>`)}
+    modal(`<h3>📣 ${d.name} (${d.sym}) ${L('báo cáo lợi nhuận (mô phỏng)','reports earnings (simulated)')}</h3>${earnHtml(e)}<div class="bubble">${e.ret>=0?BULL:BEAR}<p>${e.sur>=0&&e.ret<0?L('Lãi vượt kỳ vọng mà giá vẫn giảm: ','Beat on earnings, yet the stock fell: '):e.sur<0&&e.ret>=0?L('Lãi hụt mà giá vẫn tăng: ','Missed on earnings, yet the stock rose: '):''}${w?w.charAt(0).toUpperCase()+w.slice(1)+'. ':''}${L(`IV của ${d.sym} vừa xẹp — xem lại lệnh ở Danh mục.`,`${d.sym} IV just collapsed — check your positions in Portfolio.`)}</p></div><button class="btn w" data-a="closeModal">${L('Đã hiểu','Got it')}</button>`)}
   if(broke())gameOver();
   return stop}
 function skipN(n){if(busy)return;busy=true;tel.skipMsgs=[];const start=netWorth(),d0=S.date;let i=0,stopped=false;
@@ -766,7 +766,7 @@ document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.c){const v=parseFloat(t.value);if(isFinite(v)){C[t.dataset.c]=v;updCalc()}}});
 function showIntro(){modal(`<div class="chips" style="justify-content:center;margin-bottom:6px"><button class="chip ${LANG==='vi'?'on':''}" data-a="lang" data-v="vi">🇻🇳 Tiếng Việt</button><button class="chip ${LANG==='en'?'on':''}" data-a="lang" data-v="en">🇺🇸 English</button></div>
 <div class="bubble">${BULL}<p>${L('Chào mừng tới sàn! Ta là Bò Vàng, sẽ dẫn bạn từ Tập Sự lên Huyền Thoại.','Welcome to the floor! I\'m Goldie the Bull, and I\'ll take you from Rookie to Legend.')}</p></div>
-<h3>${L('Luật chơi','How to play')}</h3><p>${L('• Bạn có <b>$10,000 tiền ảo</b>, 19 cổ phiếu ở 10 ngành, 6 ETF, vàng và dầu (đều mô phỏng).<br>• Tab <b>Giao dịch</b> có 4 phần: Quyền chọn (15 chiến lược), Tương lai, Cổ phiếu (mua bán, đầu tư định kỳ, cổ tức) và Máy tính Black–Scholes.<br>• <b>▶</b> sang phiên kế tiếp theo lịch Mỹ; <b>⏩</b> tua theo tuần, tháng, quý, năm để đầu tư dài hạn.<br>• Làm <b>Nhiệm vụ</b> để lên cấp và mở khóa chiến lược.','• You start with <b>$10,000 in play money</b>, 19 stocks across 10 sectors, 6 ETFs, gold and oil (all simulated).<br>• The <b>Trade</b> tab has 4 parts: Options (15 strategies), Futures, Stocks (buy/sell, monthly plans, dividends) and a Black–Scholes calculator.<br>• <b>▶</b> moves to the next US trading session; <b>⏩</b> skips a week, month, quarter or year for long-term investing.<br>• Complete <b>Missions</b> to level up and unlock strategies.')}</p>
+<h3>${L('Luật chơi','How to play')}</h3><p>${L('• Bạn có <b>$10,000 tiền ảo</b>, 19 cổ phiếu Mỹ ở 10 ngành, 6 ETF, vàng và dầu — tên thật, giá và tin tức mô phỏng.<br>• Tab <b>Giao dịch</b> có 4 phần: Quyền chọn (15 chiến lược), Tương lai, Cổ phiếu (mua bán, đầu tư định kỳ, cổ tức) và Máy tính Black–Scholes.<br>• <b>▶</b> sang phiên kế tiếp theo lịch Mỹ; <b>⏩</b> tua theo tuần, tháng, quý, năm để đầu tư dài hạn.<br>• Làm <b>Nhiệm vụ</b> để lên cấp và mở khóa chiến lược.','• You start with <b>$10,000 in play money</b>, 19 US stocks across 10 sectors, 6 ETFs, gold and oil — real names, simulated prices and news.<br>• The <b>Trade</b> tab has 4 parts: Options (15 strategies), Futures, Stocks (buy/sell, monthly plans, dividends) and a Black–Scholes calculator.<br>• <b>▶</b> moves to the next US trading session; <b>⏩</b> skips a week, month, quarter or year for long-term investing.<br>• Complete <b>Missions</b> to level up and unlock strategies.')}</p>
 <button class="btn w g" data-a="closeModal">${L('Vào sàn!','Let\'s trade!')}</button>`)}
 
 /* ============ giao diện ============ */
@@ -788,10 +788,10 @@ function row(d){const s=S.st[d.sym],ch=s.px/s.prev-1,sh=S.sh[d.sym],ed=s.earn?ca
     <span style="text-align:right"><b class="big">${s.px.toFixed(2)}</b><br><b class="${cls(ch)}" style="font-size:13px">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(2)}%</b></span></button>`}
 function vMarket(){
   if(detail)return vDetail();
-  const ux=S.st.USX,vix=iv30(ux)*100,ev=events(),g=S.st.GOLD,o=S.st.OIL,u1=ux.px/ux.prev-1;
+  const ux=S.st.SPY,vix=iv30(ux)*100,ev=events(),g=S.st.GOLD,o=S.st.OIL,u1=ux.px/ux.prev-1;
   let h=`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">🇺🇸 ${L('Phiên','Session')} ${dfmt(S.date)} ${L('đã đóng cửa','closed')}</h3><div class="sub">${L(`Phiên thứ ${S.day} của bạn`,`Your session #${S.day}`)}</div></div><span class="tag ${vix>25?'r':vix>19?'y':'g'}">VIX ${vix.toFixed(1)}</span></div>
-  <div class="mini3"><div><span>US 500</span><b class="${cls(u1)}">${pc(u1,2)}</b></div><div><span>${L('Vàng','Gold')}</span><b>${g.px.toFixed(0)} <i class="${cls(g.px-g.prev)}">${pc(g.px/g.prev-1,1)}</i></b></div><div><span>${L('Dầu','Oil')}</span><b>${o.px.toFixed(2)} <i class="${cls(o.px-o.prev)}">${pc(o.px/o.prev-1,1)}</i></b></div></div>
-  <div class="lbl">${L('Tin & nhận định','News & analyst calls')}</div>${S.news.map(n=>`<div class="news">${n.tone>0?'🟢':n.tone<0?'🔴':'⚪'} ${newsTxt(n)}</div>`).join('')}
+  <div class="mini3"><div><span>S&P 500</span><b class="${cls(u1)}">${pc(u1,2)}</b></div><div><span>${L('Vàng','Gold')}</span><b>${g.px.toFixed(0)} <i class="${cls(g.px-g.prev)}">${pc(g.px/g.prev-1,1)}</i></b></div><div><span>${L('Dầu','Oil')}</span><b>${o.px.toFixed(2)} <i class="${cls(o.px-o.prev)}">${pc(o.px/o.prev-1,1)}</i></b></div></div>
+  <div class="lbl">${L('Tin & nhận định (mô phỏng)','News & analyst calls (simulated)')}</div>${S.news.map(n=>`<div class="news">${n.tone>0?'🟢':n.tone<0?'🔴':'⚪'} ${newsTxt(n)}</div>`).join('')}
   <div class="lbl">${L('Lịch sự kiện sắp tới','Upcoming events')}</div>${ev.length?ev.map(e=>`<div class="news"><span class="tag">${dfmt(e.d)}</span> ${e.t}</div>`).join(''):`<div class="sub">${L('Chưa có sự kiện lớn.','No major events.')}</div>`}
   <div class="sub" style="margin-top:4px">${L('Tin đồn đúng khoảng 7/10 lần — đừng tất tay.','Rumors are right about 7 times in 10 — never go all in.')}</div></div>`;
   if(S.m<MISS.length)h+=`<button class="card stock" data-a="tab" data-v="miss" style="background:linear-gradient(#ffd866,#ffb21c);color:var(--ink)"><span style="font-size:26px">🏅</span><span class="grow"><b>${L('Nhiệm vụ','Mission')} ${S.m+1}:</b> ${LX(MISS[S.m].t)}<br><span style="font-size:12px;font-weight:700">${LX(MISS[S.m].h)}</span></span></button>`;
@@ -867,7 +867,7 @@ function vFut(){const lv=level(),locked=lv<FUT_LV,f=fdef(F.root);if(!futExps(F.r
   <div class="chips">${FUT.map(x=>`<button class="chip ${F.root===x.root?'on':''}" data-a="futRoot" data-v="${x.root}">${x.root}<br><small>${LX(x.name)}</small></button>`).join('')}</div>
   <div class="lbl">${L('Kỳ hạn','Contract month')}</div><div class="chips">${futExps(F.root).map(e=>`<button class="chip ${F.exp===e?'on':''}" data-a="futExp" data-v="${e}">${futCode(F.root,e)}<br><small>${L('đáo hạn','exp')} ${dfull(e)} · ${calDays(S.date,e)}${L('n','d')}</small></button>`).join('')}</div></div>
   <div class="card"><h3>📜 ${futCode(F.root,F.exp)} · ${LX(f.name)}</h3>
-  <div class="kv"><div><span>${L('Giá giao ngay','Spot')} (${f.und==='USX'||f.und==='NQX'?f.und+' × '+f.k:LX(def(f.und).name)})</span><b>${sp.toFixed(2)}</b></div><div><span>${L('Giá future','Futures price')}</span><b>${px.toFixed(2)}</b></div>
+  <div class="kv"><div><span>${L('Giá giao ngay','Spot')} (${f.und==='SPY'||f.und==='QQQ'?f.und+' × '+f.k:LX(def(f.und).name)})</span><b>${sp.toFixed(2)}</b></div><div><span>${L('Giá future','Futures price')}</span><b>${px.toFixed(2)}</b></div>
   <div><span>Basis (F − S)</span><b class="${cls(px-sp)}">${(px-sp>=0?'+':'')+(px-sp).toFixed(2)} ${px>sp?'· contango':'· backwardation'}</b></div><div><span>${L('Giá trị 1 điểm','Value per point')}</span><b>$${f.mult} · tick ${f.tick} = $${tv.toFixed(2)}</b></div>
   <div><span>${L('Giá trị hợp đồng (notional)','Notional value')}</span><b>${money(notional)}</b></div><div><span>${L('Đòn bẩy','Leverage')}</span><b>${(notional/im).toFixed(1)}×</b></div>
   <div><span>${L('Ký quỹ ban đầu','Initial margin')}</span><b>${money(im)}</b></div><div><span>${L('Ký quỹ duy trì','Maintenance margin')}</span><b>${money(mm)}</b></div></div>
@@ -897,7 +897,7 @@ function vStk(){const d=def(Q.sym),s=S.st[Q.sym],h=S.sh[Q.sym],free=freeSh(Q.sym
 function lotsHtml(sym){const h=S.sh[sym];return h.lots.map(l=>{const days=calDays(l.d,S.date),lt=days>=365,pnl=(S.st[sym].px-l.px)*l.n;
   return `<div class="row" style="padding:3px 0"><span class="grow">${shf(l.n)} ${L('cp','sh')} @ ${l.px.toFixed(2)} <span class="sub">· ${dfull(l.d)} · ${days} ${L('ngày','days')}</span></span><span class="tag ${lt?'g':''}">${lt?L('Dài hạn','Long-term'):L('Ngắn hạn','Short-term')}</span> <b class="${cls(pnl)}" style="min-width:64px;text-align:right">${sgn(pnl)}</b></div>`}).join('')}
 /* ---- máy tính quyền chọn ---- */
-function calcFill(sym){const s=S.st[sym||T.sym||'ORCD'];const e=T.exp||expiries()[2];C.S=s.px;C.K=atm(s);C.days=Math.max(1,calDays(S.date,e));C.iv=+(ivAt(s,atm(s),e)*100).toFixed(1);C.r=RATE*100;C.q=+(s.dy*100).toFixed(2);C.sym=s.sym;C.init=1}
+function calcFill(sym){const s=S.st[sym||T.sym||'AAPL'];const e=T.exp||expiries()[2];C.S=s.px;C.K=atm(s);C.days=Math.max(1,calDays(S.date,e));C.iv=+(ivAt(s,atm(s),e)*100).toFixed(1);C.r=RATE*100;C.q=+(s.dy*100).toFixed(2);C.sym=s.sym;C.init=1}
 function calcRes(){const T0=C.days/365,v=C.iv/100,r=C.r/100,q=C.q/100;const c=bs('C',C.S,C.K,T0,v,q,r),p=bs('P',C.S,C.K,T0,v,q,r);return{c,p,T0,v,r,q}}
 function calcOutHtml(){const R=calcRes(),o=C.type==='C'?R.c:R.p,intr=Math.max(0,C.type==='C'?C.S-C.K:C.K-C.S),par=R.c.p-R.p.p,parR=C.S*Math.exp(-R.q*R.T0)-C.K*Math.exp(-R.r*R.T0);
   return `<div class="kv"><div class="hl ${C.type==='C'?'on':''}"><span>Call</span><b>${R.c.p.toFixed(3)}</b></div><div class="hl ${C.type==='P'?'on':''}"><span>Put</span><b>${R.p.p.toFixed(3)}</b></div>
@@ -922,10 +922,10 @@ function vCalc(){const f=(k,lab,st,unit)=>`<label class="cin"><span>${lab}</span
 function updCalc(){const o=$('#calcOut');if(o)o.innerHTML=calcOutHtml();document.querySelectorAll('[data-a="calcType"]').forEach(b=>b.classList.toggle('on',b.dataset.v===C.type));document.querySelectorAll('[data-a="calcView"]').forEach(b=>b.classList.toggle('on',b.dataset.v===C.view));drawCalc()}
 function vPort(){let h='',sh=Object.keys(S.sh);const tot=S.wins+S.losses;let D=0,G=0,TH=0,VE=0,FN=0,stockVal=0;
   for(const p of S.pos){const q=quote(p.sym,p.legs,p.exp,false),b=S.st[p.sym].beta;D+=q.d*100*p.qty*b;G+=q.g*100*p.qty;TH+=q.th*100*p.qty;VE+=q.ve*100*p.qty}
-  for(const k of sh){D+=S.sh[k].n*S.st[k].beta*S.st[k].px/S.st.USX.px;stockVal+=S.sh[k].n*S.st[k].px}
-  for(const p of S.fut){const f=fdef(p.root),n=p.side*p.qty*f.mult*futPx(p.root,p.exp);FN+=n;if(f.und==='USX'||f.und==='NQX')D+=n*S.st[f.und].beta/S.st.USX.px}
+  for(const k of sh){D+=S.sh[k].n*S.st[k].beta*S.st[k].px/S.st.SPY.px;stockVal+=S.sh[k].n*S.st[k].px}
+  for(const p of S.fut){const f=fdef(p.root),n=p.side*p.qty*f.mult*futPx(p.root,p.exp);FN+=n;if(f.und==='SPY'||f.und==='QQQ')D+=n*S.st[f.und].beta/S.st.SPY.px}
   if(S.mcall)h+=`<div class="banner r">⚠️ ${L('GỌI KÝ QUỸ: tiền mặt','MARGIN CALL: cash is')} ${money(S.cash)}. ${L('Đóng bớt hợp đồng tương lai hoặc bán tài sản trước phiên sau, nếu không sàn sẽ tự đóng vị thế.','Close futures or sell assets before the next session, or the broker will liquidate.')}</div>`;
-  h+=`<div class="card"><h3>📐 ${L('Rủi ro toàn danh mục','Portfolio risk')}</h3><div class="kv"><div><span>${L('Delta quy theo US 500 (cp USX)','Beta-weighted delta (USX shares)')}</span><b class="${cls(D)}">${D.toFixed(1)}</b></div><div><span>Γ Gamma</span><b>${G.toFixed(1)}</b></div><div><span>${L('Theta mỗi ngày','Theta per day')}</span><b class="${cls(TH)}">${sgn(TH)}</b></div><div><span>${L('Vega mỗi 1% IV','Vega per 1% IV')}</span><b class="${cls(VE)}">${sgn(VE)}</b></div>
+  h+=`<div class="card"><h3>📐 ${L('Rủi ro toàn danh mục','Portfolio risk')}</h3><div class="kv"><div><span>${L('Delta quy theo S&P 500 (cp SPY)','Beta-weighted delta (SPY shares)')}</span><b class="${cls(D)}">${D.toFixed(1)}</b></div><div><span>Γ Gamma</span><b>${G.toFixed(1)}</b></div><div><span>${L('Theta mỗi ngày','Theta per day')}</span><b class="${cls(TH)}">${sgn(TH)}</b></div><div><span>${L('Vega mỗi 1% IV','Vega per 1% IV')}</span><b class="${cls(VE)}">${sgn(VE)}</b></div>
   <div><span>${L('Cổ phiếu & ETF','Stocks & ETFs')}</span><b>${money(stockVal)}</b></div><div><span>${L('Notional tương lai','Futures notional')}</span><b>${money(FN)}</b></div><div><span>${L('Cổ tức đã nhận','Dividends received')}</span><b class="up">${money(S.divs,2)}</b></div><div><span>${L('Tổng phí · tỷ lệ thắng','Fees · win rate')}</span><b>${money(S.fees,0)} · ${tot?(S.wins/tot*100).toFixed(0)+'%':'—'}</b></div></div></div>`;
   h+=`<div class="card"><h3>🎯 ${L('Quyền chọn đang mở','Open options')} (${S.pos.length})</h3>${S.pos.length?S.pos.map(p=>{const pnl=posPnl(p),dte=calDays(S.date,p.exp),base=Math.abs(p.entry)*100*p.qty||1;
     return `<div class="pos"><div class="row"><div class="grow"><b>${STR[p.strat].ic} ${posName(p)} ×${p.qty}</b><div class="sub">${legTxt(p.legs)} · ${L('vào','entry')} ${Math.abs(p.entry).toFixed(2)} ${p.entry>=0?'debit':'credit'}</div>
@@ -954,7 +954,7 @@ function vMiss(){const l=level();
   return vBoard()+`<div class="card"><h3>🏅 ${L('Con đường thành Huyền Thoại','The road to Legend')}</h3>${MISS.map((m,i)=>`<div class="miss ${i<S.m?'done':i===S.m?'cur':'lockd'}"><span class="ic">${i<S.m?'✓':i===S.m?'★':i+1}</span><span class="grow"><b>${LX(m.t)}</b>${i===S.m?`<div class="sub">${LX(m.h)}</div>`:''}</span><span class="tag y">+150</span></div>`).join('')}</div>
   <div class="card"><h3>🔓 ${L('Mở khóa theo cấp','Unlocks by level')}</h3>${Object.values(STR).map(x=>`<div class="row" style="padding:3px 0"><span style="font-size:20px">${l>=x.lv?x.ic:'🔒'}</span><span class="grow"><b>${x.n}</b> <span class="sub">· ${L('cấp','level')} ${x.lv}</span></span></div>`).join('')}
   <div class="row" style="padding:3px 0"><span style="font-size:20px">${l>=FUT_LV?'📜':'🔒'}</span><span class="grow"><b>${L('Hợp đồng tương lai','Futures')}</b> <span class="sub">· ${L('cấp','level')} ${FUT_LV}</span></span></div></div>`}
-function vLearn(){return `<div class="bubble">${BULL}<p>${L('Tiền ảo, công ty hư cấu, giá mô phỏng. Cơ chế giao dịch thì giống thị trường Mỹ: bid/ask, phí, đáo hạn thứ Sáu, ký quỹ, IV crush. Không phải lời khuyên đầu tư.','Play money, fictional companies, simulated prices. The mechanics match US markets: bid/ask, fees, Friday expirations, margin, IV crush. Not investment advice.')}</p></div>
+function vLearn(){return `<div class="bubble">${BULL}<p>${L('Tiền ảo, tên công ty thật nhưng giá, tin tức, báo cáo đều mô phỏng. Cơ chế giao dịch thì giống thị trường Mỹ: bid/ask, phí, đáo hạn thứ Sáu, ký quỹ, IV crush. Không phải lời khuyên đầu tư.','Play money; real company names, but prices, news and reports are simulated. The mechanics match US markets: bid/ask, fees, Friday expirations, margin, IV crush. Not investment advice.')}</p></div>
   ${LESS.map(sec=>`<div class="card"><h3>${LX(sec.h)}</h3>${sec.items.map(l=>{const x=LX(l);return `<details><summary>${x[0]}</summary><p>${x[1].replace('{FVO}',fvoTable())}</p></details>`}).join('')}</div>`).join('')}`}
 function render(){document.documentElement.lang=LANG;renderHud();const v=$('#view'),sc=v.scrollTop;
   v.innerHTML=tab==='market'?vMarket():tab==='trade'?vTrade():tab==='port'?vPort():tab==='miss'?vMiss():vLearn();v.scrollTop=sc;

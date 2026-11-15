@@ -6,11 +6,11 @@ A browser game for learning US stock options trading with play money. Built for 
 
 ## What's in it
 
-- **Market:** 19 fictional stocks across 10 sectors, 6 ETFs (US 500, Tech 100, Small Cap, High Dividend, Bonds, Gold), plus gold and WTI crude; prices follow the market by beta, gold and oil by their own factors
+- **Market:** 19 real US stocks across 10 sectors (AAPL, NVDA, MSFT, TSLA, JPM, XOM, META…), 6 ETFs (SPY, QQQ, IWM, VYM, BND, GLD), plus gold and WTI crude. Names are real; prices, news and earnings are simulated
 - **Calendar:** real US trading days and holidays, Friday weekly/monthly expirations, Fed / CPI / jobs / OPEC+ events, quarterly earnings with EPS, revenue and guidance
 - **Options:** option chain with bid/ask, delta and skew; 15 strategies (calls, puts, covered call, cash-secured put, protective put, 4 vertical spreads, straddle, strangle, collar, iron condor, iron butterfly, call butterfly); P/L chart; full Greeks (Δ Γ Θ ν ρ) per trade and for the portfolio
 - **Black–Scholes calculator:** price, intrinsic/time value, all Greeks, d₁/d₂, probability ITM, put–call parity check, charts of price and each Greek against the stock price
-- **Futures:** Micro US 500, Micro Tech 100, Micro Gold, Micro Crude Oil; initial/maintenance margin, daily mark-to-market, contango/basis, margin calls and forced liquidation, cash settlement at expiry
+- **Futures:** Micro E-mini S&P 500 (MES), Micro E-mini Nasdaq-100 (MNQ), Micro Gold (MGC), Micro WTI Crude (MCL); initial/maintenance margin, daily mark-to-market, contango/basis, margin calls and forced liquidation, cash settlement at expiry
 - **Long vs short-term investing:** any number of shares, lots tagged short-/long-term by holding period, quarterly dividends with DRIP, monthly dollar-cost-averaging plans, skip ahead by week/month/quarter/year
 - 16 missions, 10 levels, 6 lesson sections (options basics, Black–Scholes & Greeks, strategies, futures vs options, long-term investing, risk)
 - Vietnamese and English, switchable in-game (VI / EN button)
@@ -36,7 +36,7 @@ Setup: open the sheet → Extensions → Apps Script → paste `apps-script/Code
 
 ## Disclaimer
 
-Companies and prices are simulated; any match with a real ticker is a coincidence. Not modeled: early assignment, dividends, margin, limit orders, taxes. This is a practice tool, not investment advice.
+Company names and tickers are real, but all prices, news and earnings are simulated and say nothing about the real companies. Not modeled: early assignment, dividends, margin, limit orders, taxes. This is a practice tool, not investment advice.
 
 ---
 
