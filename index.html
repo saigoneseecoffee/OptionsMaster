@@ -770,14 +770,17 @@ function nextDay(quiet){
     if(s.dv&&S.sh[d.sym]){const h=S.sh[d.sym],amt=r2(h.n*s.dv);if(amt>0){S.cash+=amt;S.divs+=amt;h.divs=(h.divs||0)+amt;divTot+=amt;
       msgs.push([L(`💵 Cổ tức ${d.sym}: ${money(amt,2)} (${money(s.dv,2)}/cp)`,`💵 ${d.sym} dividend: ${money(amt,2)} (${money(s.dv,2)}/sh)`),'g']);
       if(S.drip)buyStock(d.sym,r4(amt/s.px),'drip');fire('div')}}}
-  /* gộp cổ phiếu 1:10 khi giá quỹ đòn bẩy quá thấp (như quỹ thật vẫn làm) */
-  for(const d of DEFS)if(d.lev){const s=S.st[d.sym];if(s.px<1&&!S.pos.some(p=>p.sym===d.sym)){s.px=r2(s.px*10);s.prev=r2(s.prev*10);s.cl=s.cl.map(v=>r2(v*10));
-    const h=S.sh[d.sym];if(h){h.n=r4(h.n/10);h.avg*=10;h.lots.forEach(l=>{l.n=r4(l.n/10);l.px=r2(l.px*10)})}
-    msgs.push([L(`🔀 ${d.sym} gộp cổ phiếu 1:10 (reverse split): giá ×10, số cổ phần ÷10`,`🔀 ${d.sym} 1-for-10 reverse split: price ×10, shares ÷10`),'y']);tlog('reverse_split',{d:{sym:d.sym}})}}
-  /* chia tách cổ phiếu 10:1 khi giá vượt $1,500 */
-  for(const d of DEFS)if(!d.etf){const s=S.st[d.sym];if(s.px>1500&&!S.pos.some(p=>p.sym===d.sym)){s.px=r2(s.px/10);s.prev=r2(s.prev/10);s.cl=s.cl.map(v=>r2(v/10));s.eps/=10;
-    const h=S.sh[d.sym];if(h){h.n=r4(h.n*10);h.avg/=10;h.locked*=10;h.lots.forEach(l=>{l.n=r4(l.n*10);l.px=r4(l.px/10)})}
-    if(h||!quiet)msgs.push([L(`✂️ ${d.sym} chia tách cổ phiếu 10:1: giá ÷10, số cổ phần ×10`,`✂️ ${d.sym} 10-for-1 stock split: price ÷10, shares ×10`),'y']);tlog('split',{d:{sym:d.sym}})}}
+  /* chia tách / gộp cổ phiếu. Quyền chọn đang mở được điều chỉnh theo: strike × hệ số, số hợp đồng ÷ hệ số (giá trị vị thế không đổi) */
+  for(const d of DEFS){const s=S.st[d.sym];let f=0;
+    if(d.lev){if(s.px<1)f=10;else if(s.px>500)f=1/[2,4,5,10,20].reduce((a,n)=>Math.abs(s.px/n-75)<Math.abs(s.px/a-75)?n:a)}
+    else if(!d.etf&&s.px>Math.max(1000,2.5*(s.sb||d.px)))f=1/[2,3,4,5,10,20].reduce((a,n)=>Math.abs(s.px/n-200)<Math.abs(s.px/a-200)?n:a);
+    if(!f)continue;const N=f<1?Math.round(1/f):f;
+    s.px=r2(s.px*f);s.prev=r2(s.prev*f);s.cl=s.cl.map(v=>r4(v*f));if(s.eps)s.eps*=f;s.sb=s.px;
+    const h=S.sh[d.sym];if(h){h.n=r4(h.n/f);h.avg*=f;h.locked=r4(h.locked/f);h.lots.forEach(l=>{l.n=r4(l.n/f);l.px=r4(l.px*f)})}
+    let adj=0;for(const p of S.pos)if(p.sym===d.sym){adj++;p.legs.forEach(l=>l.K=r4(l.K*f));p.qty=r4(p.qty/f);p.entry*=f}
+    if(T.sym===d.sym)resetK();
+    if(h||adj||!quiet)msgs.push([f<1?L(`✂️ ${d.sym} chia tách cổ phiếu ${N}:1: giá ÷${N}, số cổ phần ×${N}${adj?', quyền chọn được điều chỉnh theo':''}`,`✂️ ${d.sym} ${N}-for-1 stock split: price ÷${N}, shares ×${N}${adj?', options adjusted to match':''}`):L(`🔀 ${d.sym} gộp cổ phiếu 1:${N} (reverse split): giá ×${N}, số cổ phần ÷${N}${adj?', quyền chọn được điều chỉnh theo':''}`,`🔀 ${d.sym} 1-for-${N} reverse split: price ×${N}, shares ÷${N}${adj?', options adjusted to match':''}`),'y']);
+    tlog(f<1?'split':'reverse_split',{d:{sym:d.sym,ratio:N}})}
   for(const p of S.pos.slice())if(p.exp<=date){settle(p);stop=true}
   const fs=settleFutures(date);for(const m of fs.msgs){msgs.push([m,'y']);stop=true}
   if(S.cash<0){S.mcall=true;stop=true;tlog('margin_call',{d:{cash:Math.round(S.cash)}})}
@@ -1103,7 +1106,7 @@ function vPort(){let h='',sh=Object.keys(S.sh);const tot=S.wins+S.losses;let D=0
   h+=`<div class="card"><h3>📐 ${L('Rủi ro toàn danh mục','Portfolio risk')}</h3><div class="kv"><div><span>${L('Delta quy theo S&P 500 (cp SPY)','Beta-weighted delta (SPY shares)')}</span><b class="${cls(D)}">${D.toFixed(1)}</b></div><div><span>Γ Gamma</span><b>${G.toFixed(1)}</b></div><div><span>${L('Theta mỗi ngày','Theta per day')}</span><b class="${cls(TH)}">${sgn(TH)}</b></div><div><span>${L('Vega mỗi 1% IV','Vega per 1% IV')}</span><b class="${cls(VE)}">${sgn(VE)}</b></div>
   <div><span>${L('Cổ phiếu & ETF','Stocks & ETFs')}</span><b>${money(stockVal)}</b></div><div><span>${L('Notional tương lai','Futures notional')}</span><b>${money(FN)}</b></div><div><span>${L('Cổ tức đã nhận','Dividends received')}</span><b class="up">${money(S.divs,2)}</b></div><div><span>${L('Tổng phí · tỷ lệ thắng','Fees · win rate')}</span><b>${money(S.fees,0)} · ${tot?(S.wins/tot*100).toFixed(0)+'%':'—'}</b></div></div></div>`;
   h+=`<div class="card"><h3>🎯 ${L('Quyền chọn đang mở','Open options')} (${S.pos.length})</h3>${S.pos.length?S.pos.map(p=>{const pnl=posPnl(p),dte=calDays(S.date,p.exp),base=Math.abs(p.entry)*100*p.qty||1;
-    return `<div class="pos"><div class="row"><div class="grow"><b>${STR[p.strat].ic} ${posName(p)} ×${p.qty}</b><div class="sub">${legTxt(p.legs)} · ${L('vào','entry')} ${Math.abs(p.entry).toFixed(2)} ${p.entry>=0?'debit':'credit'}</div>
+    return `<div class="pos"><div class="row"><div class="grow"><b>${STR[p.strat].ic} ${posName(p)} ×${shf(p.qty)}</b><div class="sub">${legTxt(p.legs)} · ${L('vào','entry')} ${Math.abs(p.entry).toFixed(2)} ${p.entry>=0?'debit':'credit'}</div>
     <span class="tag ${dte<=3?'r':''}">${dfmt(p.exp)} · ${dte} ${L('ngày','days')}</span> <span class="tag">${L('giá','px')} ${S.st[p.sym].px.toFixed(2)}</span>${p.collat?` <span class="tag">${L('ký quỹ','collateral')} ${money(p.collat)}</span>`:''}</div>
     <div style="text-align:right"><b class="big ${cls(pnl)}">${sgn(pnl)}</b><div class="sub ${cls(pnl)}">${pc(pnl/base,0)}</div></div></div>
     <button class="btn sm ${pnl>=0?'g':'r'} w" style="margin-top:6px" data-a="close" data-v="${p.id}">${pnl>=0?L('Chốt lãi','Take profit'):L('Cắt lỗ','Cut loss')} — ${L('đóng lệnh','close position')}</button></div>`}).join(''):`<div class="sub">${L('Chưa có lệnh nào.','No positions yet.')}</div>`}</div>`;
