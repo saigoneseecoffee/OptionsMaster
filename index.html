@@ -422,7 +422,7 @@ const LESS=[
   [['Game khác thực tế ở đâu?','Tên và mã là công ty thật, nhưng giá, tin tức và báo cáo lợi nhuận trong game đều là MÔ PHỎNG, không phản ánh công ty thật. Chưa có: giao cổ phiếu sớm trước đáo hạn, lệnh giới hạn, ký quỹ margin cho cổ phiếu, thuế, giao dầu vật chất. Đây là công cụ luyện tập, không phải lời khuyên đầu tư.'],['How is the game different from reality?','Names and tickers are real companies, but every price, news item and earnings report in the game is SIMULATED and says nothing about the real company. Not modeled: early assignment, limit orders, margin loans for stocks, taxes, physical oil delivery. This is a practice tool, not investment advice.']]]}];
 
 /* ============ trạng thái ============ */
-let S,tab='market',sel='AAPL',detail=false,busy=false,sector='all',tmode='opt',chartRange='3m',query='',msort='def';
+let S,tab='market',sel='AAPL',detail=false,busy=false,sector='all',tmode='opt',chartRange='3m',query='',msort='def',mview='list',calMine=false;
 let T={sym:'AAPL',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
 let F={root:'MES',exp:'',qty:1};
 let Q={sym:'SPY',qty:10,dca:100};
@@ -567,7 +567,7 @@ function makeNews(){S.news=[];const pool=DEFS.filter(d=>!d.etf).sort(()=>Math.ra
   for(const d of pool){const s=S.st[d.sym];let dir=Math.sign(s.drift);if(Math.random()>0.72)dir=pick([-1,0,1]);
     const k=dir>0?'up':dir<0?'dn':'flat';S.news.push({sym:d.sym,k,i:Math.random()*NEWS[k].length|0,tone:dir})}}
 const newsTxt=n=>LX(NEWS[n.k][n.i%NEWS[n.k].length](def(n.sym)));
-function events(){const out=[];let d=S.date;for(let i=0;i<32&&out.length<7;i++){d=addD(d,1);if(!isTD(d))continue;const m=macro(d);if(m)out.push({d,t:'🏛️ '+macroName(m.k)});
+function events(){const out=[];let d=S.date;for(let i=0;i<32&&out.length<5;i++){d=addD(d,1);if(!isTD(d))continue;const m=macro(d);if(m)out.push({d,t:'🏛️ '+macroName(m.k)});
   for(const x of DEFS){const s=S.st[x.sym];if(s.earn===d)out.push({d,t:'📣 '+x.sym+L(' báo cáo lợi nhuận',' reports earnings')})}
   for(const p of S.fut)if(p.exp===d)out.push({d,t:'📜 '+futCode(p.root,p.exp)+L(' đáo hạn',' expires')})}return out}
 
@@ -806,6 +806,8 @@ function act(a,v){
   else if(a==='sector'){sector=v;render()}
   else if(a==='range'){chartRange=v;render()}
   else if(a==='sort'){msort=v;render()}
+  else if(a==='mview'){mview=v;render();$('#view').scrollTop=0}
+  else if(a==='calMine'){calMine=!calMine;render()}
   else if(a==='seg'){tmode=v;if(v==='calc'&&!C.init)calcFill();render();$('#view').scrollTop=0}
   else if(a==='goTrade'){T.sym=sel;tab='trade';tmode='opt';detail=false;resetK();render();$('#view').scrollTop=0}
   else if(a==='goStk'){Q.sym=sel;tab='trade';tmode='stk';detail=false;render();$('#view').scrollTop=0}
@@ -875,7 +877,7 @@ function spark(cl){const a=cl.slice(-30),mn=Math.min(...a),mx=Math.max(...a),r=m
 function renderHud(){const nw=netWorth(),l=level(),p=(S.xp-LV[l-1])/(LV[l]-LV[l-1]),tot=nw-10000;
   $('#hud').innerHTML=`<div class="hudrow"><div class="logo">Options <i>Master</i></div><span class="pill">📅 ${dfmt(S.date)}</span><button class="pill" data-a="lang" aria-label="${L('Đổi ngôn ngữ','Change language')}">${LANG==='vi'?'VI':'EN'}</button><button class="pill" data-a="cloud" id="cl" aria-label="${L('Trạng thái lưu','Save status')}">${CLI[cloud.st]}</button><button class="pill" data-a="askReset" aria-label="${L('Chơi lại','Start over')}">↺</button></div>
   <div class="hudrow" style="margin-top:4px"><div class="grow"><div class="nw" id="nw">${money(nw)}</div><div class="sub"><b class="${cls(tot)}">${tot>=0?'▲':'▼'} ${pc(tot/10000)}</b> · ${L('hôm nay','today')} <b class="${cls(S.dpnl||0)}">${sgn(S.dpnl||0)}</b> · ${L('tiền mặt','cash')} <span class="${S.cash<0?'dn':''}">${money(S.cash)}</span></div></div>
-  <div style="width:40%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
+  <div style="width:32%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
   $('#bar').innerHTML=`<button class="btn g grow" data-a="next">▶ ${L('Sang phiên','Next session')} ${dfmt(nextTD(S.date))}</button><button class="btn b" data-a="skipMenu" aria-label="${L('Tua thời gian','Skip ahead')}">»</button>`;
   const IC={"market": "<path d=\"M3 17l5-6 4 3 6-8\"/><path d=\"M3 21h18\"/>", "trade": "<path d=\"M7 4v15m0 0l-3-3m3 3l3-3M17 20V5m0 0l-3 3m3-3l3 3\"/>", "port": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18\"/>", "miss": "<path d=\"M8 4h8v5a4 4 0 01-8 0zM8 6H5a3 3 0 003 3M16 6h3a3 3 0 01-3 3M12 13v4M8 20h8\"/>", "learn": "<path d=\"M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM19 19v2H6\"/>"};
   const tb=[['market',L('Thị trường','Market')],['trade',L('Giao dịch','Trade')],['port',L('Danh mục','Portfolio')],['miss',L('Xếp hạng','Ranks')],['learn',L('Bí kíp','Learn')]];
@@ -889,17 +891,49 @@ function row(d){const s=S.st[d.sym],ch=s.px/s.prev-1,sh=S.sh[d.sym],ed=s.earn?ca
     <span style="text-align:right"><b class="big">${s.px.toFixed(2)}</b><br><b class="${cls(ch)}" style="font-size:13px">${ch>=0?'▲':'▼'} ${Math.abs(ch*100).toFixed(2)}%</b></span></button>`}
 function vMarket(){
   if(detail)return vDetail();
+  if(mview==='cal')return mSeg()+vCal();
   const ux=S.st.SPY,vix=iv30(ux)*100,ev=events(),g=S.st.GOLD,o=S.st.OIL,u1=ux.px/ux.prev-1;
-  let h=`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">🇺🇸 ${L('Phiên','Session')} ${dfmt(S.date)} ${L('đã đóng cửa','closed')}</h3><div class="sub">${L(`Phiên thứ ${S.day} của bạn`,`Your session #${S.day}`)}</div></div><span class="tag ${vix>25?'r':vix>19?'y':'g'}">VIX ${vix.toFixed(1)}</span></div>
+  let h=mSeg()+`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">🇺🇸 ${L('Phiên','Session')} ${dfmt(S.date)} ${L('đã đóng cửa','closed')}</h3><div class="sub">${L(`Phiên thứ ${S.day} của bạn`,`Your session #${S.day}`)}</div></div><span class="tag ${vix>25?'r':vix>19?'y':'g'}">VIX ${vix.toFixed(1)}</span></div>
   <div class="mini3"><div><span>S&P 500</span><b class="${cls(u1)}">${pc(u1,2)}</b></div><div><span>${L('Vàng','Gold')}</span><b>${g.px.toFixed(0)} <i class="${cls(g.px-g.prev)}">${pc(g.px/g.prev-1,1)}</i></b></div><div><span>${L('Dầu','Oil')}</span><b>${o.px.toFixed(2)} <i class="${cls(o.px-o.prev)}">${pc(o.px/o.prev-1,1)}</i></b></div></div>
   <div class="lbl">${L('Tin & nhận định (mô phỏng)','News & analyst calls (simulated)')}</div>${S.news.map(n=>`<div class="news">${n.tone>0?'🟢':n.tone<0?'🔴':'⚪'} ${newsTxt(n)}</div>`).join('')}
   <div class="lbl">${L('Lịch sự kiện sắp tới','Upcoming events')}</div>${ev.length?ev.map(e=>`<div class="news"><span class="tag">${dfmt(e.d)}</span> ${e.t}</div>`).join(''):`<div class="sub">${L('Chưa có sự kiện lớn.','No major events.')}</div>`}
+  <button class="btn d sm w" style="margin:6px 0" data-a="mview" data-v="cal">${L('Xem lịch đủ 30 ngày','See the full 30-day calendar')} →</button>
   <div class="sub" style="margin-top:4px">${L('Tin đồn đúng khoảng 7/10 lần — đừng tất tay.','Rumors are right about 7 times in 10 — never go all in.')}</div></div>`;
   if(S.m<MISS.length)h+=`<button class="card stock mission" data-a="tab" data-v="miss"><span style="font-size:24px">🏅</span><span class="grow"><b class="gold">${L('Nhiệm vụ','Mission')} ${S.m+1}/${MISS.length}</b> · <b>${LX(MISS[S.m].t)}</b><br><span class="sub">${LX(MISS[S.m].h)}</span></span></button>`;
   const secs=['all','etf',...Object.keys(SECT).filter(k=>k!=='index'&&k!=='bond')];
   h+=`<div class="srch"><input class="inp" id="q" data-q type="search" placeholder="${L('Tìm mã hoặc tên công ty…','Search ticker or company…')}" value="${esc(query)}" aria-label="${L('Tìm mã','Search tickers')}"><select class="inp sel" id="sort" data-ch="sort" aria-label="${L('Sắp xếp','Sort')}">${[['def',L('Mặc định','Default')],['up',L('Tăng mạnh','Top gainers')],['dn',L('Giảm mạnh','Top losers')],['iv',L('IV cao','Highest IV')]].map(x=>`<option value="${x[0]}" ${msort===x[0]?'selected':''}>${x[1]}</option>`).join('')}</select></div>
   <div class="chips scroll" style="margin-bottom:10px">${secs.map(k=>`<button class="chip ${sector===k?'on':''}" data-a="sector" data-v="${k}">${k==='all'?L('Tất cả','All'):k==='etf'?'ETF':LX(SECT[k])}</button>`).join('')}</div><div id="mlist">${mList()}</div>`;
   return h}
+const mSeg=()=>`<div class="seg"><button class="${mview==='list'?'on':''}" data-a="mview" data-v="list">${L('Thị trường','Market')}</button><button class="${mview==='cal'?'on':''}" data-a="mview" data-v="cal">${L('Lịch 30 ngày','30-day calendar')}</button></div>`;
+/* lịch 30 ngày tới: vĩ mô, báo cáo lợi nhuận, ngày chốt cổ tức, đáo hạn quyền chọn & future, ngày nghỉ, kế hoạch định kỳ */
+function calDaysList(){const out=[],exps=expiries(),mine=sym=>!!(S.sh[sym]||S.pos.some(p=>p.sym===sym));let d=S.date,t=0,prev=S.date;
+  for(let i=1;i<=30;i++){d=addD(S.date,i);const w=dow(d),ev=[];
+    if(w===0||w===6)continue;
+    if(HOL.includes(d)){out.push({d,closed:1,ev:[]});continue}
+    t++;const m=macro(d);if(m)ev.push({k:'macro',t:macroName(m.k)});
+    const er=DEFS.filter(x=>S.st[x.sym].earn===d);if(er.length)ev.push({k:'earn',syms:er.map(x=>x.sym)});
+    const dv=DEFS.filter(x=>S.st[x.sym].dy>0&&S.st[x.sym].divIn===t);if(dv.length)ev.push({k:'div',syms:dv.map(x=>x.sym)});
+    if(exps.includes(d))ev.push({k:'opex',monthly:isMonthly(d),pos:S.pos.filter(p=>p.exp===d)});
+    const fx=FUT.filter(f=>f.months.includes(+d.slice(5,7))&&adjF(thirdFri(+d.slice(0,4),+d.slice(5,7)))===d);if(fx.length)ev.push({k:'futex',codes:fx.map(f=>futCode(f.root,d)),mine:S.fut.filter(p=>p.exp===d).map(p=>futCode(p.root,p.exp))});
+    if(d.slice(5,7)!==prev.slice(5,7)&&S.dca.length)ev.push({k:'dca',t:S.dca.map(p=>p.sym+' '+money(p.amt)).join(' · ')});
+    prev=d;out.push({d,t,ev,mine})}
+  return out}
+function vCal(){const days=calDaysList(),own=sym=>!!(S.sh[sym]||S.pos.some(p=>p.sym===sym));let n=0;
+  const tk=(syms)=>syms.filter(s=>!calMine||own(s)).map(s=>`<button class="chip ${own(s)?'on':''}" style="min-height:30px;padding:3px 9px" data-a="stock" data-v="${s}">${s}</button>`).join('');
+  const body=days.map(x=>{let h='';
+    if(x.closed)h=calMine?'':`<div class="news">🚫 ${L('Thị trường nghỉ lễ','Market holiday — closed')}</div>`;
+    for(const e of x.ev){
+      if(e.k==='macro'&&!calMine)h+=`<div class="news">🏛️ <b>${e.t}</b></div>`;
+      else if(e.k==='earn'){const c=tk(e.syms);if(c)h+=`<div class="news">📣 ${L('Báo cáo lợi nhuận','Earnings')}</div><div class="chips" style="margin:2px 0 6px">${c}</div>`}
+      else if(e.k==='div'){const c=tk(e.syms);if(c)h+=`<div class="news">💵 ${L('Ngày chốt quyền cổ tức','Ex-dividend date')}</div><div class="chips" style="margin:2px 0 6px">${c}</div>`}
+      else if(e.k==='opex'){if(!calMine||e.pos.length)h+=`<div class="news">⏳ ${L('Đáo hạn quyền chọn','Options expiration')} <span class="tag ${e.monthly?'y':''}">${e.monthly?L('tháng','monthly'):L('tuần','weekly')}</span>${e.pos.length?` <span class="tag g">${L('Lệnh của bạn','Your positions')}: ${e.pos.map(p=>posName(p)).join(', ')}</span>`:''}</div>`}
+      else if(e.k==='futex'){if(!calMine||e.mine.length)h+=`<div class="news">📜 ${L('Đáo hạn future','Futures expiration')}: ${e.codes.join(', ')}${e.mine.length?` <span class="tag g">${L('Bạn đang giữ','You hold')} ${e.mine.join(', ')}</span>`:''}</div>`}
+      else if(e.k==='dca')h+=`<div class="news">🔁 ${L('Đầu tư định kỳ','Monthly plan')}: ${e.t}</div>`}
+    if(!h)return '';n++;
+    return `<div class="pos"><div class="row"><b class="grow">${dfmt(x.d)}</b><span class="sub">${x.closed?'':L(`sau ${x.t} phiên · `,`in ${x.t} sessions · `)}${calDays(S.date,x.d)} ${L('ngày','days')}</span></div>${h}</div>`}).join('');
+  return `<div class="card"><div class="row"><h3 class="grow" style="margin:0">${L('Lịch 30 ngày tới','Next 30 days')}</h3><button class="chip ${calMine?'on':''}" data-a="calMine">${L('Chỉ mã của tôi','Mine only')}</button></div>
+  <div class="sub" style="margin:4px 0 6px">${L('Từ','From')} ${dfull(addD(S.date,1))} ${L('đến','to')} ${dfull(addD(S.date,30))} · ${L('chạm mã để xem chi tiết · mã sáng màu là mã bạn đang giữ','tap a ticker for details · highlighted tickers are ones you hold')}</div>
+  ${body||`<div class="sub">${calMine?L('Không có sự kiện nào cho mã bạn đang giữ trong 30 ngày tới.','Nothing scheduled for your holdings in the next 30 days.'):'—'}</div>`}</div>`}
 function mList(){const ETFS=ETF_ORDER.map(def),STK=Object.keys(SECT).flatMap(k=>DEFS.filter(d=>!d.etf&&d.sec===k)),q=query.trim().toLowerCase();
   let list=sector==='all'?ETFS.concat(STK,CMD):sector==='etf'?ETFS:sector==='cmdty'?CMD.concat(DEFS.filter(d=>d.sec==='cmdty')):DEFS.filter(d=>d.sec===sector&&!d.etf);
   if(q)list=list.filter(d=>d.sym.toLowerCase().includes(q)||(typeof d.name==='string'?d.name:LX(d.name)).toLowerCase().includes(q));
