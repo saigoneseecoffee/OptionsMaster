@@ -20,6 +20,21 @@ A browser game for learning US stock options trading with play money. Built for 
 
 Progress is saved in the browser (`localStorage`). Cloud saving across devices works only when the game runs as a Claude artifact; elsewhere the cloud icon shows 📱 and the game saves on the device.
 
+## Leaderboard & player data
+
+The in-game leaderboard (🏆 Ranks tab) shows only each player's name and best net worth. Behind it, every visit, game, restart, trade and trading session is logged to a Google Sheet through an Apps Script web app (`apps-script/Code.gs`):
+
+| Tab | One row per |
+|---|---|
+| Leaderboard | player, ranked by best net worth |
+| Players | player: visits, games started, restarts, game overs, trades, sessions, best/current net worth, level, device |
+| Games | game (each restart starts a new one): sessions, net worth, peak, wins/losses, fees, how it ended |
+| Trades | trade action, with the market context the player saw: price, IV, IV Rank, HV, VIX, days to earnings, expected move, news, coach advice, Greeks, risk % |
+| Daily | trading session advanced: net worth, day P&L, positions, market move, macro event, earnings, expirations |
+| Events | visit, name set/rename, level up, mission, language change, game over |
+
+Setup: open the sheet → Extensions → Apps Script → paste `apps-script/Code.gs` → Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone) → put the `/exec` URL in `SHEET_API` in `index.html`. Logging only runs when `SHEET_API` is set and the game is served from the web (e.g. GitHub Pages); Claude artifacts block outside requests.
+
 ## Disclaimer
 
 Companies and prices are simulated; any match with a real ticker is a coincidence. Not modeled: early assignment, dividends, margin, limit orders, taxes. This is a practice tool, not investment advice.

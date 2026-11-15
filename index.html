@@ -230,7 +230,7 @@ const BEAR='<svg viewBox="0 0 64 64"><g stroke="#070b22" stroke-width="3.5" stro
 let S,tab='market',sel='ORCD',detail=false,busy=false;
 let T={sym:'ORCD',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
 const KEY='caothu-quyenchon-v2',FEE=0.65;
-function save(){S.ts=Date.now();S.lang=LANG;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}cloudQueue()}
+function save(){S.ts=Date.now();S.lang=LANG;S.pl=PL;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}cloudQueue()}
 function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.v===2&&o.st)return o}}catch(e){}return null}
 const def=sym=>DEFS.find(d=>d.sym===sym);
 
@@ -251,7 +251,7 @@ async function cloudInit(){const ts0=S.ts||0;let c=window.claude;
     const ref=db.doc('data/users/'+id+'/save'),snap=await ref.get();clearTimeout(to);cloud.ref=ref;
     if(snap.exists){let o=null;try{o=JSON.parse(snap.data().json)}catch(e){}
       const fresh=S.day===1&&!S.pos.length&&!Object.keys(S.sh).length&&S.xp<12,ok=o&&o.v===2&&o.st&&o.date;
-      if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=o;if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+      if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=o;ensureGame();if(S.pl&&S.pl.id){PL=S.pl;savePL()}if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
         tab='market';detail=false;T.sym='ORCD';T.strat='call';T.exp='';resetK();$('#modal').classList.remove('on');render();
         toast(L('☁️ Đã tải tiến trình từ cloud: phiên ','☁️ Progress loaded from the cloud: session ')+dfmt(S.date)+' · '+money(netWorth()),'y');setCloud('ok')}
       else if(!ok||ts0>(o.ts||0)){cloud.dirty=true;cloudPush()}else setCloud('ok')}
@@ -259,13 +259,46 @@ async function cloudInit(){const ts0=S.ts||0;let c=window.claude;
   }catch(e){clearTimeout(to);setCloud('off')}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud.dirty){clearTimeout(cloud.timer);cloudPush()}});
 
-function newGame(){
-  S={v:2,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0},st:{},sh:{},pos:[],hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG};
+
+/* ---- bảng điểm & dữ liệu người chơi → Google Sheet (Apps Script web app) ---- */
+const SHEET_API='';
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,12));
+let PL=(()=>{try{const o=JSON.parse(localStorage.getItem('om-player'));if(o&&o.id)return o}catch(e){}return null})()||{id:uid(),name:''};
+function savePL(){try{localStorage.setItem('om-player',JSON.stringify(PL))}catch(e){}}
+savePL();
+const tel={q:[],closed:[],fails:0,timer:0,busy:false,lb:null,lbAt:0,lbErr:false};
+try{tel.q=JSON.parse(localStorage.getItem('om-q'))||[];tel.closed=JSON.parse(localStorage.getItem('om-closed'))||[]}catch(e){}
+function telSave(){if(tel.q.length>1500)tel.q=tel.q.slice(-1500);try{localStorage.setItem('om-q',JSON.stringify(tel.q));localStorage.setItem('om-closed',JSON.stringify(tel.closed))}catch(e){}}
+function nowET(){try{return new Date().toLocaleString('sv-SE',{timeZone:'America/New_York'}).slice(0,19)}catch(e){return new Date().toISOString().slice(0,19).replace('T',' ')}}
+function tlog(t,o){if(!SHEET_API)return;tel.q.push(Object.assign({t,at:nowET(),gid:S&&S.gid,date:S&&S.date,day:S&&S.day},o||{}));telSave();clearTimeout(tel.timer);tel.timer=setTimeout(telFlush,t==='trade'||t==='game_start'?1500:6000)}
+function telBody(n){const nw=netWorth();return JSON.stringify({pid:PL.id,name:PL.name,lang:LANG,cloud:cloud.st,device:(navigator.userAgent.match(/iPhone|iPad|Android|Macintosh|Windows|Linux/)||['?'])[0]+' '+innerWidth+'x'+innerHeight,nw:Math.round(nw*100)/100,
+  game:{gid:S.gid,no:S.gno,reason:S.greason,startDate:S.gstart,day:S.day,date:S.date,cash:S.cash,trades:S.ntr||0,wins:S.wins,losses:S.losses,fees:S.fees,lv:level(),missions:S.m,ended:S.over?'bust':''},closed:tel.closed,events:tel.q.slice(0,n)})}
+async function telFlush(){if(!SHEET_API||tel.busy||tel.fails>=3||(!tel.q.length&&!tel.closed.length))return;tel.busy=true;const n=Math.min(tel.q.length,250),body=telBody(n),nc=tel.closed.length;
+  try{await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body});tel.q.splice(0,n);tel.closed.splice(0,nc);tel.fails=0;telSave()}catch(e){tel.fails++}
+  tel.busy=false;if(tel.q.length&&tel.fails<3){clearTimeout(tel.timer);tel.timer=setTimeout(telFlush,3000)}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden||!SHEET_API||tel.fails>=3||(!tel.q.length&&!tel.closed.length))return;
+  const n=Math.min(tel.q.length,250);try{if(navigator.sendBeacon(SHEET_API,new Blob([telBody(n)],{type:'text/plain;charset=utf-8'}))){tel.q.splice(0,n);tel.closed=[];telSave()}}catch(e){}});
+function inEN(f){const l=LANG;LANG='en';try{return f()}finally{LANG=l}}
+function mktCtx(sym){const s=S.st[sym],em=expMove(s);return{px:s.px,iv:+(iv30(s)*100).toFixed(1),ivr:+ivRank(s).toFixed(0),hv:+(hv20(s)*100).toFixed(1),vix:+(iv30(S.st.USX)*100).toFixed(1),
+  toEarn:s.earn?calDays(S.date,s.earn):'',em:em?+(em*100).toFixed(1):'',news:inEN(()=>S.news.map(newsTxt).join(' | ')),nw:Math.round(netWorth()),cashBefore:Math.round(S.cash),lv:level(),lang:LANG}}
+function ensureGame(){if(!S.gid){S.gid=uid();S.gno=S.gno||1;S.greason=S.greason||'existing';S.gstart=S.gstart||S.date;S.ntr=S.ntr||0}}
+async function loadBoard(force){if(!SHEET_API){tel.lbErr=true;return}if(!force&&tel.lb&&Date.now()-tel.lbAt<60000)return;
+  try{const r=await fetch(SHEET_API+'?n=50&pid='+encodeURIComponent(PL.id));const j=await r.json();tel.lb=j.rows||[];tel.lbAt=Date.now();tel.lbErr=false}catch(e){tel.lbErr=true}
+  if(tab==='miss')render()}
+function askName(first){modal(`<h3>🏆 ${L('Tên của bạn trên bảng xếp hạng','Your leaderboard name')}</h3>
+  <p>${L('Bảng xếp hạng chỉ hiện tên và tài sản. Lịch sử chơi và giao dịch của bạn được lưu vào bảng dữ liệu của chủ game để xếp hạng và phân tích.','The leaderboard shows only your name and net worth. Your play and trade history is saved to the game owner\'s spreadsheet for ranking and analysis.')}</p>
+  <input id="nm" maxlength="20" value="${(PL.name||'').replace(/"/g,'&quot;')}" placeholder="${L('Ví dụ: Bao','e.g. Bao')}" style="width:100%;font:inherit;font-size:18px;font-weight:700;padding:10px 12px;border-radius:12px;border:3px solid var(--ink);margin-bottom:10px" autocomplete="nickname">
+  <div class="row">${first?'':`<button class="btn d grow" data-a="closeModal">${L('Thôi','Cancel')}</button>`}<button class="btn g grow" data-a="saveName">${L('Lưu tên','Save name')}</button></div>`);
+  setTimeout(()=>{const i=$('#nm');if(i){i.focus();i.onkeydown=e=>{if(e.key==='Enter')act('saveName')}}},50)}
+function newGame(reason){
+  const old=S&&S.gid?{gid:S.gid,reason:reason||'restart',nw:Math.round(netWorth()),day:S.day,date:S.date,cash:Math.round(S.cash),trades:S.ntr||0,wins:S.wins,losses:S.losses,fees:Math.round(S.fees*100)/100,lv:level(),missions:S.m}:null,gno=(S&&S.gno||0)+1;
+  S={v:2,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0},st:{},sh:{},pos:[],hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG,gid:uid(),gno,greason:reason||'first',gstart:'2026-11-13',ntr:0,over:false};
   for(const d of DEFS)S.st[d.sym]={sym:d.sym,px:d.px,prev:d.px,vol:d.vol,beta:d.beta,liq:d.liq,idx:d.idx||0,drift:0,regLeft:0,ivn:0,vs:1,earn:null,eps:d.pe?d.px/d.pe/4:0,last:null,hist:[],ivh:[]};
   for(let i=0;i<80;i++){const m=stepMarket(null);for(const d of DEFS){const s=S.st[d.sym];stepStock(s,m,null);s.ivh.push(iv30(s))}}
   DEFS.filter(d=>!d.idx).sort(()=>Math.random()-.5).forEach((d,i)=>{const s=S.st[d.sym];s.eps=s.px/d.pe/4;s.earn=addTD(S.date,3+i*7+(Math.random()*4|0))});
   for(const d of DEFS){const s=S.st[d.sym];s.ivh.push(iv30(s))}
   makeNews();
+  if(old){tel.closed.push(old);telSave()}tlog('game_start',{reason:reason||'first',d:{game_no:gno}});
 }
 function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.35,-0.1,0.08,0.12,0.2,0.3]);mk.regLeft=15+Math.random()*30|0}
   let z=gauss();if(Math.random()<0.03)z*=2.5;if(ev)z*=ev.k==='FED'?2.2:1.7;
@@ -346,7 +379,7 @@ const broke=()=>!S.pos.length&&!Object.keys(S.sh).length&&S.cash<60;
 const howTxt=h=>({close:L('đóng','closed'),exp:L('đáo hạn','expired'),'đóng':L('đóng','closed'),'đáo hạn':L('đáo hạn','expired')})[h]||h;
 
 /* ============ hành động ============ */
-function addXp(n){const l0=level();S.xp+=n;const l1=level();if(l1>l0){const un=Object.values(STR).filter(x=>x.lv===l1).map(x=>x.ic+' '+x.n);
+function addXp(n){const l0=level();S.xp+=n;const l1=level();if(l1>l0){tlog('level_up',{d:{level:l1}});const un=Object.values(STR).filter(x=>x.lv===l1).map(x=>x.ic+' '+x.n);
   sfx('lvl');confetti(90);modal(`<h3>🎉 ${L('Lên cấp','Level')} ${l1}: ${rank(l1)}</h3><p>${un.length?L('Mở khóa chiến lược mới:','New strategies unlocked:')+'<br><b>'+un.join('<br>')+'</b>'+(l1===2?L('<br>và mua bán cổ phiếu','<br>plus buying and selling shares'):''):L('Danh hiệu mới cho cao thủ!','A new title for a pro!')}</p><button class="btn w" data-a="closeModal">${L('Tiếp tục','Continue')}</button>`)}}
 function fire(ev,o={}){const c=S.m;let ok=false;const nw=netWorth();
   if(c===0)ok=ev==='open'&&o.strat==='call';
@@ -359,19 +392,25 @@ function fire(ev,o={}){const c=S.m;let ok=false;const nw=netWorth();
   else if(c===7)ok=ev==='open'&&o.strat==='straddle'&&o.earnDays!=null&&o.earnDays<=4&&o.covers;
   else if(c===8)ok=(ev==='close'||ev==='expire')&&o.strat==='condor'&&o.pnl>0;
   else if(c===9)ok=nw>=15000;else if(c===10)ok=nw>=25000;else if(c===11)ok=nw>=50000;
-  if(ok&&c<MISS.length){S.m++;toast(L('🏅 Xong nhiệm vụ: ','🏅 Mission complete: ')+LX(MISS[c].t)+'  (+150 XP)','y');sfx('win');confetti(40);addXp(150);if(S.m<MISS.length)fire('tick')}}
+  if(ok&&c<MISS.length){S.m++;tlog('mission',{d:{no:c+1,name:MISS[c].t[1]}});toast(L('🏅 Xong nhiệm vụ: ','🏅 Mission complete: ')+LX(MISS[c].t)+'  (+150 XP)','y');sfx('win');confetti(40);addXp(150);if(S.m<MISS.length)fire('tick')}}
 function place(){const a=analyse(T),s=S.st[T.sym],x=STR[T.strat];
   if(level()<x.lv)return toast(L(`🔒 Cần cấp ${x.lv} để dùng ${x.n}`,`🔒 ${x.n} unlocks at level ${x.lv}`),'r');
   if(a.lockSh){const h=S.sh[T.sym],free=h?h.n-h.locked:0;if(free<a.lockSh)return toast(L(`Cần ${a.lockSh} cp ${T.sym} rảnh. Mua cổ phiếu ở tab Thị trường.`,`You need ${a.lockSh} free ${T.sym} shares. Buy shares from the Market tab.`),'r')}
   if(a.need>S.cash+1e-6)return toast(L('Không đủ tiền mặt: cần ','Not enough cash: need ')+money(a.need),'r');
   S.cash-=a.need;S.fees+=a.fee;if(a.lockSh)S.sh[T.sym].locked+=a.lockSh;
-  S.pos.push({id:S.pid++,sym:T.sym,strat:T.strat,legs:a.legs,qty:T.qty,exp:T.exp,entry:a.q.net,fee:a.fee,collat:a.collat,lockSh:a.lockSh,open:S.date});
+  const cx=mktCtx(T.sym);cx.cashBefore=Math.round(S.cash+a.need);
+  S.pos.push({id:S.pid++,sym:T.sym,strat:T.strat,legs:a.legs,qty:T.qty,exp:T.exp,entry:a.q.net,fee:a.fee,collat:a.collat,lockSh:a.lockSh,open:S.date});S.ntr=(S.ntr||0)+1;
+  tlog('trade',Object.assign(cx,{action:'open',sym:T.sym,strat:x.n,qty:T.qty,legs:legTxt(a.legs),exp:T.exp,dte:calDays(S.date,T.exp),fill:+a.q.net.toFixed(2),dc:a.q.net>=0?'debit':'credit',cash:-Math.round(a.need*100)/100,fee:a.fee,
+    maxLoss:Math.round(a.maxLoss),maxGain:a.maxGain===Infinity?'inf':Math.round(a.maxGain),be:a.be.map(b=>b.toFixed(2)).join(' / '),collat:a.collat,delta:Math.round(a.q.d*100*T.qty),theta:Math.round(a.q.th*100*T.qty*100)/100,vega:Math.round(a.q.ve*100*T.qty*100)/100,
+    covers:!!(s.earn&&T.exp>=s.earn),riskPct:+(Math.abs(a.maxLoss)/netWorth()*100).toFixed(1),advice:inEN(()=>advise(a)[1].replace(/<[^>]+>/g,''))}));
   sfx('buy');toast(`✅ ${L('Khớp','Filled')} ${x.n} ${T.sym} ×${T.qty} @ ${Math.abs(a.q.net).toFixed(2)} ${a.q.net>=0?'debit':'credit'} · ${L('phí','fee')} ${money(a.fee,2)}`,'g');
   addXp(10);fire('open',{strat:T.strat,earnDays:s.earn?calDays(S.date,s.earn):null,covers:s.earn&&T.exp>=s.earn});save();render()}
 function finish(p,pnl,how){S.pos=S.pos.filter(x=>x!==p);S.hist.unshift({n:posName(p),pnl,how,d:S.date});if(S.hist.length>20)S.hist.pop();
   if(pnl>0){S.wins++;addXp(Math.min(200,20+pnl/10|0))}else S.losses++}
 function closePos(id){const p=S.pos.find(x=>x.id===+id);if(!p)return;const q=quote(p.sym,p.legs,p.exp,false),m=100*p.qty,fee=FEE*p.legs.length*p.qty,pnl=(q.net-p.entry)*m-p.fee-fee;
-  S.cash+=q.net*m+p.collat-fee;S.fees+=fee;if(p.lockSh)S.sh[p.sym].locked-=p.lockSh;
+  const cx=mktCtx(p.sym);S.cash+=q.net*m+p.collat-fee;S.fees+=fee;if(p.lockSh)S.sh[p.sym].locked-=p.lockSh;S.ntr=(S.ntr||0)+1;
+  tlog('trade',Object.assign(cx,{action:'close',sym:p.sym,strat:STR[p.strat].n,qty:p.qty,legs:legTxt(p.legs),exp:p.exp,dte:calDays(S.date,p.exp),fill:+q.net.toFixed(2),dc:q.net>=0?'credit':'debit',cash:Math.round((q.net*m+p.collat-fee)*100)/100,fee,
+    pnl:Math.round(pnl*100)/100,pnlPct:+(pnl/(Math.abs(p.entry)*m||1)*100).toFixed(1),held:calDays(p.open,S.date),collat:p.collat,delta:Math.round(q.d*m),theta:Math.round(q.th*m*100)/100,vega:Math.round(q.ve*m*100)/100}));
   finish(p,pnl,'close');toast(`${pnl>=0?L('💰 Chốt lãi','💰 Profit taken'):L('💸 Cắt lỗ','💸 Loss cut')} ${posName(p)}: ${sgn(pnl)} ${L('(sau phí)','(after fees)')}`,pnl>=0?'g':'r');
   if(pnl>0){sfx('win');confetti(Math.min(120,20+pnl/8))}else{sfx('lose');shake()}
   fire('close',{strat:p.strat,pnl});save();render()}
@@ -383,6 +422,9 @@ function settle(p){const s=S.st[p.sym],m=100*p.qty;let val=0;for(const l of p.le
     else msg=L(`⌛ Covered Call ${p.sym} hết hạn vô giá trị — ăn trọn ${money(pnl)}`,`⌛ ${p.sym} Covered Call expired worthless — you keep all ${money(pnl)}`)}
   else if(p.strat==='csp'&&s.px<K){addShares(p.sym,m,K);pnl=-p.entry*m-p.fee;msg=L(`📦 ${p.sym} đóng cửa dưới strike ${kf(K)}: bị giao ${m} cp giá ${kf(K)} (đã giữ premium ${money(pnl)})`,`📦 ${p.sym} closed below the ${kf(K)} strike: you were assigned ${m} shares at ${kf(K)} (premium kept: ${money(pnl)})`)}
   else{S.cash+=val*m+p.collat;msg=L(`⌛ ${posName(p)} đáo hạn: ${sgn(pnl)}`,`⌛ ${posName(p)} expired: ${sgn(pnl)}`)}
+  tlog('trade',Object.assign(mktCtx(p.sym),{action:p.strat==='cc'&&s.px>K?'called_away':p.strat==='csp'&&s.px<K?'assigned':'expired',sym:p.sym,strat:STR[p.strat].n,qty:p.qty,legs:legTxt(p.legs),exp:p.exp,dte:0,fill:+val.toFixed(2),
+    pnl:Math.round(pnl*100)/100,pnlPct:+(pnl/(Math.abs(p.entry)*m||1)*100).toFixed(1),held:calDays(p.open,S.date),collat:p.collat}));
+  (tel.settled=tel.settled||[]).push(`${p.sym} ${STR[p.strat].n} ${sgn(pnl)}`);
   const short=p.entry<0;finish(p,pnl,'exp');toast(msg,pnl>0?'g':pnl<0?'r':'');
   fire('expire',{strat:p.strat,pnl,worthlessShort:short&&Math.abs(val)<1e-9});return pnl}
 function whyTxt(e){const r=[];
@@ -398,13 +440,16 @@ function earnHtml(d,e){return `<div class="er"><span>${L('EPS thực tế / dự
 function nextDay(silent){
   if(broke())return gameOver();
   const before=netWorth(),date=nextTD(S.date),ev=macro(date);S.date=date;S.day++;let stop=false,em=null;
-  const mret=stepMarket(ev);if(ev)toast(`🏛️ ${macroName(ev.k)}: ${L('thị trường','market')} ${pc(mret)}`,mret>=0?'g':'r');
+  const mret=stepMarket(ev),erl=[];tel.settled=[];if(ev)toast(`🏛️ ${macroName(ev.k)}: ${L('thị trường','market')} ${pc(mret)}`,mret>=0?'g':'r');
   for(const d of DEFS){const s=S.st[d.sym],er=stepStock(s,mret,date);s.ivh.push(iv30(s));if(s.ivh.length>130)s.ivh.shift();
+    if(er)erl.push(`${d.sym} EPS ${pc(er.sur)} rev ${pc(er.rev)} guide ${er.guid>0?'up':er.guid<0?'down':'flat'} -> ${pc(er.ret)}`);
     if(er){const held=S.pos.some(p=>p.sym===d.sym)||S.sh[d.sym],beat=er.sur>=0,w=whyTxt(er);
       toast(L(`📣 ${d.sym} EPS ${beat?'vượt':'hụt'} ${Math.abs(er.sur*100).toFixed(0)}% → giá ${pc(er.ret)}${w?' vì '+w:''}`,`📣 ${d.sym} EPS ${beat?'beat':'missed'} by ${Math.abs(er.sur*100).toFixed(0)}% → stock ${pc(er.ret)}${w?' because '+w:''}`),er.ret>=0?'g':'r');if(held){stop=true;em=[d,er]}}}
   for(const p of S.pos.slice())if(p.exp<=date){settle(p);stop=true}
   if(!expiries().includes(T.exp))pickExp();
   makeNews();addXp(2);const diff=netWorth()-before;
+  {let th=0;for(const p of S.pos)th+=quote(p.sym,p.legs,p.exp,false).th*100*p.qty;
+   tlog('day',{nw:Math.round(netWorth()),dpnl:Math.round(diff),cash:Math.round(S.cash),npos:S.pos.length,shares:Object.keys(S.sh).map(k=>k+':'+S.sh[k].n).join(' '),theta:Math.round(th),vix:+(iv30(S.st.USX)*100).toFixed(1),mkt:+(mret*100).toFixed(2),macro:ev?ev.k:'',earn:erl.join(' | '),settled:tel.settled.join(' | ')})}
   if(!silent||stop){if(diff>before*0.03){sfx('win');confetti(50)}else if(diff<-before*0.03){sfx('lose');shake()}else sfx('tick')}
   fire('tick');save();render();bumpNW();
   if(em&&!$('#modal').classList.contains('on')){const[d,e]=em,w=whyTxt(e);
@@ -412,18 +457,18 @@ function nextDay(silent){
   if(broke())gameOver();
   return stop}
 function skip5(){if(busy)return;busy=true;let i=0;const go=()=>{const stop=nextDay(true);if(++i<5&&!stop&&!$('#modal').classList.contains('on'))setTimeout(go,280);else busy=false};go()}
-function gameOver(){sfx('lose');shake();modal(`<div class="bubble">${BEAR}<p>${L('Cháy tài khoản rồi! Ngoài đời thật tiền này không quay lại đâu.','Account blown! In real life, that money would not come back.')}</p></div><h3>💀 ${L(`Hết vốn sau ${S.day} phiên`,`Out of money after ${S.day} sessions`)}</h3><p>${L('Bài học lớn nhất của quyền chọn: <b>đi lệnh nhỏ</b>. Mỗi lệnh mua chỉ nên chiếm vài % tài khoản, vì nó có thể về 0.','The biggest lesson in options: <b>size small</b>. Each long option should be a few % of the account, because it can go to zero.')}</p><button class="btn w g" data-a="restart">${L('Chơi lại với $10,000','Start over with $10,000')}</button>`)}
+function gameOver(){if(!S.over){S.over=true;tlog('game_over',{d:{sessions:S.day,trades:S.ntr||0,wins:S.wins,losses:S.losses,fees:Math.round(S.fees)}});save()}sfx('lose');shake();modal(`<div class="bubble">${BEAR}<p>${L('Cháy tài khoản rồi! Ngoài đời thật tiền này không quay lại đâu.','Account blown! In real life, that money would not come back.')}</p></div><h3>💀 ${L(`Hết vốn sau ${S.day} phiên`,`Out of money after ${S.day} sessions`)}</h3><p>${L('Bài học lớn nhất của quyền chọn: <b>đi lệnh nhỏ</b>. Mỗi lệnh mua chỉ nên chiếm vài % tài khoản, vì nó có thể về 0.','The biggest lesson in options: <b>size small</b>. Each long option should be a few % of the account, because it can go to zero.')}</p><button class="btn w g" data-a="restart">${L('Chơi lại với $10,000','Start over with $10,000')}</button>`)}
 function tradeStock(n){const s=S.st[sel];if(level()<2)return toast(L('🔒 Mua bán cổ phiếu mở ở cấp 2','🔒 Trading shares unlocks at level 2'),'r');
-  if(n>0){const c=n*s.px;if(c>S.cash)return toast(L('Không đủ tiền: cần ','Not enough cash: need ')+money(c),'r');S.cash-=c;addShares(sel,n,s.px);sfx('buy');toast(L(`Đã mua ${n} cp ${sel} giá ${money(s.px,2)}`,`Bought ${n} ${sel} shares at ${money(s.px,2)}`),'g')}
+  if(n>0){const c=n*s.px;if(c>S.cash)return toast(L('Không đủ tiền: cần ','Not enough cash: need ')+money(c),'r');tlog('trade',Object.assign(mktCtx(sel),{action:'buy_shares',sym:sel,strat:'Stock',qty:n,fill:s.px,cash:-Math.round(c*100)/100,riskPct:+(c/netWorth()*100).toFixed(1)}));S.cash-=c;addShares(sel,n,s.px);sfx('buy');toast(L(`Đã mua ${n} cp ${sel} giá ${money(s.px,2)}`,`Bought ${n} ${sel} shares at ${money(s.px,2)}`),'g')}
   else{const h=S.sh[sel],free=h?h.n-h.locked:0;if(free<-n)return toast(L('Không đủ cp rảnh (cp đang bị khóa cho Covered Call)','Not enough free shares (some are locked by a Covered Call)'),'r');
-    const pnl=(s.px-h.avg)*-n;S.cash+=-n*s.px;h.n+=n;if(h.n<=0)delete S.sh[sel];sfx(pnl>=0?'win':'lose');toast(L(`Đã bán ${-n} cp ${sel}: `,`Sold ${-n} ${sel} shares: `)+sgn(pnl),pnl>=0?'g':'r')}
+    const pnl=(s.px-h.avg)*-n;tlog('trade',Object.assign(mktCtx(sel),{action:'sell_shares',sym:sel,strat:'Stock',qty:-n,fill:s.px,cash:Math.round(-n*s.px*100)/100,pnl:Math.round(pnl*100)/100,pnlPct:+((s.px/h.avg-1)*100).toFixed(1)}));S.cash+=-n*s.px;h.n+=n;if(h.n<=0)delete S.sh[sel];sfx(pnl>=0?'win':'lose');toast(L(`Đã bán ${-n} cp ${sel}: `,`Sold ${-n} ${sel} shares: `)+sgn(pnl),pnl>=0?'g':'r')}
   save();render()}
 function setStrat(k){if(level()<STR[k].lv)return toast(L(`🔒 ${STR[k].n} mở ở cấp ${STR[k].lv} (${rank(STR[k].lv)})`,`🔒 ${STR[k].n} unlocks at level ${STR[k].lv} (${rank(STR[k].lv)})`),'r');T.strat=k;resetK();render()}
 function pickExp(){const e=expiries();T.exp=e.find(x=>calDays(S.date,x)>=14)||e[e.length-1]}
 function resetK(){const s=S.st[T.sym],st=stepOf(s.px),a=atm(s);T.K={cc:a+st,bearcall:a+st,csp:a-st,bullput:a-st}[T.strat]||a;T.w=1;T.d=2;if(!expiries().includes(T.exp))pickExp();fixK()}
 function fixK(){const s=S.st[T.sym],st=stepOf(s.px);let lo=st;if(T.strat==='bear'||T.strat==='bullput')lo=st*(T.w+1);if(T.strat==='condor')lo=st*(T.d+T.w+1);T.K=clamp(Math.round(T.K/st)*st,lo,Math.round(s.px*2/st)*st)}
 function act(a,v){
-  if(a==='tab'){tab=v;detail=false;if(v==='trade'){if(!T.K)resetK();fixK()}render();$('#view').scrollTop=0}
+  if(a==='tab'){tab=v;detail=false;if(v==='miss')loadBoard();if(v==='trade'){if(!T.K)resetK();fixK()}render();$('#view').scrollTop=0}
   else if(a==='stock'){sel=v;tab='market';detail=true;render();$('#view').scrollTop=0}
   else if(a==='back'){detail=false;render()}
   else if(a==='goTrade'){T.sym=sel;tab='trade';detail=false;resetK();render();$('#view').scrollTop=0}
@@ -441,9 +486,13 @@ function act(a,v){
   else if(a==='skip')skip5()
   else if(a==='buy')tradeStock(100)
   else if(a==='sell')tradeStock(-100)
-  else if(a==='lang'){setLang(v||(LANG==='vi'?'en':'vi'));S.lang=LANG;save();render();if($('#modal').classList.contains('on')&&!S.intro)showIntro();else if(v==null)toast(L('🇻🇳 Đã chuyển sang Tiếng Việt','🇺🇸 Switched to English'),'y')}
-  else if(a==='closeModal'){$('#modal').classList.remove('on');if(!S.intro){S.intro=true;save()}}
-  else if(a==='restart'){$('#modal').classList.remove('on');newGame();S.intro=true;tab='market';detail=false;T.K=0;T.exp='';resetK();save();render()}
+  else if(a==='lang'){const l0=LANG;setLang(v||(LANG==='vi'?'en':'vi'));if(l0!==LANG)tlog('language',{d:{from:l0,to:LANG}});S.lang=LANG;save();render();if($('#modal').classList.contains('on')&&!S.intro)showIntro();else if(v==null)toast(L('🇻🇳 Đã chuyển sang Tiếng Việt','🇺🇸 Switched to English'),'y')}
+  else if(a==='closeModal'){$('#modal').classList.remove('on');if(!S.intro){S.intro=true;save()}if(SHEET_API&&!PL.name)askName(true)}
+  else if(a==='saveName'){const i=$('#nm'),n=(i?i.value:'').replace(/[<>]/g,'').trim().slice(0,20);if(n.length<2)return toast(L('Tên cần ít nhất 2 ký tự','Name needs at least 2 characters'),'r');
+    const was=PL.name;PL.name=n;savePL();save();tlog(was?'rename':'name_set',{d:{from:was,to:n}});$('#modal').classList.remove('on');telFlush();tel.lbAt=0;render();if(tab==='miss')loadBoard(true)}
+  else if(a==='editName')askName(false)
+  else if(a==='lbRefresh')loadBoard(true)
+  else if(a==='restart'){$('#modal').classList.remove('on');newGame(broke()||S.over?'after_bust':'restart');S.intro=true;tab='market';detail=false;T.K=0;T.exp='';resetK();save();render()}
   else if(a==='cloud'){const m={ok:[L('☁️ Đã lưu trên cloud','☁️ Saved to the cloud'),L('Tiến trình được lưu theo tài khoản Claude của bạn. Mở game trên iPhone, iPad hay máy tính khác bằng cùng tài khoản là chơi tiếp đúng chỗ này.','Your progress is saved to your Claude account. Open the game on another iPhone, iPad or computer with the same account to pick up right here.')+(cloud.last?'<br>'+L('Lần lưu gần nhất: ','Last saved: ')+new Date(cloud.last).toLocaleTimeString(L('vi-VN','en-US')):'')],
       sync:[L('☁️ Đang đồng bộ…','☁️ Syncing…'),L('Game đang kết nối tới cloud. Bạn cứ chơi bình thường.','The game is connecting to the cloud. Keep playing as usual.')],
       off:[L('📱 Chỉ lưu trên máy này','📱 Saved on this device only'),L('Chưa kết nối được cloud. Tiến trình vẫn được lưu trên máy này; lưu cloud cần mở game khi đã đăng nhập Claude.','Could not reach the cloud. Progress is still saved on this device; cloud saving needs you to be signed in to Claude.')],
@@ -466,7 +515,7 @@ function renderHud(){const nw=netWorth(),l=level(),p=(S.xp-LV[l-1])/(LV[l]-LV[l-
   <div style="width:40%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
   const nx=nextTD(S.date);
   $('#bar').innerHTML=`<button class="btn g grow" data-a="next">▶ ${L('Sang phiên','Next session')} ${dfmt(nx)}</button><button class="btn b" data-a="skip">⏩ ×5</button>`;
-  const tb=[['market','📊',L('Thị trường','Market')],['trade','🎯',L('Giao dịch','Trade')],['port','💼',L('Danh mục','Portfolio')],['miss','🏅',L('Nhiệm vụ','Missions')],['learn','📖',L('Bí kíp','Learn')]];
+  const tb=[['market','📊',L('Thị trường','Market')],['trade','🎯',L('Giao dịch','Trade')],['port','💼',L('Danh mục','Portfolio')],['miss','🏆',L('Xếp hạng','Ranks')],['learn','📖',L('Bí kíp','Learn')]];
   $('#tabs').innerHTML=tb.map(t=>`<button class="${tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}"><b>${t[1]}</b>${t[2]}${t[0]==='port'&&S.pos.length?'<i class="dot"></i>':''}</button>`).join('')}
 function bumpNW(){const e=$('#nw');if(e){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
 function vMarket(){
@@ -548,8 +597,15 @@ function vPort(){let h='',sh=Object.keys(S.sh);const tot=S.wins+S.losses;let D=0
   h+=`<div class="card"><h3>📦 ${L('Cổ phiếu','Shares')}</h3>${sh.length?sh.map(k=>{const x=S.sh[k],s=S.st[k],pnl=(s.px-x.avg)*x.n;return `<button class="pos stock" data-a="stock" data-v="${k}"><span class="tk" style="background:${def(k).col}">${k}</span><span class="grow"><b>${x.n} ${L('cp','sh')}</b> · ${L('vốn','cost')} ${x.avg.toFixed(2)}${x.locked?`<br><span class="tag y">${L('khóa','locked')} ${x.locked} ${L('cp','sh')}</span>`:''}</span><b class="${cls(pnl)}">${sgn(pnl)}</b></button>`}).join(''):`<div class="sub">${L('Chưa giữ cổ phiếu nào.','No shares held.')}</div>`}</div>`;
   h+=`<div class="card"><h3>📜 ${L('Lịch sử lệnh','Trade history')}</h3>${S.hist.length?S.hist.map(x=>`<div class="row" style="padding:3px 0"><span class="grow">${x.n} <span class="sub">· ${howTxt(x.how)} ${dfmt(x.d)}</span></span><b class="${cls(x.pnl)}">${sgn(x.pnl)}</b></div>`).join(''):`<div class="sub">${L('Chưa có lệnh đã đóng.','No closed trades yet.')}</div>`}</div>`;
   return h}
+function vBoard(){const me=PL.name;
+  let rows;if(!SHEET_API)rows=`<div class="sub">${L('Bảng xếp hạng sắp ra mắt.','The leaderboard is coming soon.')}</div>`;else if(tel.lbErr)rows=`<div class="sub">${L('Bảng xếp hạng chỉ có ở bản web: saigoneseecoffee.github.io/OptionsMaster','The leaderboard is available in the web version: saigoneseecoffee.github.io/OptionsMaster')}</div>`;
+  else if(!tel.lb)rows=`<div class="sub">${L('Đang tải…','Loading…')}</div>`;
+  else if(!tel.lb.length)rows=`<div class="sub">${L('Chưa có ai. Bạn sẽ là người đầu tiên!','No one yet. You could be first!')}</div>`;
+  else rows=tel.lb.map((r,i)=>`<div class="row" style="padding:5px 8px;border-radius:10px;${r.me?'background:var(--gold);color:var(--ink)':''}"><b style="width:30px">${i<3?['🥇','🥈','🥉'][i]:i+1}</b><span class="grow" style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${String(r.name).replace(/[<>&]/g,'')}</span><b>${money(r.nw)}</b></div>`).join('');
+  return `<div class="card"><div class="row"><h3 class="grow" style="margin:0">🏆 ${L('Bảng xếp hạng','Leaderboard')}</h3>${SHEET_API?`<button class="btn sm d" data-a="lbRefresh" aria-label="${L('Tải lại','Refresh')}">↻</button>`:''}</div>
+  <div class="sub" style="margin:2px 0 6px">${L('Tài sản cao nhất từng đạt','Best net worth reached')}${me?` · ${L('Bạn là','You are')} <b style="color:#fff">${me.replace(/[<>&]/g,'')}</b> <button class="tag y" data-a="editName">${L('đổi tên','rename')}</button>`:SHEET_API?` · <button class="tag y" data-a="editName">${L('đặt tên','set name')}</button>`:''}</div>${rows}</div>`}
 function vMiss(){const l=level();
-  return `<div class="card"><h3>🏅 ${L('Con đường thành Huyền Thoại','The road to Legend')}</h3>${MISS.map((m,i)=>`<div class="miss ${i<S.m?'done':i===S.m?'cur':'lockd'}"><span class="ic">${i<S.m?'✓':i===S.m?'★':i+1}</span><span class="grow"><b>${LX(m.t)}</b>${i===S.m?`<div class="sub">${LX(m.h)}</div>`:''}</span><span class="tag y">+150</span></div>`).join('')}</div>
+  return vBoard()+`<div class="card"><h3>🏅 ${L('Con đường thành Huyền Thoại','The road to Legend')}</h3>${MISS.map((m,i)=>`<div class="miss ${i<S.m?'done':i===S.m?'cur':'lockd'}"><span class="ic">${i<S.m?'✓':i===S.m?'★':i+1}</span><span class="grow"><b>${LX(m.t)}</b>${i===S.m?`<div class="sub">${LX(m.h)}</div>`:''}</span><span class="tag y">+150</span></div>`).join('')}</div>
   <div class="card"><h3>🔓 ${L('Chiến lược theo cấp','Strategies by level')}</h3>${Object.values(STR).map(x=>`<div class="row" style="padding:3px 0"><span style="font-size:20px">${l>=x.lv?x.ic:'🔒'}</span><span class="grow"><b>${x.n}</b> <span class="sub">· ${L('cấp','level')} ${x.lv}</span></span></div>`).join('')}</div>`}
 function vLearn(){return `<div class="bubble">${BULL}<p>${L('Tiền ảo, công ty hư cấu, giá mô phỏng. Cơ chế quyền chọn thì giống sàn Mỹ: bid/ask, phí, đáo hạn thứ Sáu, IV crush.','Play money, fictional companies, simulated prices. The options mechanics match US markets: bid/ask, fees, Friday expirations, IV crush.')}</p></div><div class="card"><h3>📖 ${L('Bí kíp quyền chọn','Options playbook')}</h3>${LESS.map(l=>{const x=LX(l);return `<details><summary>${x[0]}</summary><p>${x[1]}</p></details>`}).join('')}</div>`}
 function render(){document.documentElement.lang=LANG;renderHud();const v=$('#view'),sc=v.scrollTop;
@@ -599,12 +655,15 @@ function fxLoop(){const c=$('#fx'),g=c.getContext('2d');g.clearRect(0,0,c.width,
   raf=parts.length?requestAnimationFrame(fxLoop):0;if(!raf)g.clearRect(0,0,c.width,c.height)}
 
 /* ============ khởi động ============ */
-S=load();if(!S)newGame();if(S.lang==='vi'||S.lang==='en')setLang(S.lang);else setLang(LANG);
+S=load();if(!S)newGame('first');else ensureGame();if(S.pl&&S.pl.id&&S.pl.id!==PL.id&&!PL.name){PL=S.pl;savePL()}if(S.lang==='vi'||S.lang==='en')setLang(S.lang);else setLang(LANG);
 resetK();render();
 window.addEventListener('resize',()=>render());
 cloudInit();
+tlog('visit',{d:{ua:navigator.userAgent.slice(0,120),screen:screen.width+'x'+screen.height,lang:LANG,host:location.hostname||'file',queued:tel.q.length}});
+setInterval(telFlush,20000);
+if(S.intro&&SHEET_API&&!PL.name)setTimeout(()=>{if(!$('#modal').classList.contains('on'))askName(true)},600);
 if(!S.intro)showIntro();
-window.__game={get S(){return S},get LANG(){return LANG},T,act,netWorth,analyse,nextDay,place,level,expiries,ivAt,legQ};
+window.__game={get S(){return S},tel,get PL(){return PL},get LANG(){return LANG},T,act,netWorth,analyse,nextDay,place,level,expiries,ivAt,legQ};
 </script>
 </body>
 </html>
