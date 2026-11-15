@@ -436,6 +436,8 @@ const LESS=[
   [['Đầu tư định kỳ (DCA)','Mỗi tháng mua một số tiền cố định, bất kể giá. Giá thấp thì mua được nhiều cổ phần hơn, giá cao thì ít hơn — giá vốn bình quân tự được làm mượt, và bạn không phải đoán đáy. Game cho phép mua lẻ cổ phần (fractional) cho kế hoạch định kỳ.'],['Dollar-cost averaging (DCA)','Invest a fixed amount every month regardless of price. Low prices buy more shares, high prices fewer — your average cost smooths out and you never have to time the bottom. Monthly plans in the game can buy fractional shares.']],
   [['Cổ tức & tái đầu tư (DRIP)','Cổ phiếu/ETF có cổ tức trả mỗi quý vào ngày chốt quyền; giá cổ phiếu giảm đúng bằng khoản cổ tức ngày hôm đó. Bật DRIP để tự động mua thêm cổ phần bằng cổ tức — lãi kép theo thời gian.'],['Dividends & reinvestment (DRIP)','Dividend payers pay every quarter on the ex-date, and the share price drops by the dividend that day. Turn on DRIP to automatically buy more shares with dividends — compounding over time.']],
   [['Đa dạng hóa theo ngành','Không dồn hết vào một ngành: công nghệ và xe điện rung mạnh (beta cao), tiện ích và thực phẩm ổn định (beta thấp), trái phiếu thường đi ngược cổ phiếu khi thị trường hoảng loạn, vàng là nơi trú ẩn. ETF chỉ số cho bạn cả trăm công ty trong một lệnh.'],['Diversify across sectors','Don\'t put everything in one sector: tech and EVs swing hard (high beta), utilities and food are steady (low beta), bonds often move against stocks in a panic, and gold is a safe haven. An index ETF gives you hundreds of companies in one trade.']],
+  [['Lạm phát & giá trị thực','Mỗi năm đồng tiền mất khoảng 2–3% sức mua. $1 triệu sau 30 năm lạm phát 2,5% chỉ mua được lượng hàng như khoảng $470.000 hôm nay. Vì vậy game hiện thêm tài sản "theo sức mua 2026" và lãi kép sau lạm phát: đó mới là mức giàu lên thật sự. Tiền mặt để yên là tài sản chắc chắn mất giá.'],['Inflation & real value','Money loses about 2–3% of its buying power each year. $1 million after 30 years of 2.5% inflation buys what roughly $470,000 buys today. That is why the game also shows net worth "in 2026 dollars" and the return after inflation: that is how much richer you really are. Idle cash is the one asset guaranteed to lose value.']],
+  [['Thị trường giá xuống & khủng hoảng','Khoảng mỗi thập kỷ thị trường có một đợt giảm 30–50% kéo dài cả năm hoặc hơn (2000, 2008, 2020, 2022 ngoài đời). Giảm 50% thì cần tăng 100% mới về lại chỗ cũ. Trong khủng hoảng, biến động (VIX) tăng vọt, cổ phiếu beta cao rơi mạnh hơn chỉ số, còn trái phiếu và vàng thường giữ giá tốt hơn. Dùng đòn bẩy càng cao thì một đợt sụt càng dễ xóa sạch thành quả nhiều năm.'],['Bear markets & crises','About once a decade the market falls 30–50% over a year or more (2000, 2008, 2020, 2022 in real life). A 50% loss needs a 100% gain to get back to even. In a crisis volatility (VIX) spikes, high-beta stocks fall harder than the index, while bonds and gold tend to hold up better. The more leverage you carry, the more easily one slump wipes out years of gains.']],
   [['Lãi kép','$10,000 tăng 8%/năm thành khoảng $21,600 sau 10 năm và $46,600 sau 20 năm. Thời gian trên thị trường quan trọng hơn canh thời điểm vào thị trường.'],['Compounding','$10,000 growing 8% a year becomes about $21,600 in 10 years and $46,600 in 20. Time in the market beats timing the market.']]]},
  {h:['🛡️ Quản trị rủi ro & giới hạn của game','🛡️ Risk & game limits'],items:[
   [['Quản trị vốn','Nhiều nhà giao dịch chỉ đặt 2–5% tài khoản cho mỗi lệnh mua quyền chọn, vì một lệnh có thể mất 100%. Với future, hãy tính lỗ khi giá đi ngược 5% trước khi vào lệnh. Cháy tài khoản thường do đi lệnh quá to, không phải do sai hướng.'],['Position sizing','Many traders risk only 2–5% of the account on each long option, since any trade can go to zero. With futures, work out the loss on a 5% adverse move before entering. Accounts usually blow up from oversized bets, not from being wrong on direction.']],
@@ -526,7 +528,7 @@ function askName(first){modal(`<h3>🏆 ${L('Tên của bạn trên bảng xếp
 function newStock(d){return{sym:d.sym,px:d.px,prev:d.px,vol:d.vol,beta:d.beta||0,g:d.g||0,o:d.o||0,liq:d.liq||1,etf:d.etf||0,dy:d.dy||0,drift:0,regLeft:0,ivn:0,vs:1,earn:null,divIn:5+Math.random()*58|0,eps:d.pe?d.px/d.pe/4:0,last:null,hist:[],cl:[],ivh:[],lev:d.lev||null,r:0}}
 function newGame(reason){
   const old=S&&S.gid?{gid:S.gid,reason:reason||'restart',nw:Math.round(netWorth()),day:S.day,date:S.date,cash:Math.round(S.cash),trades:S.ntr||0,wins:S.wins,losses:S.losses,fees:Math.round(S.fees*100)/100,lv:level(),missions:S.m}:null,gno=(S&&S.gno||0)+1,keepDrip=S?S.drip:false;
-  S={v:VER,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0},st:{},sh:{},pos:[],fut:[],dca:[],divs:0,drip:keepDrip,mcall:false,nwh:[10000],dpnl:0,hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG,gid:uid(),gno,greason:reason||'first',gstart:'2026-11-13',ntr:0,over:false};
+  S={v:VER,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0,nextCr:1e9,cr:null},st:{},sh:{},pos:[],fut:[],dca:[],divs:0,drip:keepDrip,mcall:false,nwh:[10000],dpnl:0,hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG,gid:uid(),gno,greason:reason||'first',gstart:'2026-11-13',ntr:0,over:false};
   for(const c of CMD)S.st[c.sym]=Object.assign(newStock(c),{cmd:1,beta:0});
   for(const d of DEFS)S.st[d.sym]=newStock(d);
   const all=Object.values(S.st);
@@ -534,15 +536,22 @@ function newGame(reason){
   /* đưa giá về đúng mức khởi điểm, giữ nguyên hình dạng lịch sử */
   for(const d of DEFS.concat(CMD)){const s=S.st[d.sym],k=d.px/s.px;s.px=r2(s.px*k);s.prev=r2(s.prev*k);s.cl=s.cl.map(v=>r2(v*k))}
   const stocks=DEFS.filter(d=>!d.etf);stocks.sort(()=>Math.random()-.5).forEach((d,i)=>{const s=S.st[d.sym];s.eps=s.px/d.pe/4;s.earn=addTD(S.date,3+Math.round(i*58/stocks.length)+(Math.random()*3|0))});
+  S.mk.nextCr=500+Math.random()*1500|0;
   makeNews();
   if(old){tel.closed.push(old);telSave()}tlog('game_start',{reason:reason||'first',d:{game_no:gno}});
 }
-function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.3,-0.05,0.12,0.16,0.24,0.34]);mk.regLeft=15+Math.random()*30|0}
+function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.2,0,0.08,0.12,0.18,0.25]);mk.regLeft=15+Math.random()*30|0}
   let z=gauss();if(Math.random()<0.03)z*=2.5;if(ev&&ev.k!=='OPEC')z*=ev.k==='FED'?2.2:1.7;
   /* kéo nhẹ chỉ số về xu hướng dài hạn ~7,5%/năm để đầu tư vài chục năm cho kết quả giống lịch sử */
-  const sp=S.st.SPY,rev=sp&&sp.px>0?0.25*Math.log(600*Math.exp(0.075*(S.day-1)/252)/sp.px)/252:0;
-  const r=mk.drift/252+rev+mk.vol/15.87*z;
-  mk.vol=clamp(mk.vol+0.12*(0.15-mk.vol)+(r<0?-r*1.6:-r*0.5)+gauss()*0.004,0.09,0.6);mk.ret=r;return r}
+  const sp=S.st.SPY,rev=sp&&sp.px>0?0.4*Math.log(600*Math.exp(0.075*(S.day-1)/252)/sp.px)/252:0;
+  /* khủng hoảng theo chu kỳ: cứ khoảng 8–12 năm có một đợt giảm khoảng 30–50% kéo dài 9–19 tháng, biến động tăng vọt */
+  if(mk.nextCr==null)mk.nextCr=500+Math.random()*1500|0;
+  if(!mk.cr&&--mk.nextCr<=0){const len=180+Math.random()*220|0,dd=0.2+Math.random()*0.2;mk.cr={left:len,d:Math.log(1-dd)/len}}
+  let r;
+  if(mk.cr){z=clamp(z,-3,3);r=mk.cr.d+mk.vol*mk.vol/504+mk.vol/15.87*z;mk.vol=clamp(mk.vol+0.1*(0.22-mk.vol)+(r<0?-r*0.5:-r*0.3)+gauss()*0.004,0.16,0.36);
+    if(--mk.cr.left<=0){mk.cr=null;mk.nextCr=2016+Math.random()*1008|0}}
+  else{r=mk.drift/252+rev+mk.vol/15.87*z;mk.vol=clamp(mk.vol+0.12*(0.14-mk.vol)+(r<0?-r*1.0:-r*0.5)+gauss()*0.004,0.09,0.35)}
+  mk.ret=r;return r}
 /* hàng hóa: vàng hơi ngược chiều thị trường khi hoảng loạn, dầu theo kinh tế + OPEC */
 function stepCmd(ev){const out={};const mret=S.mk.ret;
   for(const c of CMD){const s=S.st[c.sym];if(!s)continue;let z=gauss();if(Math.random()<0.02)z*=2.5;
@@ -560,15 +569,15 @@ function earnings(s,date){const est=s.eps,sur=0.04+gauss()*0.07,rev=0.004+gauss(
   return s.last={date,est,act:est*(1+sur),sur,rev,guid,run,move}}
 function stepStock(s,mret,cm,date){
   const p0=s.px;let er=null,ret;
-  if(s.lev){const u=S.st[s.lev.u];ret=clamp(s.lev.x*(u.r||0)-0.0095/252,-0.95,3);s.r=ret;s.prev=p0;s.px=Math.max(0.01,r2(p0*(1+ret)));s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
+  /* quỹ đòn bẩy: x lần lợi nhuận ngày − chi phí vay cho phần đòn bẩy − phí quản lý */
+  if(s.lev){const u=S.st[s.lev.u];ret=clamp(s.lev.x*(u.r||0)-(s.lev.x-1)*RATE/252-0.0095/252,-0.95,3);s.r=ret;s.prev=p0;s.px=Math.max(0.01,r2(p0*(1+ret)));s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
     s.ivn=u.ivn;s.vs=u.vs;s.dv=null;return null}
-  if(!s.etf&&--s.regLeft<=0){s.drift=pick([-0.6,-0.3,0,0,0.25,0.45,0.7])*s.vol/0.35;s.regLeft=10+Math.random()*20|0}
+  if(!s.etf&&--s.regLeft<=0){s.drift=pick([-0.6,-0.3,0,0,0.3,0.6])*s.vol/0.35;s.regLeft=10+Math.random()*20|0}
   let zi=gauss();if(Math.random()<0.02)zi*=2.8;
-  const fac=s.beta*mret+s.g*(cm.GOLD||0)+s.o*(cm.OIL||0),sys=Math.sqrt((s.beta*.15)**2+(s.g*.15)**2+(s.o*.34)**2);
+  /* beta cao không được hưởng miễn phí: lợi nhuận kỳ vọng = lãi suất + beta × phần bù rủi ro thị trường */
+  const fac=s.beta*mret-(s.g?0:(s.beta-1)*RATE/252)+s.g*(cm.GOLD||0)+s.o*(cm.OIL||0),sys=Math.sqrt((s.beta*.15)**2+(s.g*.15)**2+(s.o*.34)**2);
   const idio=Math.sqrt(Math.max(.0004,s.vol*s.vol-sys*sys));
   ret=fac+(s.etf?0:s.drift/252)+idio*(s.etf?1:s.vs)/15.87*zi+idio*idio/504;
-  if(s.sym==='BND')ret+=0.035/252;
-  if(s.sym==='TLT')ret+=0.03/252;
   if(date&&s.earn===date){er=earnings(s,date);ret=er.move+s.beta*mret;er.ret=ret}
   s.r=ret;
   if(!s.etf)s.vs=clamp(0.9*s.vs+0.1*Math.abs(zi)*1.25,0.6,1.9);
@@ -647,6 +656,11 @@ const posPnl=p=>(markPos(p)-p.entry)*100*p.qty-p.fee;
 const futPnl=p=>{const f=fdef(p.root);return p.side*p.qty*f.mult*(futPx(p.root,p.exp)-p.entry)-p.fee};
 function netWorth(){let n=S.cash;for(const k in S.sh)n+=S.sh[k].n*S.st[k].px;for(const p of S.pos)n+=markPos(p)*100*p.qty+p.collat;
   for(const p of S.fut){const f=fdef(p.root);n+=p.margin+p.side*p.qty*f.mult*(futPx(p.root,p.exp)-p.last)}return n}
+/* lạm phát 2,5%/năm: quy tài sản về sức mua năm 2026; lãi kép mỗi năm (CAGR) */
+const INFL=0.025;
+const yearsIn=()=>(S.day-1)/252;
+const realNW=()=>netWorth()/Math.exp(INFL*yearsIn());
+const cagr=v=>yearsIn()>=0.25&&v>0?Math.pow(v/10000,1/yearsIn())-1:null;
 const level=()=>{let l=1;while(S.xp>=LV[l])l++;return l};
 const rank=l=>LX(RANK[l]);
 const posName=p=>`${p.sym} ${STR[p.strat].n}`;
@@ -911,7 +925,7 @@ function spark(cl){const a=cl.slice(-30),mn=Math.min(...a),mx=Math.max(...a),r=m
   return `<svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><polyline fill="none" stroke="${up?'#3ddc84':'#ff5d6c'}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${a.map((v,i)=>(i*56/(a.length-1)).toFixed(1)+','+(25-(v-mn)/r*22).toFixed(1)).join(' ')}"/></svg>`}
 function renderHud(){const nw=netWorth(),l=level(),p=(S.xp-LV[l-1])/(LV[l]-LV[l-1]),tot=nw-10000;
   $('#hud').innerHTML=`<div class="hudrow"><div class="logo">Options <i>Master</i></div><span class="pill">${dfull(S.date)}</span><button class="pill" data-a="lang" aria-label="${L('Đổi ngôn ngữ','Change language')}">${LANG==='vi'?'VI':'EN'}</button><button class="pill" data-a="cloud" id="cl" aria-label="${L('Trạng thái lưu','Save status')}">${CLI[cloud.st]}</button><button class="pill" data-a="askReset" aria-label="${L('Chơi lại','Start over')}">↺</button></div>
-  <div class="hudrow" style="margin-top:4px"><div class="grow"><div class="nw" id="nw">${money(nw)}</div><div class="sub"><b class="${cls(tot)}">${tot>=0?'▲':'▼'} ${pc(tot/10000)}</b> · ${L('hôm nay','today')} <b class="${cls(S.dpnl||0)}">${sgn(S.dpnl||0)}</b> · ${L('tiền mặt','cash')} <span class="${S.cash<0?'dn':''}">${money(S.cash)}</span></div></div>
+  <div class="hudrow" style="margin-top:4px"><div class="grow"><div class="nw" id="nw">${money(nw)}</div><div class="sub"><b class="${cls(tot)}">${tot>=0?'▲':'▼'} ${pc(tot/10000)}</b> · ${L('hôm nay','today')} <b class="${cls(S.dpnl||0)}">${sgn(S.dpnl||0)}</b> · ${L('tiền mặt','cash')} <span class="${S.cash<0?'dn':''}">${money(S.cash)}</span>${yearsIn()>=1?`<br>≈ <b style="color:var(--txt)">${money(realNW())}</b> ${L('theo sức mua 2026','in 2026 dollars')}`:''}</div></div>
   <div style="width:32%"><div class="sub" style="text-align:right">${L('Cấp','Lv')} ${l} · <b class="gold">${rank(l)}</b></div><div class="xp"><i style="width:${clamp(p*100,3,100)}%"></i></div></div></div>`;
   $('#bar').innerHTML=`<button class="btn g grow" data-a="next">▶ ${L('Sang phiên','Next session')} ${dfmt(nextTD(S.date))}</button><button class="btn b" data-a="skipMenu" aria-label="${L('Tua thời gian','Skip ahead')}">»</button>`;
   const IC={"market": "<path d=\"M3 17l5-6 4 3 6-8\"/><path d=\"M3 21h18\"/>", "trade": "<path d=\"M7 4v15m0 0l-3-3m3 3l3-3M17 20V5m0 0l-3 3m3-3l3 3\"/>", "port": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18\"/>", "miss": "<path d=\"M8 4h8v5a4 4 0 01-8 0zM8 6H5a3 3 0 003 3M16 6h3a3 3 0 01-3 3M12 13v4M8 20h8\"/>", "learn": "<path d=\"M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM19 19v2H6\"/>"};
@@ -930,6 +944,7 @@ function vMarket(){
   const ux=S.st.SPY,vix=iv30(ux)*100,ev=events(),g=S.st.GOLD,o=S.st.OIL,u1=ux.px/ux.prev-1;
   let h=mSeg()+`<div class="card"><div class="row"><div class="grow"><h3 style="margin:0">🇺🇸 ${L('Phiên','Session')} ${dfmt(S.date)} ${L('đã đóng cửa','closed')}</h3><div class="sub">${L(`Phiên thứ ${S.day} của bạn`,`Your session #${S.day}`)}</div></div><span class="tag ${vix>25?'r':vix>19?'y':'g'}">VIX ${vix.toFixed(1)}</span></div>
   <div class="mini3"><div><span>S&P 500</span><b class="${cls(u1)}">${pc(u1,2)}</b></div><div><span>${L('Vàng','Gold')}</span><b>${g.px.toFixed(0)} <i class="${cls(g.px-g.prev)}">${pc(g.px/g.prev-1,1)}</i></b></div><div><span>${L('Dầu','Oil')}</span><b>${o.px.toFixed(2)} <i class="${cls(o.px-o.prev)}">${pc(o.px/o.prev-1,1)}</i></b></div></div>
+  ${(()=>{const c=ux.cl,hi=Math.max(...c),dd=ux.px/hi-1;return dd<=-0.2?`<div class="banner r" style="margin:10px 0 0">🐻 ${L('Thị trường giá xuống (bear market): S&P 500 đã giảm','Bear market: the S&P 500 is down')} ${(-dd*100).toFixed(0)}% ${L('từ đỉnh 1 năm','from its 1-year high')}</div>`:dd<=-0.1?`<div class="banner" style="margin:10px 0 0">${L('Thị trường đang điều chỉnh: S&P 500 giảm','Market correction: the S&P 500 is down')} ${(-dd*100).toFixed(0)}% ${L('từ đỉnh 1 năm','from its 1-year high')}</div>`:''})()}
   <div class="lbl">${L('Tin & nhận định (mô phỏng)','News & analyst calls (simulated)')}</div>${S.news.map(n=>`<div class="news">${n.tone>0?'🟢':n.tone<0?'🔴':'⚪'} ${newsTxt(n)}</div>`).join('')}
   <div class="lbl">${L('Lịch sự kiện sắp tới','Upcoming events')}</div>${ev.length?ev.map(e=>`<div class="news"><span class="tag">${dfmt(e.d)}</span> ${e.t}</div>`).join(''):`<div class="sub">${L('Chưa có sự kiện lớn.','No major events.')}</div>`}
   <button class="btn d sm w" style="margin:6px 0" data-a="mview" data-v="cal">${L('Xem lịch đủ 30 ngày','See the full 30-day calendar')} →</button>
@@ -1106,7 +1121,9 @@ function vPort(){let h='',sh=Object.keys(S.sh);const tot=S.wins+S.losses;let D=0
    const parts=[[L('Tiền mặt','Cash'),Math.max(0,S.cash),'#7c9cff'],[L('Cổ phiếu & ETF','Stocks & ETFs'),stockVal0(),'#3ddc84'],[L('Quyền chọn','Options'),Math.max(0,ov),'#ffc93c'],[L('Ký quỹ tương lai','Futures margin'),fm,'#b98cff']],tt=parts.reduce((a,x)=>a+x[1],0)||1;
    h+=`<div class="card"><h3>${L('Tài sản theo thời gian','Net worth over time')}</h3><canvas class="ch" id="eq" style="height:120px" role="img" aria-label="${L('Biểu đồ tài sản ròng qua các phiên','Net worth by session')}"></canvas>
    <div class="alloc" aria-hidden="true">${parts.filter(x=>x[1]>0).map(x=>`<i style="width:${(x[1]/tt*100).toFixed(1)}%;background:${x[2]}"></i>`).join('')}</div>
-   <div class="legend">${parts.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} <b>${(x[1]/tt*100).toFixed(0)}%</b></span>`).join('')}</div></div>`}
+   <div class="legend">${parts.map(x=>`<span><i style="background:${x[2]}"></i>${x[0]} <b>${(x[1]/tt*100).toFixed(0)}%</b></span>`).join('')}</div>
+   ${(()=>{const y=yearsIn(),nw=netWorth(),rn=realNW(),c=cagr(nw),cr=cagr(rn),inf=Math.exp(INFL*y)-1;return `<div class="kv" style="margin-top:10px"><div><span>${L('Thời gian đã chơi','Time played')}</span><b>${y.toFixed(1)} ${L('năm','years')}</b></div><div><span>${L('Lạm phát tích lũy (2,5%/năm)','Cumulative inflation (2.5%/yr)')}</span><b>${pc(inf,0)}</b></div>
+   <div><span>${L('Tài sản theo sức mua 2026','Net worth in 2026 dollars')}</span><b>${money(rn)}</b></div><div><span>${L('Lãi kép mỗi năm · sau lạm phát','Annual return · after inflation')}</span><b>${c==null?'—':`<i class="${cls(c)}">${pc(c)}</i> · <i class="${cls(cr)}">${pc(cr)}</i>`}</b></div></div>`})()}</div>`}
   if(S.mcall)h+=`<div class="banner r">⚠️ ${L('GỌI KÝ QUỸ: tiền mặt','MARGIN CALL: cash is')} ${money(S.cash)}. ${L('Đóng bớt vị thế hoặc bán tài sản trước phiên sau, nếu không sàn sẽ tự làm việc đó.','Close positions or sell assets before the next session, or the broker will do it for you.')}</div>`;
   h+=`<div class="card"><h3>📐 ${L('Rủi ro toàn danh mục','Portfolio risk')}</h3><div class="kv"><div><span>${L('Delta quy theo S&P 500 (cp SPY)','Beta-weighted delta (SPY shares)')}</span><b class="${cls(D)}">${Math.abs(D)>=1e5?(D<0?'-':'')+big(Math.abs(D)):D.toFixed(1)}</b></div><div><span>Γ Gamma</span><b>${G.toFixed(1)}</b></div><div><span>${L('Theta mỗi ngày','Theta per day')}</span><b class="${cls(TH)}">${sgn(TH)}</b></div><div><span>${L('Vega mỗi 1% IV','Vega per 1% IV')}</span><b class="${cls(VE)}">${sgn(VE)}</b></div>
   <div><span>${L('Cổ phiếu & ETF','Stocks & ETFs')}</span><b>${money(stockVal)}</b></div><div><span>${L('Notional tương lai','Futures notional')}</span><b>${money(FN)}</b></div><div><span>${L('Cổ tức đã nhận','Dividends received')}</span><b class="up">${money(S.divs,2)}</b></div><div><span>${L('Tổng phí · tỷ lệ thắng','Fees · win rate')}</span><b>${money(S.fees,0)} · ${tot?(S.wins/tot*100).toFixed(0)+'%':'—'}</b></div></div></div>`;
