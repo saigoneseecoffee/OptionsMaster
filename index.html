@@ -238,7 +238,46 @@ const DEFS=[
  {sym:'NEE',name:'NextEra Energy',sec:'utility',px:72,vol:.2,beta:.5,liq:1.2,col:'#fff59d',pe:20,dy:.03},
  {sym:'KO',name:'Coca-Cola',sec:'utility',px:70,vol:.15,beta:.5,liq:1.1,col:'#ffcc80',pe:24,dy:.029},
  {sym:'O',name:'Realty Income',sec:'realestate',px:57,vol:.2,beta:.75,liq:1.3,col:'#bcaaa4',pe:50,dy:.055},
- {sym:'META',name:'Meta Platforms',sec:'comm',px:700,vol:.35,beta:1.25,liq:.7,col:'#ef9a9a',pe:27,dy:.003}];
+ {sym:'META',name:'Meta Platforms',sec:'comm',px:700,vol:.35,beta:1.25,liq:.7,col:'#ef9a9a',pe:27,dy:.003},
+ {sym:'SOXX',name:'iShares Semiconductor ETF',sec:'tech',etf:1,px:240,vol:.32,beta:1.6,liq:.6,col:'#b2f2bb',dy:.006},
+ {sym:'TLT',name:'iShares 20+ Year Treasury Bond ETF',sec:'bond',etf:1,px:88,vol:.14,beta:-.3,liq:.5,col:'#a5d8ff',dy:.043},
+ {sym:'AMD',name:'Advanced Micro Devices',sec:'tech',px:160,vol:.5,beta:1.6,liq:.7,col:'#ffa8a8',pe:60,dy:0},
+ {sym:'AVGO',name:'Broadcom',sec:'tech',px:330,vol:.4,beta:1.4,liq:.7,col:'#ffd8a8',pe:40,dy:.008},
+ {sym:'AMZN',name:'Amazon.com',sec:'consumer',px:225,vol:.33,beta:1.25,liq:.6,col:'#ffe066',pe:38,dy:0},
+ {sym:'COST',name:'Costco Wholesale',sec:'consumer',px:950,vol:.2,beta:.8,liq:.8,col:'#91a7ff',pe:50,dy:.005},
+ {sym:'NKE',name:'Nike',sec:'consumer',px:70,vol:.32,beta:1,liq:1,col:'#e9ecef',pe:30,dy:.022},
+ {sym:'BAC',name:'Bank of America',sec:'finance',px:46,vol:.26,beta:1.2,liq:1,col:'#ff8787',pe:13,dy:.023},
+ {sym:'GS',name:'Goldman Sachs',sec:'finance',px:700,vol:.28,beta:1.3,liq:.8,col:'#a9c7ff',pe:16,dy:.018},
+ {sym:'COIN',name:'Coinbase Global',sec:'finance',px:300,vol:.8,beta:2.2,liq:1,col:'#74c0fc',pe:40,dy:0},
+ {sym:'LLY',name:'Eli Lilly',sec:'health',px:800,vol:.3,beta:.5,liq:.8,col:'#ffc9c9',pe:60,dy:.007},
+ {sym:'PFE',name:'Pfizer',sec:'health',px:25,vol:.22,beta:.55,liq:1.2,col:'#99e9f2',pe:9,dy:.068},
+ {sym:'UNH',name:'UnitedHealth Group',sec:'health',px:300,vol:.35,beta:.6,liq:.8,col:'#bac8ff',pe:13,dy:.028},
+ {sym:'CVX',name:'Chevron',sec:'energy',px:150,vol:.24,beta:.8,o:.6,liq:1,col:'#a5d8ff',pe:15,dy:.045},
+ {sym:'CAT',name:'Caterpillar',sec:'industrial',px:400,vol:.28,beta:1.1,liq:.8,col:'#ffec99',pe:19,dy:.015},
+ {sym:'GE',name:'GE Aerospace',sec:'industrial',px:250,vol:.3,beta:1.2,liq:.8,col:'#d0ebff',pe:40,dy:.006},
+ {sym:'PG',name:'Procter & Gamble',sec:'utility',px:160,vol:.15,beta:.45,liq:1,col:'#c5f6fa',pe:25,dy:.025},
+ {sym:'DUK',name:'Duke Energy',sec:'utility',px:115,vol:.17,beta:.45,liq:1,col:'#fff3bf',pe:19,dy:.036},
+ {sym:'AMT',name:'American Tower',sec:'realestate',px:200,vol:.25,beta:.8,liq:1,col:'#e6c2a0',pe:40,dy:.033},
+ {sym:'PLD',name:'Prologis',sec:'realestate',px:110,vol:.26,beta:1,liq:1,col:'#d8c4b6',pe:30,dy:.036},
+ {sym:'GOOGL',name:'Alphabet',sec:'comm',px:190,vol:.3,beta:1.15,liq:.6,col:'#b2f2bb',pe:22,dy:.004},
+ {sym:'DIS',name:'Walt Disney',sec:'comm',px:110,vol:.27,beta:1.1,liq:1,col:'#a5b4fc',pe:25,dy:.009},
+ {sym:'T',name:'AT&T',sec:'comm',px:28,vol:.2,beta:.6,liq:1.2,col:'#99e9f2',pe:12,dy:.04},
+ /* quỹ đòn bẩy / đảo chiều: lợi nhuận mỗi ngày = x × lợi nhuận ngày của tài sản cơ sở − phí quản lý (tự reset hằng ngày) */
+ {sym:'TQQQ',name:'ProShares UltraPro QQQ',sec:'index',etf:1,lev:{u:'QQQ',x:3},px:85,col:'#c3fae8'},
+ {sym:'SQQQ',name:'ProShares UltraPro Short QQQ',sec:'index',etf:1,lev:{u:'QQQ',x:-3},px:18,col:'#ffc9c9'},
+ {sym:'UPRO',name:'ProShares UltraPro S&P500',sec:'index',etf:1,lev:{u:'SPY',x:3},px:95,col:'#d3f9d8'},
+ {sym:'SPXU',name:'ProShares UltraPro Short S&P500',sec:'index',etf:1,lev:{u:'SPY',x:-3},px:15,col:'#ffd8a8'},
+ {sym:'SH',name:'ProShares Short S&P500',sec:'index',etf:1,lev:{u:'SPY',x:-1},px:38,col:'#eebefa'},
+ {sym:'SOXL',name:'Direxion Daily Semiconductor Bull 3X Shares',sec:'tech',etf:1,lev:{u:'SOXX',x:3},px:25,col:'#b2f2bb'},
+ {sym:'SOXS',name:'Direxion Daily Semiconductor Bear 3X Shares',sec:'tech',etf:1,lev:{u:'SOXX',x:-3},px:8,col:'#ffa8a8'},
+ {sym:'NVDL',name:'GraniteShares 2x Long NVDA Daily ETF',sec:'tech',etf:1,lev:{u:'NVDA',x:2},px:70,col:'#8ce99a'},
+ {sym:'NVD',name:'GraniteShares 2x Short NVDA Daily ETF',sec:'tech',etf:1,lev:{u:'NVDA',x:-2},px:6,col:'#ff8787'},
+ {sym:'TSLL',name:'Direxion Daily TSLA Bull 2X Shares',sec:'consumer',etf:1,lev:{u:'TSLA',x:2},px:15,col:'#ffc078'},
+ {sym:'TSLZ',name:'T-Rex 2X Inverse Tesla Daily Target ETF',sec:'consumer',etf:1,lev:{u:'TSLA',x:-2},px:5,col:'#e599f7'},
+ {sym:'TBT',name:'ProShares UltraShort 20+ Year Treasury',sec:'bond',etf:1,lev:{u:'TLT',x:-2},px:35,col:'#ffd43b'}];
+/* thứ tự hiển thị ETF (cố ý xáo, không xếp theo cặp) */
+const ETF_ORDER=['SPY','TQQQ','BND','SOXL','QQQ','SH','NVDL','IWM','TSLZ','VYM','UPRO','GLD','SOXS','TLT','TSLL','SPXU','SOXX','NVD','TBT','SQQQ'];
+for(const d of DEFS)if(d.lev){const u=DEFS.find(x=>x.sym===d.lev.u);d.vol=Math.abs(d.lev.x)*u.vol;d.beta=d.lev.x*u.beta;d.liq=.8;d.dy=0}
 const CMD=[{sym:'GOLD',name:['Vàng giao ngay','Gold spot'],px:3270,vol:.15,unit:'oz',col:'#ffd54f'},{sym:'OIL',name:['Dầu thô WTI','WTI crude oil'],px:65,vol:.34,unit:'bbl',col:'#8d6e63'}];
 /* hợp đồng tương lai micro CME: und = tài sản cơ sở, k = hệ số quy đổi (SPY×10 ≈ chỉ số S&P 500, QQQ×41 ≈ Nasdaq-100), mult = $/điểm */
 const FUT=[
@@ -354,8 +393,18 @@ let T={sym:'AAPL',strat:'call',K:0,w:1,d:2,exp:'',qty:1};
 let F={root:'MES',exp:'',qty:1};
 let Q={sym:'SPY',qty:10,dca:100};
 let C={S:100,K:100,days:30,iv:30,r:4,q:0,type:'C',view:'price'};
-const KEY='caothu-quyenchon-v4',FEE=0.65,VER=4;
-function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&o.v===VER&&o.st)return o}}catch(e){}return null}
+const KEY='caothu-quyenchon-v4',FEE=0.65,VER=5;
+function load(){try{const j=localStorage.getItem(KEY);if(j){const o=JSON.parse(j);if(o&&(o.v===VER||o.v===4)&&o.st)return migrate(o)}}catch(e){}return null}
+/* nâng cấp bản lưu cũ: thêm mã mới, bỏ dữ liệu nến (vẽ lại từ giá đóng cửa) để bản lưu nhỏ gọn */
+function migrate(o){const S0=S;S=o;
+  for(const k in o.st){delete o.st[k].hist;if(o.st[k].ivh&&o.st[k].ivh.length>60)o.st[k].ivh=o.st[k].ivh.slice(-60)}
+  for(const d of DEFS)if(!o.st[d.sym]){const s=newStock(d),N=(o.st.SPY&&o.st.SPY.cl.length)||260;
+    if(d.lev){const u=o.st[d.lev.u];let v=1;s.cl=[1];for(let i=1;i<u.cl.length;i++){v*=Math.max(0.02,1+d.lev.x*(u.cl[i]/u.cl[i-1]-1)-0.0095/252);s.cl.push(v)}}
+    else{const m=o.st.SPY.cl;let v=1;s.cl=[1];for(let i=1;i<N;i++){v*=1+s.beta*(m[i]/m[i-1]-1)+Math.sqrt(Math.max(.0004,s.vol*s.vol-(s.beta*.15)**2))/15.87*gauss();s.cl.push(v)}}
+    const k=d.px/s.cl[s.cl.length-1];s.cl=s.cl.map(x=>r2(x*k));s.px=s.cl[s.cl.length-1];s.prev=s.cl[s.cl.length-2]||s.px;
+    if(d.pe){s.eps=s.px/d.pe/4;s.earn=addTD(o.date,3+(Math.random()*58|0))}
+    o.st[d.sym]=s;for(let i=0;i<20;i++)s.ivh.push(r4(iv30(s)))}
+  o.v=VER;S=S0;return o}
 const def=sym=>DEFS.find(d=>d.sym===sym)||CMD.find(d=>d.sym===sym);
 const fdef=r=>FUT.find(f=>f.root===r);
 const isCmd=sym=>CMD.some(c=>c.sym===sym);
@@ -376,8 +425,8 @@ async function cloudInit(){const ts0=S.ts||0;let c=window.claude;
   try{const[db,user]=await Promise.all([c.use('db'),c.use('user')]);if(!db||!user)throw 0;const id=await user.id();if(!id)throw 0;
     const ref=db.doc('data/users/'+id+'/save'),snap=await ref.get();clearTimeout(to);cloud.ref=ref;
     if(snap.exists){let o=null;try{o=JSON.parse(snap.data().json)}catch(e){}
-      const fresh=S.day===1&&!S.pos.length&&!S.fut.length&&!Object.keys(S.sh).length&&S.xp<12,ok=o&&o.v===VER&&o.st&&o.date;
-      if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=o;ensureGame();if(S.pl&&S.pl.id){PL=S.pl;savePL()}if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+      const fresh=S.day===1&&!S.pos.length&&!S.fut.length&&!Object.keys(S.sh).length&&S.xp<12,ok=o&&(o.v===VER||o.v===4)&&o.st&&o.date;
+      if(ok&&o.ts!==ts0&&((o.ts||0)>ts0||fresh)){S=migrate(o);ensureGame();if(S.pl&&S.pl.id){PL=S.pl;savePL()}if(S.lang==='vi'||S.lang==='en')setLang(S.lang);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
         tab='market';detail=false;T.sym='AAPL';T.strat='call';T.exp='';resetK();F.exp='';$('#modal').classList.remove('on');render();
         toast(L('☁️ Đã tải tiến trình từ cloud: phiên ','☁️ Progress loaded from the cloud: session ')+dfmt(S.date)+' · '+money(netWorth()),'y');setCloud('ok')}
       else if(!ok||ts0>(o.ts||0)){cloud.dirty=true;cloudPush()}else setCloud('ok')}
@@ -419,16 +468,16 @@ function askName(first){modal(`<h3>🏆 ${L('Tên của bạn trên bảng xếp
   setTimeout(()=>{const i=$('#nm');if(i){i.focus();i.onkeydown=e=>{if(e.key==='Enter')act('saveName')}}},50)}
 
 /* ============ mô phỏng thị trường ============ */
-function newStock(d){return{sym:d.sym,px:d.px,prev:d.px,vol:d.vol,beta:d.beta||0,g:d.g||0,o:d.o||0,liq:d.liq||1,etf:d.etf||0,dy:d.dy||0,drift:0,regLeft:0,ivn:0,vs:1,earn:null,divIn:5+Math.random()*58|0,eps:d.pe?d.px/d.pe/4:0,last:null,hist:[],cl:[],ivh:[]}}
+function newStock(d){return{sym:d.sym,px:d.px,prev:d.px,vol:d.vol,beta:d.beta||0,g:d.g||0,o:d.o||0,liq:d.liq||1,etf:d.etf||0,dy:d.dy||0,drift:0,regLeft:0,ivn:0,vs:1,earn:null,divIn:5+Math.random()*58|0,eps:d.pe?d.px/d.pe/4:0,last:null,hist:[],cl:[],ivh:[],lev:d.lev||null,r:0}}
 function newGame(reason){
   const old=S&&S.gid?{gid:S.gid,reason:reason||'restart',nw:Math.round(netWorth()),day:S.day,date:S.date,cash:Math.round(S.cash),trades:S.ntr||0,wins:S.wins,losses:S.losses,fees:Math.round(S.fees*100)/100,lv:level(),missions:S.m}:null,gno=(S&&S.gno||0)+1,keepDrip=S?S.drip:false;
   S={v:VER,day:1,date:'2026-11-13',cash:10000,mk:{vol:.15,drift:.1,regLeft:20,ret:0},st:{},sh:{},pos:[],fut:[],dca:[],divs:0,drip:keepDrip,mcall:false,hist:[],xp:0,m:0,news:[],pid:1,wins:0,losses:0,fees:0,intro:false,lang:LANG,gid:uid(),gno,greason:reason||'first',gstart:'2026-11-13',ntr:0,over:false};
   for(const c of CMD)S.st[c.sym]=Object.assign(newStock(c),{cmd:1,beta:0});
   for(const d of DEFS)S.st[d.sym]=newStock(d);
   const all=Object.values(S.st);
-  for(let i=0;i<260;i++){const m=stepMarket(null),cm=stepCmd(null);for(const s of all)if(!s.cmd)stepStock(s,m,cm,null);if(i>=130)for(const s of all)if(!s.cmd)s.ivh.push(r4(iv30(s)))}
+  for(let i=0;i<260;i++){const m=stepMarket(null),cm=stepCmd(null);for(const s of all)if(!s.cmd)stepStock(s,m,cm,null);if(i>=200)for(const s of all)if(!s.cmd)s.ivh.push(r4(iv30(s)))}
   /* đưa giá về đúng mức khởi điểm, giữ nguyên hình dạng lịch sử */
-  for(const d of DEFS.concat(CMD)){const s=S.st[d.sym],k=d.px/s.px;s.px=r2(s.px*k);s.prev=r2(s.prev*k);s.cl=s.cl.map(v=>r2(v*k));s.hist=s.hist.map(c=>c.map(v=>r2(v*k)))}
+  for(const d of DEFS.concat(CMD)){const s=S.st[d.sym],k=d.px/s.px;s.px=r2(s.px*k);s.prev=r2(s.prev*k);s.cl=s.cl.map(v=>r2(v*k))}
   const stocks=DEFS.filter(d=>!d.etf);stocks.sort(()=>Math.random()-.5).forEach((d,i)=>{const s=S.st[d.sym];s.eps=s.px/d.pe/4;s.earn=addTD(S.date,3+Math.round(i*58/stocks.length)+(Math.random()*3|0))});
   makeNews();
   if(old){tel.closed.push(old);telSave()}tlog('game_start',{reason:reason||'first',d:{game_no:gno}});
@@ -443,7 +492,7 @@ function stepCmd(ev){const out={};const mret=S.mk.ret;
     let r=c.sym==='GOLD'?0.05/252-0.15*mret+s.vol/15.87*z:0.02/252+0.35*mret+s.vol/15.87*z;
     if(ev&&ev.k==='OPEC'&&c.sym==='OIL')r+=gauss()*0.035;
     const p0=s.px,cc=Math.max(1,p0*(1+r));s.prev=p0;s.px=r2(cc);s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
-    s.hist.push([r2(p0),r2(Math.max(p0,cc)*(1+Math.abs(gauss())*0.004)),r2(Math.min(p0,cc)*(1-Math.abs(gauss())*0.004)),s.px]);if(s.hist.length>60)s.hist.shift();out[c.sym]=r}
+    out[c.sym]=r}
   return out}
 function earnings(s,date){const est=s.eps,sur=0.04+gauss()*0.07,rev=0.004+gauss()*0.018,dsg=Math.sign(s.drift),r=Math.random(),pr=0.28+0.2*dsg,pcut=0.2-0.12*dsg;
   const guid=r<pr?1:r<pr+pcut?-1:0,run=(s.px/s.cl[Math.max(0,s.cl.length-21)]-1)/(s.vol*0.28),EM=s.vol*0.19;
@@ -452,19 +501,21 @@ function earnings(s,date){const est=s.eps,sur=0.04+gauss()*0.07,rev=0.004+gauss(
   return s.last={date,est,act:est*(1+sur),sur,rev,guid,run,move}}
 function stepStock(s,mret,cm,date){
   const p0=s.px;let er=null,ret;
+  if(s.lev){const u=S.st[s.lev.u];ret=clamp(s.lev.x*(u.r||0)-0.0095/252,-0.95,3);s.r=ret;s.prev=p0;s.px=Math.max(0.01,r2(p0*(1+ret)));s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
+    s.ivn=u.ivn;s.vs=u.vs;s.dv=null;return null}
   if(!s.etf&&--s.regLeft<=0){s.drift=pick([-0.6,-0.3,0,0,0.25,0.45,0.7])*s.vol/0.35;s.regLeft=10+Math.random()*20|0}
   let zi=gauss();if(Math.random()<0.02)zi*=2.8;
   const fac=s.beta*mret+s.g*(cm.GOLD||0)+s.o*(cm.OIL||0),sys=Math.sqrt((s.beta*.15)**2+(s.g*.15)**2+(s.o*.34)**2);
   const idio=Math.sqrt(Math.max(.0004,s.vol*s.vol-sys*sys));
   ret=fac+(s.etf?0:s.drift/252)+idio*(s.etf?1:s.vs)/15.87*zi;
   if(s.sym==='BND')ret+=0.035/252;
+  if(s.sym==='TLT')ret+=0.03/252;
   if(date&&s.earn===date){er=earnings(s,date);ret=er.move+s.beta*mret;er.ret=ret}
+  s.r=ret;
   if(!s.etf)s.vs=clamp(0.9*s.vs+0.1*Math.abs(zi)*1.25,0.6,1.9);
   let c=Math.max(0.5,p0*(1+ret));
   let dv=null;if(s.dy>0&&--s.divIn<=0){dv=r2(p0*s.dy/4);c=Math.max(0.5,c-dv);s.divIn=63}
-  const o=p0*(1+(er?ret*0.9:ret*0.3*Math.random())),dd=s.vol/15.87*0.5;
-  const hi=Math.max(o,c)*(1+Math.abs(gauss())*dd*0.5),lo=Math.min(o,c)*(1-Math.abs(gauss())*dd*0.5);
-  s.prev=p0;s.px=r2(c);s.hist.push([r2(o),r2(hi),r2(lo),r2(c)]);if(s.hist.length>60)s.hist.shift();s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
+  s.prev=p0;s.px=r2(c);s.cl.push(s.px);if(s.cl.length>260)s.cl.shift();
   s.ivn=clamp(s.ivn*0.85+gauss()*0.02+(ret<-0.03?0.05:0),-0.15,0.3);s.dv=dv;return er}
 function ivAt(s,K,exp){const T0=Math.max(calDays(S.date,exp),0.5)/365,lr=s.vol*1.06,stress=S.mk.vol/0.15-1;
   const cur=lr*(0.55+0.45*s.vs)*(1+s.ivn)*(1+(s.etf?0.8:0.45)*stress);
@@ -650,13 +701,17 @@ function nextDay(quiet){
   const before=netWorth(),prevDate=S.date,date=nextTD(S.date),ev=macro(date);S.date=date;S.day++;tel.settled=[];
   const mret=stepMarket(ev),cm=stepCmd(ev),erl=[];let divTot=0;
   if(ev)msgs.push([`🏛️ ${macroName(ev.k)}: ${ev.k==='OPEC'?L('dầu','oil')+' '+pc(cm.OIL||0):L('thị trường','market')+' '+pc(mret)}`,(ev.k==='OPEC'?cm.OIL:mret)>=0?'g':'r']);
-  for(const d of DEFS){const s=S.st[d.sym],er=stepStock(s,mret,cm,date);s.ivh.push(r4(iv30(s)));if(s.ivh.length>130)s.ivh.shift();
+  for(const d of DEFS){const s=S.st[d.sym],er=stepStock(s,mret,cm,date);s.ivh.push(r4(iv30(s)));if(s.ivh.length>60)s.ivh.shift();
     if(er)erl.push(`${d.sym} EPS ${pc(er.sur)} rev ${pc(er.rev)} guide ${er.guid>0?'up':er.guid<0?'down':'flat'} -> ${pc(er.ret)}`);
     if(er){const held=S.pos.some(p=>p.sym===d.sym)||S.sh[d.sym],beat=er.sur>=0,w=whyTxt(er);
       if(held||!quiet)msgs.push([L(`📣 ${d.sym} EPS ${beat?'vượt':'hụt'} ${Math.abs(er.sur*100).toFixed(0)}% → giá ${pc(er.ret)}${w?' vì '+w:''}`,`📣 ${d.sym} EPS ${beat?'beat':'missed'} by ${Math.abs(er.sur*100).toFixed(0)}% → stock ${pc(er.ret)}${w?' because '+w:''}`),er.ret>=0?'g':'r']);if(held){stop=true;em=[d,er]}}
     if(s.dv&&S.sh[d.sym]){const h=S.sh[d.sym],amt=r2(h.n*s.dv);if(amt>0){S.cash+=amt;S.divs+=amt;h.divs=(h.divs||0)+amt;divTot+=amt;
       msgs.push([L(`💵 Cổ tức ${d.sym}: ${money(amt,2)} (${money(s.dv,2)}/cp)`,`💵 ${d.sym} dividend: ${money(amt,2)} (${money(s.dv,2)}/sh)`),'g']);
       if(S.drip)buyStock(d.sym,r4(amt/s.px),'drip');fire('div')}}}
+  /* gộp cổ phiếu 1:10 khi giá quỹ đòn bẩy quá thấp (như quỹ thật vẫn làm) */
+  for(const d of DEFS)if(d.lev){const s=S.st[d.sym];if(s.px<1&&!S.pos.some(p=>p.sym===d.sym)){s.px=r2(s.px*10);s.prev=r2(s.prev*10);s.cl=s.cl.map(v=>r2(v*10));
+    const h=S.sh[d.sym];if(h){h.n=r4(h.n/10);h.avg*=10;h.lots.forEach(l=>{l.n=r4(l.n/10);l.px=r2(l.px*10)})}
+    msgs.push([L(`🔀 ${d.sym} gộp cổ phiếu 1:10 (reverse split): giá ×10, số cổ phần ÷10`,`🔀 ${d.sym} 1-for-10 reverse split: price ×10, shares ÷10`),'y']);tlog('reverse_split',{d:{sym:d.sym}})}}
   for(const p of S.pos.slice())if(p.exp<=date){settle(p);stop=true}
   const fs=settleFutures(date);for(const m of fs.msgs){msgs.push([m,'y']);stop=true}
   if(S.fut.length&&S.cash<0){S.mcall=true;stop=true;tlog('margin_call',{d:{cash:Math.round(S.cash)}})}
@@ -766,7 +821,7 @@ document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.c){const v=parseFloat(t.value);if(isFinite(v)){C[t.dataset.c]=v;updCalc()}}});
 function showIntro(){modal(`<div class="chips" style="justify-content:center;margin-bottom:6px"><button class="chip ${LANG==='vi'?'on':''}" data-a="lang" data-v="vi">🇻🇳 Tiếng Việt</button><button class="chip ${LANG==='en'?'on':''}" data-a="lang" data-v="en">🇺🇸 English</button></div>
 <div class="bubble">${BULL}<p>${L('Chào mừng tới sàn! Ta là Bò Vàng, sẽ dẫn bạn từ Tập Sự lên Huyền Thoại.','Welcome to the floor! I\'m Goldie the Bull, and I\'ll take you from Rookie to Legend.')}</p></div>
-<h3>${L('Luật chơi','How to play')}</h3><p>${L('• Bạn có <b>$10,000 tiền ảo</b>, 19 cổ phiếu Mỹ ở 10 ngành, 6 ETF, vàng và dầu — tên thật, giá và tin tức mô phỏng.<br>• Tab <b>Giao dịch</b> có 4 phần: Quyền chọn (15 chiến lược), Tương lai, Cổ phiếu (mua bán, đầu tư định kỳ, cổ tức) và Máy tính Black–Scholes.<br>• <b>▶</b> sang phiên kế tiếp theo lịch Mỹ; <b>⏩</b> tua theo tuần, tháng, quý, năm để đầu tư dài hạn.<br>• Làm <b>Nhiệm vụ</b> để lên cấp và mở khóa chiến lược.','• You start with <b>$10,000 in play money</b>, 19 US stocks across 10 sectors, 6 ETFs, gold and oil — real names, simulated prices and news.<br>• The <b>Trade</b> tab has 4 parts: Options (15 strategies), Futures, Stocks (buy/sell, monthly plans, dividends) and a Black–Scholes calculator.<br>• <b>▶</b> moves to the next US trading session; <b>⏩</b> skips a week, month, quarter or year for long-term investing.<br>• Complete <b>Missions</b> to level up and unlock strategies.')}</p>
+<h3>${L('Luật chơi','How to play')}</h3><p>${L('• Bạn có <b>$10,000 tiền ảo</b>, 39 cổ phiếu Mỹ ở 10 ngành, 20 ETF, vàng và dầu — tên thật, giá và tin tức mô phỏng.<br>• Tab <b>Giao dịch</b> có 4 phần: Quyền chọn (15 chiến lược), Tương lai, Cổ phiếu (mua bán, đầu tư định kỳ, cổ tức) và Máy tính Black–Scholes.<br>• <b>▶</b> sang phiên kế tiếp theo lịch Mỹ; <b>⏩</b> tua theo tuần, tháng, quý, năm để đầu tư dài hạn.<br>• Làm <b>Nhiệm vụ</b> để lên cấp và mở khóa chiến lược.','• You start with <b>$10,000 in play money</b>, 39 US stocks across 10 sectors, 20 ETFs, gold and oil — real names, simulated prices and news.<br>• The <b>Trade</b> tab has 4 parts: Options (15 strategies), Futures, Stocks (buy/sell, monthly plans, dividends) and a Black–Scholes calculator.<br>• <b>▶</b> moves to the next US trading session; <b>⏩</b> skips a week, month, quarter or year for long-term investing.<br>• Complete <b>Missions</b> to level up and unlock strategies.')}</p>
 <button class="btn w g" data-a="closeModal">${L('Vào sàn!','Let\'s trade!')}</button>`)}
 
 /* ============ giao diện ============ */
@@ -797,7 +852,8 @@ function vMarket(){
   if(S.m<MISS.length)h+=`<button class="card stock" data-a="tab" data-v="miss" style="background:linear-gradient(#ffd866,#ffb21c);color:var(--ink)"><span style="font-size:26px">🏅</span><span class="grow"><b>${L('Nhiệm vụ','Mission')} ${S.m+1}:</b> ${LX(MISS[S.m].t)}<br><span style="font-size:12px;font-weight:700">${LX(MISS[S.m].h)}</span></span></button>`;
   const secs=['all','etf',...Object.keys(SECT).filter(k=>k!=='index'&&k!=='bond')];
   h+=`<div class="chips scroll" style="margin-bottom:10px">${secs.map(k=>`<button class="chip ${sector===k?'on':''}" data-a="sector" data-v="${k}">${k==='all'?L('Tất cả','All'):k==='etf'?'ETF':LX(SECT[k])}</button>`).join('')}</div>`;
-  let list=sector==='all'?DEFS.concat(CMD):sector==='etf'?DEFS.filter(d=>d.etf):sector==='cmdty'?CMD.concat(DEFS.filter(d=>d.sec==='cmdty')):DEFS.filter(d=>d.sec===sector&&!d.etf);
+  const ETFS=ETF_ORDER.map(def),STK=Object.keys(SECT).flatMap(k=>DEFS.filter(d=>!d.etf&&d.sec===k));
+  let list=sector==='all'?ETFS.concat(STK,CMD):sector==='etf'?ETFS:sector==='cmdty'?CMD.concat(DEFS.filter(d=>d.sec==='cmdty')):DEFS.filter(d=>d.sec===sector&&!d.etf);
   if(sector==='all'){let last='';for(const d of list){const k=d.etf?'etf':CMD.includes(d)?'cmdty':d.sec;if(k!==last){h+=`<div class="sech">${k==='etf'?L('Quỹ ETF','ETFs'):LX(SECT[k])}</div>`;last=k}h+=row(d)}}
   else h+=list.map(row).join('')||`<div class="sub">—</div>`;
   return h}
@@ -825,7 +881,7 @@ function advise(a){const s=S.st[T.sym],long=a.q.net>0,cov=s.earn&&T.exp>=s.earn,
   if(!long&&ivr<25)return[BEAR,L(`IV Rank ${ivr.toFixed(0)}: premium đang rẻ, bán lúc này thu được ít so với rủi ro.`,`IV Rank ${ivr.toFixed(0)}: premium is cheap, so selling now pays little for the risk.`)];
   return[BULL,LX(STR[T.strat].d)]}
 const segBar=()=>`<div class="seg">${[['opt','🎯',L('Quyền chọn','Options')],['fut','📜',L('Tương lai','Futures')],['stk','🛒',L('Cổ phiếu','Stocks')],['calc','🧮',L('Máy tính','Calculator')]].map(x=>`<button class="${tmode===x[0]?'on':''}" data-a="seg" data-v="${x[0]}">${x[1]} ${x[2]}</button>`).join('')}</div>`;
-const symSelect=(cur,act,incl)=>`<select class="inp sel" data-ch="${act}" aria-label="${L('Chọn mã','Choose a ticker')}">${Object.keys(SECT).filter(k=>k!=='cmdty'||incl).map(k=>{const ds=DEFS.filter(d=>d.sec===k);return ds.length?`<optgroup label="${LX(SECT[k])}">${ds.map(d=>`<option value="${d.sym}" ${d.sym===cur?'selected':''}>${d.sym} · ${d.name} · ${S.st[d.sym].px.toFixed(2)}</option>`).join('')}</optgroup>`:''}).join('')}</select>`;
+const symSelect=(cur,act,incl)=>`<select class="inp sel" data-ch="${act}" aria-label="${L('Chọn mã','Choose a ticker')}"><optgroup label="ETF">${ETF_ORDER.map(def).map(d=>`<option value="${d.sym}" ${d.sym===cur?'selected':''}>${d.sym} · ${d.name} · ${S.st[d.sym].px.toFixed(2)}</option>`).join('')}</optgroup>${Object.keys(SECT).filter(k=>k!=='cmdty'||incl).map(k=>{const ds=DEFS.filter(d=>d.sec===k&&!d.etf);return ds.length?`<optgroup label="${LX(SECT[k])}">${ds.map(d=>`<option value="${d.sym}" ${d.sym===cur?'selected':''}>${d.sym} · ${d.name} · ${S.st[d.sym].px.toFixed(2)}</option>`).join('')}</optgroup>`:''}).join('')}</select>`;
 function vTrade(){return segBar()+(tmode==='fut'?vFut():tmode==='stk'?vStk():tmode==='calc'?vCalc():vOpt())}
 function vChain(s){const st=stepOf(s.px),a=atm(s),ks=[];for(let k=-4;k<=4;k++){const K=a+k*st;if(K>0)ks.push(K)}
   const sK=new Set(legsOf(T).map(l=>l.type+l.K));
@@ -970,7 +1026,9 @@ function drawPrice(){const o=ctxOf('#pc');if(!o)return;const{g,w,h}=o,s=S.st[sel
     g.beginPath();a.forEach((v,i)=>i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v)));g.lineTo(X(a.length-1),h);g.lineTo(X(0),h);g.fillStyle=gr;g.fill();
     g.beginPath();a.forEach((v,i)=>i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v)));g.strokeStyle=col;g.lineWidth=2.5;g.lineJoin='round';g.stroke();
     g.beginPath();let st=false;a.forEach((v,i)=>{if(i<49)return;let m=0;for(let k=i-49;k<=i;k++)m+=a[k];m/=50;st?g.lineTo(X(i),Y(m)):g.moveTo(X(i),Y(m));st=true});g.strokeStyle='#ffc93c';g.lineWidth=2;g.stroke();return}
-  const all=s.hist,n=Math.min(45,all.length),a=all.slice(-n),cl=s.cl;
+  /* nến dựng lại từ giá đóng cửa: mở = đóng cửa phiên trước, râu nến theo biến động */
+  const cl=s.cl,n=Math.min(45,cl.length-1),dd=(s.vol||.2)/15.87*0.35,hh=i=>{const x=Math.sin((i+1)*12.9898+s.sym.length*78.233)*43758.5453;return x-Math.floor(x)};
+  const a=[];for(let i=cl.length-n;i<cl.length;i++){const o=cl[i-1],c=cl[i];a.push([o,Math.max(o,c)*(1+hh(i)*dd),Math.min(o,c)*(1-hh(i+7)*dd),c])}
   const mn=Math.min(...a.map(x=>x[2])),mx=Math.max(...a.map(x=>x[1])),r=mx-mn||1,cw=(w-54)/n;
   const X=i=>6+cw*(i+.5),Y=v=>h-10-(v-mn)/r*(h-22);grid(g,w,h,mn,mx,Y);
   a.forEach((c,i)=>{const up=c[3]>=c[0],col=up?'#3ddc84':'#ff5d6c';g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.5;
