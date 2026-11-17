@@ -541,7 +541,7 @@ function newGame(reason){
   if(old){tel.closed.push(old);telSave()}tlog('game_start',{reason:reason||'first',d:{game_no:gno}});
 }
 function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.2,0,0.08,0.12,0.18,0.25]);mk.regLeft=15+Math.random()*30|0}
-  let z=gauss();if(Math.random()<0.03)z*=2.5;if(ev&&ev.k!=='OPEC')z*=ev.k==='FED'?2.2:1.7;
+  let z=gauss();if(Math.random()<0.02)z*=2.2;if(ev&&ev.k!=='OPEC')z*=ev.k==='FED'?1.8:1.4;
   /* kéo nhẹ chỉ số về xu hướng dài hạn ~7,5%/năm để đầu tư vài chục năm cho kết quả giống lịch sử */
   const sp=S.st.SPY,rev=sp&&sp.px>0?0.4*Math.log(600*Math.exp(0.075*(S.day-1)/252)/sp.px)/252:0;
   /* khủng hoảng theo chu kỳ: cứ khoảng 8–12 năm có một đợt giảm khoảng 30–50% kéo dài 9–19 tháng, biến động tăng vọt */
@@ -550,7 +550,7 @@ function stepMarket(ev){const mk=S.mk;if(--mk.regLeft<=0){mk.drift=pick([-0.2,0,
   let r;
   if(mk.cr){z=clamp(z,-3,3);r=mk.cr.d+mk.vol*mk.vol/504+mk.vol/15.87*z;mk.vol=clamp(mk.vol+0.1*(0.22-mk.vol)+(r<0?-r*0.5:-r*0.3)+gauss()*0.004,0.16,0.36);
     if(--mk.cr.left<=0){mk.cr=null;mk.nextCr=2016+Math.random()*1008|0}}
-  else{r=mk.drift/252+rev+mk.vol/15.87*z;mk.vol=clamp(mk.vol+0.12*(0.14-mk.vol)+(r<0?-r*1.0:-r*0.5)+gauss()*0.004,0.09,0.35)}
+  else{r=mk.drift/252+rev+mk.vol/15.87*z;mk.vol=clamp(mk.vol+0.12*(0.115-mk.vol)+(r<0?-r*0.7:-r*0.4)+gauss()*0.003,0.08,0.3)}
   mk.ret=r;return r}
 /* hàng hóa: vàng hơi ngược chiều thị trường khi hoảng loạn, dầu theo kinh tế + OPEC */
 function stepCmd(ev){const out={};const mret=S.mk.ret;
